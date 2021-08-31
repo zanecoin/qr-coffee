@@ -37,7 +37,7 @@ class _AuthenticateState extends State<Authenticate> {
                             fontSize: 60,
                             fontFamily: 'Galada'),
                       ),
-                      ImageBanner('assets/cafe.jpg'),
+                      ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
                       SizedBox(height: Responsive.height(4, context)),
                       Container(
                         width: Responsive.width(60, context),

@@ -15,13 +15,14 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('users');
 
   Future updateUserData(String name, String surname, String email, String role,
-      String spz) async {
+      String spz, String stand) async {
     return await userCollection.doc(uid).set({
       'name': name,
       'surname': surname,
       'email': email,
       'role': role,
       'spz': spz,
+      'stand': stand,
     });
   }
 
@@ -34,6 +35,7 @@ class DatabaseService {
       email: (snapshot.data() as dynamic)['email'],
       role: (snapshot.data() as dynamic)['role'],
       spz: (snapshot.data() as dynamic)['spz'],
+      stand: (snapshot.data() as dynamic)['stand'],
     );
   }
 
@@ -52,6 +54,7 @@ class DatabaseService {
         email: (doc.data() as dynamic)['email'],
         role: (doc.data() as dynamic)['role'],
         spz: (doc.data() as dynamic)['spz'],
+        stand: (doc.data() as dynamic)['stand'],
       );
     }).toList();
   }
@@ -204,6 +207,15 @@ class DatabaseService {
   final CollectionReference coffeeCollection =
       FirebaseFirestore.instance.collection('coffees');
 
+  Future updateCoffeeData(String uid, String name, int price, int count) async {
+    return await coffeeCollection.doc(uid).set({
+      'uid': uid,
+      'name': name,
+      'price': price,
+      'count': count,
+    });
+  }
+
   // coffees from snapshot
   List<Coffee> _coffeesFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
@@ -211,6 +223,7 @@ class DatabaseService {
         name: (doc.data() as dynamic)['name'],
         price: (doc.data() as dynamic)['price'],
         count: (doc.data() as dynamic)['count'],
+        uid: (doc.data() as dynamic)['uid'],
       );
     }).toList();
   }
@@ -226,12 +239,23 @@ class DatabaseService {
   final CollectionReference placeCollection =
       FirebaseFirestore.instance.collection('coffee_stands');
 
+  Future updatePlaceData(String address, String coordinate, bool active) async {
+    return await placeCollection.doc(uid).set({
+      'uid': uid,
+      'address': address,
+      'coordinate': coordinate,
+      'active': active,
+    });
+  }
+
   // places from snapshot
   List<Place> _placesFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Place(
+        uid: (doc.data() as dynamic)['uid'],
         address: (doc.data() as dynamic)['address'],
         coordinate: (doc.data() as dynamic)['coordinate'],
+        active: (doc.data() as dynamic)['active'],
       );
     }).toList();
   }

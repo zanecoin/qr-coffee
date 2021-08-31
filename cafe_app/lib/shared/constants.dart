@@ -3,43 +3,39 @@ import 'package:flutter/material.dart';
 
 String app_name = 'Fast Coffee';
 
-Color light = Colors.white;
-Color amber = Colors.green.shade200;
-Color blue = Colors.blueAccent;
-Color red = Colors.redAccent;
-
 // CUSTOM ICONS
-Widget waitingIcon({double size = 35}) => Icon(
-      CommunityMaterialIcons.clock_outline,
+const double icon_size = 25;
+Widget waitingIcon({double size = icon_size}) => Icon(
+      CommunityMaterialIcons.clock,
       color: Colors.blue,
       size: size,
     );
 
-Widget questionIcon({double size = 35}) => Icon(
+Widget questionIcon({double size = icon_size}) => Icon(
       Icons.help,
       color: Colors.orange,
       size: size,
     );
 
-Widget errorIcon({double size = 35}) => Icon(
-      Icons.error,
+Widget errorIcon({double size = icon_size}) => Icon(
+      Icons.cancel,
       color: Colors.red,
       size: size,
     );
 
-Widget checkIcon({double size = 35}) => Icon(
+Widget checkIcon({double size = icon_size}) => Icon(
       Icons.check_circle,
       color: Colors.green,
       size: size,
     );
 
-Widget allIcon({double size = 35}) => Icon(
+Widget allIcon({double size = icon_size}) => Icon(
       Icons.view_module,
       color: Colors.black,
       size: size,
     );
 
-Widget thumbIcon({double size = 35}) => Icon(
+Widget thumbIcon({double size = icon_size}) => Icon(
       Icons.thumb_up_alt_outlined,
       color: Colors.black,
       size: size,
@@ -76,79 +72,6 @@ class CustomDivider extends StatelessWidget {
   }
 }
 
-// TEXT FORM FIELD TEMPLATE WITH VALIDATION
-class CustomTextField extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final String initVal;
-  final bool obscure;
-  final String? Function(String?) validation;
-  final Function callback;
-
-  CustomTextField(this.label, this.icon, this.callback,
-      {this.initVal = '',
-      this.obscure = false,
-      this.validation = validateText});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: Responsive.height(9, context),
-      child: TextFormField(
-        initialValue: initVal,
-        decoration: InputDecoration(
-          hintText: label,
-          prefixIcon: Icon(
-            icon,
-          ),
-          fillColor: Colors.white,
-          filled: true,
-          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: Colors.grey, width: 1.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.green, width: 2.0),
-          ),
-        ),
-        obscureText: validation == validatePassword,
-        validator: validation,
-        onSaved: (String? val) => callback(label, val),
-      ),
-    );
-  }
-}
-
-String? noValidation(String? formText) {
-  return null;
-}
-
-String? validateText(String? formText) {
-  if (formText!.isEmpty) return 'Zadejte jméno.';
-
-  return null;
-}
-
-String? validateEmail(String? formEmail) {
-  if (formEmail!.isEmpty) return 'Zadejte e-mail.';
-
-  String pattern = r'\w+@\w+\.\w+';
-  RegExp regex = RegExp(pattern);
-  if (!regex.hasMatch(formEmail))
-    return 'E-mailová adresa je v neplatném formátu.';
-
-  return null;
-}
-
-String? validatePassword(String? formPassword) {
-  if (formPassword!.isEmpty) return 'Zadejte heslo.';
-
-  if (formPassword.length < 8) return 'Heslo musí mít minimálně 8 znaků.';
-
-  return null;
-}
-
 // CUSTOM ALERT DIALOG
 alertDialog(BuildContext context, String title, String subtitle) {
   return showDialog(
@@ -176,7 +99,7 @@ alertDialog(BuildContext context, String title, String subtitle) {
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
                         ),
-                        color: blue,
+                        color: Colors.blue,
                       ),
                     ),
                     Column(
@@ -201,7 +124,7 @@ alertDialog(BuildContext context, String title, String subtitle) {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      color: light,
+                      color: Colors.white,
                       child: Text('ANO', style: TextStyle(fontSize: 14)),
                       onPressed: () {
                         Navigator.pop(context);
@@ -212,7 +135,7 @@ alertDialog(BuildContext context, String title, String subtitle) {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      color: light,
+                      color: Colors.white,
                       child: Text('NE', style: TextStyle(fontSize: 14)),
                       onPressed: () => Navigator.pop(context),
                     ),

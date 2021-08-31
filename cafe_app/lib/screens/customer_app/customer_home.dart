@@ -52,17 +52,7 @@ class _CustomerHomeState extends State<CustomerHome> {
               children: [
                 if (isInternet) CustomerHomeBody(),
                 if (!isInternet)
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                    margin: EdgeInsets.fromLTRB(15, 20, 15, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Zkontrolujte připojení k internetu ...')
-                      ],
-                    ),
-                  ),
+                  Center(child: Text('Zkontrolujte připojení k internetu ...')),
               ],
             ),
           ],

@@ -1,9 +1,9 @@
 import 'package:cafe_app/screens/sidebar/help.dart';
 import 'package:cafe_app/shared/image_banner.dart';
+import 'package:cafe_app/shared/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:cafe_app/models/user.dart';
 import 'package:cafe_app/screens/sidebar/contact.dart';
-//import 'package:cafe_app/screens/sidebar/user_cards.dart';
 import 'package:cafe_app/screens/sidebar/personal_info.dart';
 import 'package:cafe_app/screens/sidebar/settings.dart';
 import 'package:cafe_app/service/auth.dart';
@@ -12,8 +12,6 @@ import 'package:cafe_app/shared/constants.dart';
 import 'package:cafe_app/shared/loading.dart';
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:provider/provider.dart';
-
-//import 'help.dart';
 
 class MainDrawer extends StatefulWidget {
   final Function? toggleView;
@@ -31,6 +29,7 @@ class _MainDrawerState extends State<MainDrawer> {
   Widget build(BuildContext context) {
     // get currently logged user and theme provider
     final user = Provider.of<User?>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     if (user != null) {
       return StreamBuilder<UserData>(
@@ -86,39 +85,6 @@ class _MainDrawerState extends State<MainDrawer> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (userData.role == 'worker')
-                                Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    //_roleSwitch(widget.toggleView!),
-                                    ElevatedButton.icon(
-                                      icon: Icon(
-                                        Icons.switch_account,
-                                        color: Colors.white,
-                                      ),
-                                      label: Text(
-                                        'Na pracovní mód',
-                                        style: TextStyle(
-                                            fontSize: 17, color: Colors.white),
-                                      ),
-                                      onPressed: () {
-                                        widget.toggleView;
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        primary: Colors.blue.shade900,
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 10),
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 5),
-                                  ],
-                                ),
                               CustomButton(PersonalInfo(), 'Osobní údaje',
                                   CommunityMaterialIcons.account_edit_outline),
                               SizedBox(height: 5),
@@ -168,7 +134,7 @@ class _MainDrawerState extends State<MainDrawer> {
       child: CircleAvatar(
         backgroundColor: Colors.white,
         radius: 65.0,
-        child: SmallImageBanner('assets/cafe.jpg'),
+        child: ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
       ),
     );
   }

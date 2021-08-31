@@ -54,6 +54,8 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                 .sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
             passiveOrderList
                 .sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
+            activeOrderList = activeOrderList.reversed.toList();
+            passiveOrderList = passiveOrderList.reversed.toList();
 
             return SingleChildScrollView(
               child: Column(
@@ -172,7 +174,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
         string,
         style: TextStyle(
           color: Colors.black,
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: FontWeight.normal,
         ),
         textAlign: TextAlign.left,

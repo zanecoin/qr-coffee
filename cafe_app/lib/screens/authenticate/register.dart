@@ -1,3 +1,4 @@
+import 'package:cafe_app/shared/custom_text_field.dart';
 import 'package:cafe_app/shared/image_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:cafe_app/service/auth.dart';
@@ -48,7 +49,7 @@ class _RegisterState extends State<Register> {
               style: TextStyle(
                   color: Colors.black, fontSize: 40, fontFamily: 'Galada'),
             ),
-            SmallImageBanner('assets/cafe.jpg'),
+            ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
             Container(
               padding: EdgeInsets.symmetric(
                   horizontal: Responsive.width(15, context)),

@@ -7,7 +7,6 @@ import 'package:cafe_app/shared/loading.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
 _getRemainingTime(Order order, String time) {
@@ -33,6 +32,7 @@ class OrderTile extends StatelessWidget {
     String remainingTime;
     Widget icon;
 
+    // czech language formatting
     if (order.coffee.length == 1) {
       coffeeLabel = order.coffee[0];
     } else if (order.coffee.length > 1 && order.coffee.length < 5) {
@@ -62,7 +62,8 @@ class OrderTile extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      padding: EdgeInsets.symmetric(
+          horizontal: 5, vertical: role == 'worker' ? 5 : 10),
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -73,22 +74,36 @@ class OrderTile extends StatelessWidget {
             Navigator.push(
               context,
               new MaterialPageRoute(
-                builder: (context) => UserOrder(order: order),
+                builder: (context) => UserOrder(
+                  order: order,
+                  role: role,
+                ),
               ),
             );
           },
           child: Container(
-            height: Responsive.height(20, context),
-            width: Responsive.width(55, context),
+            height: Responsive.height(15, context),
+            width: Responsive.width(67, context),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: Colors.brown, width: 1.5),
+              border: Border.all(color: Colors.grey, width: 1.5),
             ),
             child: Center(
               child: Row(
                 children: [
                   SizedBox(width: Responsive.width(3, context)),
-                  SmallImageBanner('assets/cafe.jpg'),
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ImageBanner(path: 'assets/cafe.jpg', size: 'small'),
+                      if (role == 'worker')
+                        Positioned(
+                          child: icon,
+                          top: 32.5,
+                        ),
+                    ],
+                  ),
+                  SizedBox(width: Responsive.width(2, context)),
                   if (role == 'customer')
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -108,18 +123,13 @@ class OrderTile extends StatelessWidget {
                         Text(
                             order.spz == ''
                                 ? '${order.username}'
-                                : '${order.username}  •  ${order.spz}',
+                                : '${order.username}',
                             style: TextStyle(fontWeight: FontWeight.bold)),
+                        if (order.spz != '') Text('${order.spz}'),
                         Text('${coffeeLabel}'),
                         Text(remainingTime),
                       ],
                     ),
-                  if (role == 'worker')
-                    Expanded(
-                      child: Container(
-                        child: Center(child: icon),
-                      ),
-                    )
                 ],
               ),
             ),
@@ -133,22 +143,18 @@ class OrderTile extends StatelessWidget {
 class UserOrder extends StatefulWidget {
   // GET USER DATA FORM PREVIOUS HOMESCREEN TO GET INIT VALUE FOR CARD SELECTION
   final Order order;
-  UserOrder({Key? key, required this.order}) : super(key: key);
+  final String role;
+  UserOrder({Key? key, required this.order, required this.role})
+      : super(key: key);
 
   @override
-  _UserOrderState createState() => _UserOrderState(order: order);
+  _UserOrderState createState() => _UserOrderState(order: order, role: role);
 }
 
 class _UserOrderState extends State<UserOrder> {
   final Order order;
-  _UserOrderState({required this.order});
-
-  // PHONE AND EMAIL LAUNCHER
-  void customLaunch(command) async {
-    if (await canLaunch(command)) {
-      await launch(command);
-    }
-  }
+  final String role;
+  _UserOrderState({required this.order, required this.role});
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +194,7 @@ class _UserOrderState extends State<UserOrder> {
             body: SingleChildScrollView(
               child: Column(
                 children: [
-                  _fancyInfoCard(order, userData),
+                  _fancyInfoCard(order, userData, role),
                   SizedBox(height: 10),
                   Text('Položky',
                       style:
@@ -209,7 +215,7 @@ class _UserOrderState extends State<UserOrder> {
                   ),
                   SizedBox(height: 20),
                   if (order.state == 'active')
-                    if (userData.role == 'worker')
+                    if (role == 'worker')
                       Column(
                         children: [
                           SizedBox(height: 40),
@@ -225,7 +231,7 @@ class _UserOrderState extends State<UserOrder> {
                         ],
                       ),
                   if (order.state == 'active')
-                    if (userData.role == 'customer')
+                    if (role == 'customer')
                       Column(
                         children: [
                           SizedBox(height: 40),
@@ -238,6 +244,7 @@ class _UserOrderState extends State<UserOrder> {
                           ),
                         ],
                       ),
+                  // order result info window
                   if (order.state == 'complete')
                     _resultWindow('Objednávka vyzvednuta',
                         Colors.green.shade100, checkIcon()),
@@ -248,7 +255,7 @@ class _UserOrderState extends State<UserOrder> {
                     _resultWindow(
                         'Objednávka zrušena', Colors.red.shade100, errorIcon()),
                   if (order.state != 'active')
-                    if (userData.role == 'customer')
+                    if (role == 'customer')
                       Column(
                         children: [
                           SizedBox(height: 20),
@@ -331,7 +338,7 @@ class _UserOrderState extends State<UserOrder> {
   }
 }
 
-Widget _fancyInfoCard(Order order, UserData userData) {
+Widget _fancyInfoCard(Order order, UserData userData, String role) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
     child: Card(
@@ -361,7 +368,7 @@ Widget _fancyInfoCard(Order order, UserData userData) {
               ),
             ],
           ),
-          if (userData.role == 'worker')
+          if (role == 'worker')
             Align(
               alignment: Alignment.center,
               child: Column(
@@ -384,7 +391,7 @@ Widget _fancyInfoCard(Order order, UserData userData) {
                 ],
               ),
             ),
-          if (userData.role == 'customer')
+          if (role == 'customer')
             Align(
               alignment: Alignment.center,
               child: Column(

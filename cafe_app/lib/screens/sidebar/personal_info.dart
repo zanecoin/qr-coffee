@@ -1,3 +1,4 @@
+import 'package:cafe_app/shared/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:cafe_app/models/user.dart';
 import 'package:cafe_app/service/database.dart';
@@ -159,6 +160,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
             userData!.email,
             userData.role,
             formValues[2] ?? userData.spz,
+            userData.stand,
           );
           Scaffold.of(context).showSnackBar(
             SnackBar(

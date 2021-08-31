@@ -215,26 +215,35 @@ class _OrderScreenState extends State<OrderScreen> {
 
       // place an active order to database
       DocumentReference _docRef = await DatabaseService().createOrder(
-          'active',
-          createCoffeeList(),
-          totalPrice(coffees),
-          newTime,
-          '${userData!.name} ${userData!.surname}',
-          userData!.spz,
-          _currentPlace.toString(),
-          '', // first give en empty order ID
-          userData!.uid);
+        'active',
+        createCoffeeList(),
+        totalPrice(coffees),
+        newTime,
+        '${userData!.name} ${userData!.surname}',
+        userData!.spz,
+        _currentPlace.toString(),
+        '', // first give en empty order ID
+        userData!.uid,
+      );
 
       await DatabaseService().setOrderId(
-          'active',
-          createCoffeeList(),
-          totalPrice(coffees),
-          newTime,
-          '${userData!.name} ${userData!.surname}',
-          userData!.spz,
-          _currentPlace.toString(),
-          _docRef.id,
-          userData!.uid);
+        'active',
+        createCoffeeList(),
+        totalPrice(coffees),
+        newTime,
+        '${userData!.name} ${userData!.surname}',
+        userData!.spz,
+        _currentPlace.toString(),
+        _docRef.id,
+        userData!.uid,
+      );
+
+      for (Coffee item in _selectedItems) {
+        print(item.name);
+        await DatabaseService()
+            .updateCoffeeData(item.uid, item.name, item.price, item.count + 1);
+      }
+
       Navigator.pop(context);
     } else {
       setState(() => loading = false);
@@ -305,7 +314,6 @@ class _OrderScreenState extends State<OrderScreen> {
                   return DropdownMenuItem(
                     child: Row(
                       children: [
-                        Icon(Icons.coffee),
                         Text(' (${coffee.price} Kč) ${coffee.name}'),
                       ],
                     ),
@@ -341,8 +349,16 @@ class _OrderScreenState extends State<OrderScreen> {
                   return DropdownMenuItem(
                     child: Row(
                       children: [
-                        Icon(Icons.place),
-                        Text(' ${place.address}'),
+                        Icon(
+                          Icons.place,
+                          color: place.active ? Colors.black : Colors.grey,
+                        ),
+                        Text(
+                          ' ${place.address}',
+                          style: TextStyle(
+                            color: place.active ? Colors.black : Colors.grey,
+                          ),
+                        ),
                       ],
                     ),
                     value: place.address,

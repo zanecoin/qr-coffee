@@ -44,7 +44,7 @@ class AppStart extends StatelessWidget {
 }
 
 // This widget is the root of the application.
-class MyApp extends StatefulWidget with WidgetsBindingObserver{
+class MyApp extends StatefulWidget with WidgetsBindingObserver {
   final ThemeProvider themeProvider;
   const MyApp({Key? key, required this.themeProvider}) : super(key: key);
 
@@ -69,7 +69,10 @@ class _MyAppState extends State<MyApp> {
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
-              StreamProvider<User?>(create: (context) => AuthService().user,initialData: User.initialData(),),
+              StreamProvider<User?>(
+                create: (context) => AuthService().user,
+                initialData: User.initialData(),
+              ),
               //Provider<AuthService>(create: (context) => AuthService(),),
             ],
             child: MaterialApp(
@@ -90,7 +93,7 @@ class _MyAppState extends State<MyApp> {
 
 // Loading screen of the app
 class SplashScreen extends StatefulWidget {
-  SplashScreen({ Key? key}) : super(key : key);
+  SplashScreen({Key? key}) : super(key: key);
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -100,26 +103,22 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // Show homescreen after 3 seconds
     super.initState();
-    Timer(Duration(seconds:3), _navigateHome);
+    Timer(Duration(seconds: 3), _navigateHome);
   }
 
-  void _navigateHome(){
+  void _navigateHome() {
     Navigator.pushReplacement(
-      context, MaterialPageRoute(
-        builder: (context) => Wrapper()
-      )
-    );
+        context, MaterialPageRoute(builder: (context) => Wrapper()));
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       color: Colors.white,
       child: SafeArea(
         child: Scaffold(
           body: Stack(
-            children:<Widget>[
+            children: <Widget>[
               Container(
                 color: Colors.white,
               ),
@@ -133,18 +132,18 @@ class _SplashScreenState extends State<SplashScreen> {
                     Text(
                       'Fast Coffee',
                       style: TextStyle(
-                      decoration: TextDecoration.none,
-                      color: Colors.black,
-                      fontSize: 60,
-                      fontFamily: 'Galada'),
+                          decoration: TextDecoration.none,
+                          color: Colors.black,
+                          fontSize: 60,
+                          fontFamily: 'Galada'),
                     ),
-                    ImageBanner('assets/cafe.jpg'),
+                    ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
                     Expanded(
                       flex: 1,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          SpinKitCircle(
+                          SpinKitSpinningLines(
                             color: Colors.red,
                             size: 100.0,
                           ),
@@ -170,4 +169,3 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
-

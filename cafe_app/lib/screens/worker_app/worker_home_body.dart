@@ -11,14 +11,21 @@ import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
 
 class WorkerHomeBody extends StatefulWidget {
-  const WorkerHomeBody({Key? key}) : super(key: key);
+  final List<Order> activeOrderList;
+  const WorkerHomeBody({Key? key, required this.activeOrderList})
+      : super(key: key);
 
   @override
-  _WorkerHomeBodyState createState() => _WorkerHomeBodyState();
+  _WorkerHomeBodyState createState() =>
+      _WorkerHomeBodyState(activeOrderList: activeOrderList);
 }
 
 class _WorkerHomeBodyState extends State<WorkerHomeBody> {
+  final List<Order> activeOrderList;
+
+  _WorkerHomeBodyState({required this.activeOrderList});
   dynamic _currentFilter = 'Čekající';
+
   @override
   Widget build(BuildContext context) {
     // get currently logged user and theme provider
@@ -26,18 +33,17 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
 
     // get data streams
     if (user != null) {
-      return StreamBuilder3<List<Order>, List<Order>, dynamic>(
-        streams: Tuple3(
-            DatabaseService(uid: user.uid).activeOrderList,
-            DatabaseService(uid: user.uid).passiveOrderList,
+      return StreamBuilder2<List<Order>, dynamic>(
+        streams: Tuple2(DatabaseService().passiveOrderList,
             Stream.periodic(const Duration(seconds: 1))),
         builder: (context, snapshots) {
-          if (snapshots.item1.hasData && snapshots.item2.hasData) {
+          if (snapshots.item1.hasData) {
             String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-            List<Order> activeOrderList = snapshots.item1.data!;
-            List<Order> passiveOrderList = snapshots.item2.data!;
+
+            List<Order> passiveOrderList = snapshots.item1.data!;
             List<Order> orderList = activeOrderList + passiveOrderList;
             orderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
+            orderList = orderList.reversed.toList();
             orderList = _getOrderType(orderList);
 
             return SingleChildScrollView(
@@ -112,21 +118,6 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     }
     ;
     return result;
-  }
-
-  Widget text(String string) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Text(
-        string,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.normal,
-        ),
-        textAlign: TextAlign.left,
-      ),
-    );
   }
 
   Widget _orderFilter() {
