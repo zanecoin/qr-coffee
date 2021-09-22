@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cafe_app/screens/customer_app/customer_home_body.dart';
 import 'package:cafe_app/screens/sidebar/main_drawer.dart';
 import 'package:cafe_app/shared/constants.dart';
+import 'package:cafe_app/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
@@ -51,8 +52,7 @@ class _CustomerHomeState extends State<CustomerHome> {
             Column(
               children: [
                 if (isInternet) CustomerHomeBody(),
-                if (!isInternet)
-                  Center(child: Text('Zkontrolujte připojení k internetu ...')),
+                if (!isInternet) LoadingInternet(),
               ],
             ),
           ],

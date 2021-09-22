@@ -7,25 +7,25 @@ String app_name = 'Fast Coffee';
 const double icon_size = 25;
 Widget waitingIcon({double size = icon_size}) => Icon(
       CommunityMaterialIcons.clock,
-      color: Colors.blue,
+      color: Colors.blue.shade300,
       size: size,
     );
 
 Widget questionIcon({double size = icon_size}) => Icon(
       Icons.help,
-      color: Colors.orange,
+      color: Colors.orange.shade400,
       size: size,
     );
 
 Widget errorIcon({double size = icon_size}) => Icon(
       Icons.cancel,
-      color: Colors.red,
+      color: Colors.red.shade400,
       size: size,
     );
 
 Widget checkIcon({double size = icon_size}) => Icon(
       Icons.check_circle,
-      color: Colors.green,
+      color: Colors.green.shade400,
       size: size,
     );
 
@@ -43,11 +43,11 @@ Widget thumbIcon({double size = icon_size}) => Icon(
 
 // CLASS FOR VARIABLE HEIGHT AND WIDTH
 class Responsive {
-  static width(double p, BuildContext context) {
+  static double width(double p, BuildContext context) {
     return MediaQuery.of(context).size.width * (p / 100);
   }
 
-  static height(double p, BuildContext context) {
+  static double height(double p, BuildContext context) {
     return MediaQuery.of(context).size.height * (p / 100);
   }
 }
@@ -73,7 +73,8 @@ class CustomDivider extends StatelessWidget {
 }
 
 // CUSTOM ALERT DIALOG
-alertDialog(BuildContext context, String title, String subtitle) {
+Future<dynamic> alertDialog(
+    BuildContext context, String title, String subtitle) {
   return showDialog(
       context: context,
       barrierDismissible: true,

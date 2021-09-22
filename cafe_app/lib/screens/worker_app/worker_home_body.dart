@@ -6,24 +6,22 @@ import 'package:cafe_app/service/database.dart';
 import 'package:cafe_app/shared/constants.dart';
 import 'package:cafe_app/shared/loading.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class WorkerHomeBody extends StatefulWidget {
   final List<Order> activeOrderList;
-  const WorkerHomeBody({Key? key, required this.activeOrderList})
+  final UserData userData;
+  const WorkerHomeBody(
+      {Key? key, required this.activeOrderList, required this.userData})
       : super(key: key);
 
   @override
-  _WorkerHomeBodyState createState() =>
-      _WorkerHomeBodyState(activeOrderList: activeOrderList);
+  _WorkerHomeBodyState createState() => _WorkerHomeBodyState();
 }
 
 class _WorkerHomeBodyState extends State<WorkerHomeBody> {
-  final List<Order> activeOrderList;
-
-  _WorkerHomeBodyState({required this.activeOrderList});
   dynamic _currentFilter = 'Čekající';
 
   @override
@@ -32,30 +30,37 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     final user = Provider.of<User?>(context);
 
     // get data streams
-    if (user != null) {
-      return StreamBuilder2<List<Order>, dynamic>(
-        streams: Tuple2(DatabaseService().passiveOrderList,
-            Stream.periodic(const Duration(seconds: 1))),
-        builder: (context, snapshots) {
-          if (snapshots.item1.hasData) {
-            String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+    return StreamBuilder4<List<Order>, List<Order>, UserData, dynamic>(
+      streams: Tuple4(
+          DatabaseService().passiveOrderList,
+          DatabaseService().activeOrderList,
+          DatabaseService(uid: user!.uid).userData,
+          Stream.periodic(const Duration(seconds: 1))),
+      builder: (context, snapshots) {
+        if (snapshots.item1.hasData &&
+            snapshots.item2.hasData &&
+            snapshots.item3.hasData) {
+          String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
 
-            List<Order> passiveOrderList = snapshots.item1.data!;
-            List<Order> orderList = activeOrderList + passiveOrderList;
-            orderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
-            orderList = orderList.reversed.toList();
-            orderList = _getOrderType(orderList);
+          UserData userData = snapshots.item3.data!;
+          List<Order> passiveOrderList = snapshots.item1.data!;
+          List<Order> activeOrderList = snapshots.item2.data!;
+          List<Order> orderList = activeOrderList + passiveOrderList;
+          orderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
+          orderList = orderList.reversed.toList();
+          orderList = _getOrderType(orderList);
 
+          if (userData.stand != '') {
             return SingleChildScrollView(
               child: Container(
-                margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _orderFilter(),
                     CustomDivider(),
-                    if (activeOrderList.length > 0)
+                    if (orderList.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: SizedBox(
@@ -72,22 +77,30 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
                           ),
                         ),
                       ),
-                    if (activeOrderList.length == 0 &&
-                        passiveOrderList.length == 0)
-                      Text('Žádné objednávky k zobrazení ...'),
-                    SizedBox(height: 30),
+                    if (orderList.isEmpty)
+                      const Center(
+                          child: Text('Žádné objednávky k zobrazení ...')),
+                    const SizedBox(height: 30),
                   ],
                 ),
               ),
             );
           } else {
-            return Loading();
+            return const Padding(
+              padding: EdgeInsets.all(45),
+              child: Center(
+                  child: Text(
+                'Pro zobrazení objednávek aktivujte stanoviště v záložce Nastavení. '
+                'Po ukončení směny nezapoměňte stanoviště deaktivovat!',
+                textAlign: TextAlign.center,
+              )),
+            );
           }
-        },
-      );
-    } else {
-      return Loading();
-    }
+        } else {
+          return Loading();
+        }
+      },
+    );
   }
 
   List<Order> _getOrderType(List<Order> orders) {
@@ -96,22 +109,22 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
       return orders;
     } else {
       for (var order in orders) {
-        if (_currentFilter == 'Vyřízené') if (order.state == 'active' ||
-            order.state == 'aborted' ||
-            order.state == 'abandoned' ||
-            order.state == 'aborted') {
+        if (_currentFilter == 'Vyřízené' &&
+            (order.state == 'complete' ||
+                order.state == 'aborted' ||
+                order.state == 'abandoned')) {
           result.add(order);
         }
-        if (_currentFilter == 'Čekající') if (order.state == 'active') {
+        if (_currentFilter == 'Čekající' && order.state == 'active') {
           result.add(order);
         }
-        if (_currentFilter == 'Vyzvednuté') if (order.state == 'complete') {
+        if (_currentFilter == 'Vyzvednuté' && order.state == 'complete') {
           result.add(order);
         }
-        if (_currentFilter == 'Nevyzvednuté') if (order.state == 'abandoned') {
+        if (_currentFilter == 'Nevyzvednuté' && order.state == 'abandoned') {
           result.add(order);
         }
-        if (_currentFilter == 'Zrušené') if (order.state == 'aborted') {
+        if (_currentFilter == 'Zrušené' && order.state == 'aborted') {
           result.add(order);
         }
       }

@@ -1,3 +1,4 @@
+import 'package:cafe_app/screens/sidebar/credit_card_screen.dart';
 import 'package:cafe_app/screens/sidebar/help.dart';
 import 'package:cafe_app/shared/image_banner.dart';
 import 'package:cafe_app/shared/theme_provider.dart';
@@ -88,8 +89,8 @@ class _MainDrawerState extends State<MainDrawer> {
                               CustomButton(PersonalInfo(), 'Osobní údaje',
                                   CommunityMaterialIcons.account_edit_outline),
                               SizedBox(height: 5),
-                              CustomButton(
-                                  Help(), 'Moje karty', Icons.credit_card),
+                              CustomButton(CardScreen(), 'Moje karty',
+                                  Icons.credit_card),
                               SizedBox(height: 5),
                               CustomButton(Settings(), 'Nastavení',
                                   CommunityMaterialIcons.cog_outline),

@@ -9,14 +9,42 @@ import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
 
-_getRemainingTime(Order order, String time) {
-  return (int.parse(order.pickUpTime.substring(10, 12)) -
-          int.parse(time.substring(10, 12)))
-      .toString();
+List<dynamic> _getRemainingTime(Order order, String time) {
+  String result;
+  Color color;
+  int m1 = int.parse(order.pickUpTime.substring(10, 12)); // minutes
+  int m2 = int.parse(time.substring(10, 12));
+  int h1 = int.parse(order.pickUpTime.substring(0, 10)); // date and hours
+  int h2 = int.parse(time.substring(0, 10));
+  int difference = m1 - m2 + 60 * (h1 - h2);
+  // print('////////');
+  // print(order.pickUpTime);
+  // print(time);
+  // print(difference);
+  if (difference < 30) {
+    result = (int.parse(order.pickUpTime.substring(10, 12)) -
+            int.parse(time.substring(10, 12)))
+        .toString();
+    if (int.parse(result) > 2) {
+      result = 'Za $result min';
+      color = Colors.green.shade800;
+    } else if (int.parse(result) > -1) {
+      result = 'Za $result min';
+      color = Colors.yellow.shade800;
+    } else {
+      result = 'Před ${-int.parse(result)} min';
+      color = Colors.red.shade700;
+    }
+  } else {
+    result = 'Před více než 30 min';
+    color = Colors.black;
+  }
+  //print(result);
+  return [result, color];
 }
 
-_timeFormatter(String time) {
-  return '${time.substring(6, 8)}.${time.substring(4, 6)}.${time.substring(0, 4)}  •  ${time.substring(8, 10)}:${time.substring(10, 12)}:${time.substring(12, 14)}';
+String _timeFormatter(String time) {
+  return '${time.substring(8, 10)}:${time.substring(10, 12)} • ${time.substring(6, 8)}.${time.substring(4, 6)}.${time.substring(0, 4)}';
 }
 
 class OrderTile extends StatelessWidget {
@@ -31,6 +59,7 @@ class OrderTile extends StatelessWidget {
     String coffeeLabel;
     String remainingTime;
     Widget icon;
+    Color color;
 
     // czech language formatting
     if (order.coffee.length == 1) {
@@ -52,13 +81,13 @@ class OrderTile extends StatelessWidget {
     }
 
     if (order.state == 'active') {
-      remainingTime =
-          time == '' ? remainingTime = '?' : _getRemainingTime(order, time);
-      remainingTime = int.parse(remainingTime) > 0
-          ? 'Za $remainingTime min'
-          : 'Před ${-int.parse(remainingTime)} min';
+      List returnArray =
+          time == '' ? ['?', Colors.black] : _getRemainingTime(order, time);
+      remainingTime = returnArray[0];
+      color = returnArray[1];
     } else {
-      remainingTime = '${_timeFormatter(order.pickUpTime).substring(15, 20)}';
+      remainingTime = '${_timeFormatter(order.pickUpTime)}';
+      color = Colors.black;
     }
 
     return Padding(
@@ -74,10 +103,7 @@ class OrderTile extends StatelessWidget {
             Navigator.push(
               context,
               new MaterialPageRoute(
-                builder: (context) => UserOrder(
-                  order: order,
-                  role: role,
-                ),
+                builder: (context) => UserOrder(order: order, role: role),
               ),
             );
           },
@@ -96,11 +122,7 @@ class OrderTile extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       ImageBanner(path: 'assets/cafe.jpg', size: 'small'),
-                      if (role == 'worker')
-                        Positioned(
-                          child: icon,
-                          top: 32.5,
-                        ),
+                      if (role == 'worker') Positioned(child: icon, top: 32.5),
                     ],
                   ),
                   SizedBox(width: Responsive.width(2, context)),
@@ -112,7 +134,7 @@ class OrderTile extends StatelessWidget {
                         Text('$coffeeLabel',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text('${order.price} Kč'),
-                        Text(remainingTime),
+                        Text(remainingTime, style: TextStyle(color: color)),
                       ],
                     ),
                   if (role == 'worker')
@@ -127,7 +149,7 @@ class OrderTile extends StatelessWidget {
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         if (order.spz != '') Text('${order.spz}'),
                         Text('${coffeeLabel}'),
-                        Text(remainingTime),
+                        Text(remainingTime, style: TextStyle(color: color)),
                       ],
                     ),
                 ],
@@ -168,16 +190,18 @@ class _UserOrderState extends State<UserOrder> {
         if (snapshots.item1.hasData) {
           UserData userData = snapshots.item1.data!;
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-          String remainingTime;
+          String remainingTime = '';
+          Color color = Colors.black;
 
           if (order.state == 'active') {
-            remainingTime = _getRemainingTime(order, time);
-            remainingTime = int.parse(remainingTime) > 0
-                ? 'Za $remainingTime min'
-                : 'Před ${-int.parse(remainingTime)} min';
+            List returnArray = time == ''
+                ? ['?', Colors.black]
+                : _getRemainingTime(order, time);
+            remainingTime = returnArray[0];
+            color = returnArray[1];
           } else {
-            remainingTime =
-                '${_timeFormatter(order.pickUpTime).substring(0, 10)}';
+            remainingTime = '${_timeFormatter(order.pickUpTime)}';
+            color = Colors.black;
           }
 
           return Scaffold(
@@ -187,7 +211,7 @@ class _UserOrderState extends State<UserOrder> {
                   onPressed: () {
                     Navigator.pop(context);
                   }),
-              title: Text('Datum: ${remainingTime}'),
+              title: Text(remainingTime, style: TextStyle(color: color)),
               centerTitle: true,
               elevation: 5,
             ),
@@ -254,24 +278,27 @@ class _UserOrderState extends State<UserOrder> {
                   if (order.state == 'aborted')
                     _resultWindow(
                         'Objednávka zrušena', Colors.red.shade100, errorIcon()),
-                  if (order.state != 'active')
-                    if (role == 'customer')
-                      Column(
-                        children: [
-                          SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _resultBtn('active', 'Objednat znovu',
-                                  Icons.refresh, Colors.green),
-                            ],
-                          ),
-                          Text(
-                            'Na ${_timeFormatter(order.pickUpTime).substring(15, 20)}',
-                            style: TextStyle(fontSize: 18),
-                          )
-                        ],
-                      ),
+                  if (order.state != 'active' && role == 'customer')
+                    Column(
+                      children: [
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _resultBtn('active', 'Objednat znovu',
+                                Icons.refresh, Colors.green),
+                          ],
+                        ),
+                        Text(
+                          'Na ${_timeFormatter(order.pickUpTime).substring(0, 5)}',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Text(
+                          '(Platba uloženou kartou)',
+                          style: TextStyle(fontSize: 18),
+                        )
+                      ],
+                    ),
                   SizedBox(height: 30),
                 ],
               ),
@@ -286,7 +313,7 @@ class _UserOrderState extends State<UserOrder> {
 
   Widget _resultWindow(String text, Color color, Widget icon) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 45),
+      margin: EdgeInsets.symmetric(horizontal: 35),
       padding: EdgeInsets.symmetric(vertical: 20, horizontal: 0),
       decoration: BoxDecoration(
         color: color,

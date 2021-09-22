@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cafe_app/models/order.dart';
+import 'package:cafe_app/models/user.dart';
 import 'package:cafe_app/screens/sidebar/main_drawer.dart';
 import 'package:cafe_app/screens/worker_app/worker_home_body.dart';
 import 'package:cafe_app/service/database.dart';
@@ -9,6 +10,8 @@ import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:cafe_app/screens/customer_app/customer_home_body.dart';
+import 'package:multiple_stream_builder/multiple_stream_builder.dart';
+import 'package:provider/provider.dart';
 
 class WorkerHome extends StatefulWidget {
   const WorkerHome({Key? key}) : super(key: key);
@@ -46,47 +49,57 @@ class _WorkerHomeState extends State<WorkerHome>
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Order>>(
-      stream: DatabaseService().activeOrderList,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<Order> activeOrderList = snapshot.data!;
+    // get currently logged user and theme provider
+    final user = Provider.of<User?>(context);
 
-          return Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              title: controller.index == 0 ? _textB() : _textA(),
-              iconTheme: new IconThemeData(),
-              elevation: 5,
-              bottom: TabBar(
+    if (user != null) {
+      return StreamBuilder2<UserData, List<Order>>(
+        streams: Tuple2(DatabaseService(uid: user.uid).userData,
+            DatabaseService().activeOrderList),
+        builder: (context, snapshots) {
+          if (snapshots.item1.hasData && snapshots.item2.hasData) {
+            UserData userData = snapshots.item1.data!;
+            List<Order> activeOrderList = snapshots.item2.data!;
+
+            return Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                title: controller.index == 0 ? _textB() : _textA(),
+                iconTheme: new IconThemeData(),
+                elevation: 5,
+                bottom: TabBar(
+                  controller: controller,
+                  labelPadding: EdgeInsets.symmetric(vertical: 0),
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.grey,
+                  tabs: choices
+                      .map<Widget>(
+                        (choice) => Tab(
+                          text: choice,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+              drawer: Drawer(
+                child: MainDrawer(),
+              ),
+              body: TabBarView(
                 controller: controller,
-                labelPadding: EdgeInsets.symmetric(vertical: 0),
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.grey,
-                tabs: choices
-                    .map<Widget>(
-                      (choice) => Tab(
-                        text: choice,
-                      ),
-                    )
+                children: choices
+                    .map((choice) =>
+                        _screenChooser(choice, activeOrderList, userData))
                     .toList(),
               ),
-            ),
-            drawer: Drawer(
-              child: MainDrawer(),
-            ),
-            body: TabBarView(
-              controller: controller,
-              children: choices
-                  .map((choice) => _screenChooser(choice, activeOrderList))
-                  .toList(),
-            ),
-          );
-        } else {
-          return Loading();
-        }
-      },
-    );
+            );
+          } else {
+            return Loading();
+          }
+        },
+      );
+    } else {
+      return Loading();
+    }
   }
 
   _checkInternet() {
@@ -115,22 +128,25 @@ class _WorkerHomeState extends State<WorkerHome>
     return Text('OBJEDNÁVKY');
   }
 
-  Widget _screenChooser(String title, List<Order> activeOrderList) {
+  Widget _screenChooser(
+      String title, List<Order> activeOrderList, UserData userData) {
     Widget result = WorkerHomeBody(
       activeOrderList: activeOrderList,
+      userData: userData,
     );
     if (isInternet) {
       switch (title) {
         case 'Pracovní mód':
           result = WorkerHomeBody(
             activeOrderList: activeOrderList,
+            userData: userData,
           );
           break;
         case 'Uživatelský mód':
           result = CustomerHomeBody();
       }
     } else {
-      result = Center(child: Text('Zkontrolujte připojení k internetu ...'));
+      result = LoadingInternet();
     }
     return result;
   }

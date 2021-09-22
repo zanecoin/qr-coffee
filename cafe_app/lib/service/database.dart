@@ -1,6 +1,7 @@
 import 'package:cafe_app/models/article.dart';
 import 'package:cafe_app/models/coffee.dart';
 import 'package:cafe_app/models/company.dart';
+import 'package:cafe_app/models/credit_card.dart';
 import 'package:cafe_app/models/order.dart';
 import 'package:cafe_app/models/place.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +16,7 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('users');
 
   Future updateUserData(String name, String surname, String email, String role,
-      String spz, String stand) async {
+      String spz, String stand, int card) async {
     return await userCollection.doc(uid).set({
       'name': name,
       'surname': surname,
@@ -23,6 +24,7 @@ class DatabaseService {
       'role': role,
       'spz': spz,
       'stand': stand,
+      'card': card,
     });
   }
 
@@ -36,6 +38,7 @@ class DatabaseService {
       role: (snapshot.data() as dynamic)['role'],
       spz: (snapshot.data() as dynamic)['spz'],
       stand: (snapshot.data() as dynamic)['stand'],
+      card: (snapshot.data() as dynamic)['card'],
     );
   }
 
@@ -55,6 +58,7 @@ class DatabaseService {
         role: (doc.data() as dynamic)['role'],
         spz: (doc.data() as dynamic)['spz'],
         stand: (doc.data() as dynamic)['stand'],
+        card: (doc.data() as dynamic)['card'],
       );
     }).toList();
   }
@@ -289,4 +293,56 @@ class DatabaseService {
         .map(_companyFromSnapshot);
   }
   // END COMPANY --------------------------------------------------------------------------
+
+  // CREDIT CARD --------------------------------------------------------------------------
+
+  // add new card
+  Future<DocumentReference> updateCards(String cardNumber, String expiryDate,
+      String cardHolderName, String cvvCode) async {
+    return await userCollection.doc(uid).collection('cards').add({
+      'uid': '',
+      'cardNumber': cardNumber,
+      'expiryDate': expiryDate,
+      'cardHolderName': cardHolderName,
+      'cvvCode': cvvCode,
+    });
+  }
+
+  deleteCard(String? cardID) {
+    userCollection.doc(uid).collection('cards').doc(cardID).delete();
+  }
+
+  // add card id
+  Future setCardID(String cardID, String cardNumber, String expiryDate,
+      String cardHolderName, String cvvCode) async {
+    return await userCollection.doc(uid).collection('cards').doc(cardID).set({
+      'uid': cardID,
+      'cardNumber': cardNumber,
+      'expiryDate': expiryDate,
+      'cardHolderName': cardHolderName,
+      'cvvCode': cvvCode,
+    });
+  }
+
+  // card List from snapshot
+  List<UserCard> _cardListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return UserCard(
+        uid: (doc.data() as dynamic)['uid'],
+        cardNumber: (doc.data() as dynamic)['cardNumber'],
+        expiryDate: (doc.data() as dynamic)['expiryDate'],
+        cardHolderName: (doc.data() as dynamic)['cardHolderName'],
+        cvvCode: (doc.data() as dynamic)['cvvCode'],
+      );
+    }).toList();
+  }
+
+  // get card doc list stream
+  Stream<List<UserCard>> get cardList {
+    CollectionReference cardCollection =
+        userCollection.doc(uid).collection('cards');
+    return cardCollection.snapshots().map(_cardListFromSnapshot);
+  }
+
+  // END CREDIT CARD ----------------------------------------------------------------------
 }

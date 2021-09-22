@@ -104,14 +104,26 @@ class _SettingsState extends State<Settings> {
   _togglePlace() async {
     String stand;
     bool active;
-    Place? currentPlace;
+    Place? finalPlace;
+
     if (userData.stand == '') {
       stand = _currentPlace.toString();
       active = true;
+      for (var place in places) {
+        if (place.address == _currentPlace.toString()) {
+          finalPlace = place;
+        }
+      }
     } else {
       stand = '';
       active = false;
+      for (var place in places) {
+        if (place.address == userData.stand) {
+          finalPlace = place;
+        }
+      }
     }
+
     await DatabaseService(uid: userData.uid).updateUserData(
       userData.name,
       userData.surname,
@@ -119,13 +131,12 @@ class _SettingsState extends State<Settings> {
       userData.role,
       userData.spz,
       stand,
+      userData.card,
     );
+
     try {
-      for (var place in places) {
-        if (place.address == _currentPlace.toString()) currentPlace = place;
-      }
-      await DatabaseService(uid: currentPlace!.uid).updatePlaceData(
-          currentPlace.address, currentPlace.coordinate, active);
+      await DatabaseService(uid: finalPlace!.uid)
+          .updatePlaceData(finalPlace.address, finalPlace.coordinate, active);
     } catch (e) {
       print(e);
     }
@@ -133,7 +144,6 @@ class _SettingsState extends State<Settings> {
     setState(() {
       showPlaces = !showPlaces;
     });
-    print(showPlaces);
   }
 
   _toggleTheme() async {
@@ -195,8 +205,16 @@ class _SettingsState extends State<Settings> {
                   return DropdownMenuItem(
                     child: Row(
                       children: [
-                        Icon(Icons.place),
-                        Text(' ${place.address}'),
+                        Icon(
+                          Icons.place,
+                          color: place.active ? Colors.grey : Colors.black,
+                        ),
+                        Text(
+                          ' ${place.address}',
+                          style: TextStyle(
+                            color: place.active ? Colors.grey : Colors.black,
+                          ),
+                        ),
                       ],
                     ),
                     value: place.address,

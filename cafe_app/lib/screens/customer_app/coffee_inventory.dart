@@ -94,8 +94,23 @@ class _CoffeeKindScreenState extends State<CoffeeKindScreen> {
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _fancyInfoCard(coffee),
+            Text(
+              '16g kávy',
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.black,
+              ),
+            ),
+            Text(
+              '60ml vody',
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.black,
+              ),
+            ),
           ],
         ),
       ),

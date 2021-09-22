@@ -18,3 +18,25 @@ class Loading extends StatelessWidget {
     );
   }
 }
+
+class LoadingInternet extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            color: themeProvider.themeMode().toggleBackgroundColor,
+            child: SpinKitSpinningLines(
+              color: themeProvider.isLightTheme ? Colors.red : Colors.indigo,
+              size: 50.0,
+            ),
+          ),
+          Center(child: Text('Zkontrolujte připojení k internetu ...')),
+        ],
+      ),
+    );
+  }
+}

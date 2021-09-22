@@ -16,6 +16,7 @@ class UserData {
   final String role;
   final String spz; // state car label
   final String stand;
+  final int card;
 
   UserData({
     required this.uid,
@@ -25,5 +26,6 @@ class UserData {
     required this.role,
     required this.spz,
     required this.stand,
+    required this.card,
   });
 }

@@ -149,6 +149,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
         setState(() {
           formValues = [];
         });
+
         if (_key.currentState!.validate()) {
           FocusManager.instance.primaryFocus!.unfocus();
           _key.currentState!.save();
@@ -161,10 +162,12 @@ class _PersonalInfoState extends State<PersonalInfo> {
             userData.role,
             formValues[2] ?? userData.spz,
             userData.stand,
+            userData.card,
           );
-          Scaffold.of(context).showSnackBar(
+
+          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Změna osobních údajů proběhla úspěšně'),
+              content: Text('Změna osobních údajů proběhla úspěšně!'),
               duration: Duration(milliseconds: 1200),
             ),
           );
