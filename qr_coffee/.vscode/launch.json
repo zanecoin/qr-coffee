@@ -6,13 +6,11 @@
     "configurations": [
         {
             "name": "qr_coffee",
-            "cwd": "qr_coffee",
             "request": "launch",
             "type": "dart"
         },
         {
             "name": "qr_coffee (profile mode)",
-            "cwd": "qr_coffee",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
