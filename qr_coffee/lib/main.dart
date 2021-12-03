@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
@@ -25,6 +26,13 @@ void main() async {
   final settings = await Hive.openBox('settings');
   bool isLightTheme = settings.get('isLightTheme') ?? true;
 
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
+
   runApp(ChangeNotifierProvider(
     create: (_) => ThemeProvider(isLightTheme: isLightTheme),
     child: AppStart(),
@@ -33,11 +41,17 @@ void main() async {
 
 // Ensures the themeProvider is set before the app starts
 class AppStart extends StatelessWidget {
-  const AppStart({Key? key}) : super(key: key);
+  //const AppStart({Key? key, bool? toggle}) : super(key: key);
+  bool toggle = true;
 
   @override
   Widget build(BuildContext context) {
     ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    if (toggle) {
+      themeProvider.toggleThemeData();
+      themeProvider.toggleThemeData();
+      toggle = false;
+    }
     return MyApp(
       themeProvider: themeProvider,
     );

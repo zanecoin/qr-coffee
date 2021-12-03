@@ -14,9 +14,9 @@ class UserData {
   final String surname;
   final String email;
   final String role;
-  final String spz; // state car label
+  final int tokens;
   final String stand;
-  final int card;
+  final int numOrders;
 
   UserData({
     required this.uid,
@@ -24,8 +24,8 @@ class UserData {
     required this.surname,
     required this.email,
     required this.role,
-    required this.spz,
+    required this.tokens,
     required this.stand,
-    required this.card,
+    required this.numOrders,
   });
 }

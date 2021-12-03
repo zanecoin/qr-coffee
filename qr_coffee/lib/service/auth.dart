@@ -24,7 +24,7 @@ class AuthService {
 
       // create a new document for the user with the uid
       await DatabaseService(uid: credential.user!.uid)
-          .updateUserData(name, surname, email, role, '', '', 0);
+          .updateUserData(name, surname, email, role, 0, '', 0);
       return '';
     } on auth.FirebaseAuthException catch (error) {
       return error.message;

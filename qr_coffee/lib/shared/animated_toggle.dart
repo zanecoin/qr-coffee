@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 Widget animatedToggle(
-  bool themeToggle,
   bool toggleValue,
   Function callback,
 ) {
@@ -18,7 +17,7 @@ Widget animatedToggle(
     ),
     child: InkWell(
       onTap: () {
-        callback(themeToggle);
+        callback();
       },
       child: Stack(
         children: [

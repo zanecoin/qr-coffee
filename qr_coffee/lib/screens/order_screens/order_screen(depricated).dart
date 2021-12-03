@@ -1,4 +1,4 @@
-import 'package:qr_coffee/models/coffee.dart';
+import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/place.dart';
 import 'package:qr_coffee/models/user.dart';
@@ -32,14 +32,14 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     // GET CURRENTLY LOGGED USER AND DATA STREAMS
     final user = Provider.of<User?>(context);
-    return StreamBuilder3<List<Coffee>, List<Place>, UserData>(
+    return StreamBuilder3<List<Item>, List<Place>, UserData>(
       streams: Tuple3(DatabaseService().coffeeList, DatabaseService().placeList,
           DatabaseService(uid: user!.uid).userData),
       builder: (context, snapshots) {
         if (snapshots.item1.hasData &&
             snapshots.item2.hasData &&
             snapshots.item3.hasData) {
-          List<Coffee> coffees = snapshots.item1.data!;
+          List<Item> items = snapshots.item1.data!;
           List<Place> places = snapshots.item2.data!;
           UserData userData = snapshots.item3.data!;
 
@@ -57,7 +57,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         text(CzechStrings.orderItems, 16, FontWeight.normal),
-                        coffeeSelect(coffees),
+                        itemSelect(items),
                         Container(
                           margin: EdgeInsets.symmetric(
                               horizontal: Responsive.width(12, context)),
@@ -70,7 +70,7 @@ class _OrderScreenState extends State<OrderScreen> {
                               ),
                             ),
                             onPressed: () {
-                              for (var coffee in coffees) {
+                              for (var coffee in items) {
                                 if (coffee.name == _currentCoffee) {
                                   setState(() {
                                     _selectedItems.insert(0, coffee);
@@ -95,7 +95,7 @@ class _OrderScreenState extends State<OrderScreen> {
                               ),
                               dynamicChips(),
                               text(
-                                '${getTotalPrice(coffees, _selectedItems)} Kč',
+                                '${getTotalPrice(items, _selectedItems)} Kč',
                                 30,
                                 FontWeight.bold,
                               ),
@@ -149,7 +149,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                     ),
                                   ),
                             onPressed: () {
-                              _placeOrderEvent(coffees, userData);
+                              _placeOrderEvent(items, userData);
                             },
                             style: customButtonStyle(),
                           ),
@@ -170,7 +170,7 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 
-  void _placeOrderEvent(List<Coffee> coffees, UserData userData) async {
+  void _placeOrderEvent(List<Item> items, UserData userData) async {
     setState(() {
       loading = true;
       //errorMessage = '';
@@ -178,25 +178,33 @@ class _OrderScreenState extends State<OrderScreen> {
     if (_selectedItems.isNotEmpty && _currentPlace != null) {
       // create order params
       String state = 'active';
-      List<String> items = getStringList(_selectedItems);
-      int price = getTotalPrice(coffees, _selectedItems);
+      List<String> stringList = getStringList(_selectedItems);
+      int price = getTotalPrice(items, _selectedItems);
       String pickUpTime = getPickUpTime(plusTime);
       String username = '${userData.name} ${userData.surname}';
-      String spz = userData.spz;
+      String flag = 'real';
       String place = _currentPlace.toString();
       String orderId = '';
       String userId = userData.uid;
 
       // place an active order to database
-      DocumentReference _docRef = await DatabaseService().createOrder(state,
-          items, price, pickUpTime, username, spz, place, orderId, userId);
+      DocumentReference _docRef = await DatabaseService().createOrder(
+          state,
+          stringList,
+          price,
+          pickUpTime,
+          username,
+          flag,
+          place,
+          orderId,
+          userId);
 
       // get and add order ID
-      await DatabaseService().setOrderId(state, items, price, pickUpTime,
-          username, spz, place, _docRef.id, userId);
+      await DatabaseService().setOrderId(state, stringList, price, pickUpTime,
+          username, flag, place, _docRef.id, userId);
 
       // update quantity of particular coffee type
-      for (Coffee item in _selectedItems) {
+      for (Item item in _selectedItems) {
         await DatabaseService().updateCoffeeData(
           item.uid,
           item.name,
@@ -209,18 +217,18 @@ class _OrderScreenState extends State<OrderScreen> {
       // create order instance for webview
       Order order = Order(
         state: state,
-        coffee: items,
+        coffee: stringList,
         price: price,
         pickUpTime: pickUpTime,
         username: username,
-        spz: spz,
+        flag: flag,
         place: place,
         orderId: _docRef.id,
         userId: userId,
       );
 
       // launch webview
-      //launchPaymentGateway(context, _totalOrderPrice(coffees), coffees, order);
+      //launchPaymentGateway(context, _totalOrderPrice(items), items, order);
     } else {
       // notify user something is wrong with order parameters
       String message;
@@ -291,7 +299,7 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 
-  Widget coffeeSelect(List<Coffee> coffees) {
+  Widget itemSelect(List<Item> items) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       child: Container(
@@ -305,7 +313,7 @@ class _OrderScreenState extends State<OrderScreen> {
               child: DropdownButtonFormField(
                 hint: Text(CzechStrings.chooseItems),
                 value: _currentCoffee,
-                items: coffees.map((coffee) {
+                items: items.map((coffee) {
                   return DropdownMenuItem(
                     child: Row(
                       children: [

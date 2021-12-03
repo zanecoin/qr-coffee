@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/order_screens/order_inventory.dart';
+import 'package:qr_coffee/screens/customer_app/my_orders.dart';
+import 'package:qr_coffee/screens/customer_app/qr_tokens.dart';
 import 'package:qr_coffee/screens/order_screens/set_order_frame.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/custom_small_widgets.dart';
 import 'package:qr_coffee/shared/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
@@ -37,83 +37,90 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
             snapshots.item2.hasData &&
             snapshots.item3.hasData) {
           UserData userData = snapshots.item1.data!;
-          List<Order> activeOrderList =
-              _getActiveOrdersForUser(snapshots.item2.data!, userData);
-          List<Order> passiveOrderList =
-              _getActiveOrdersForUser(snapshots.item3.data!, userData);
-          String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-
-          activeOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
-          passiveOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
-          activeOrderList = activeOrderList.reversed.toList();
-          passiveOrderList = passiveOrderList.reversed.toList();
+          String time = DateFormat('yyyyMMddHHmmss')
+              .format(DateTime.now())
+              .substring(8, 10);
+          String welcome = '';
+          if (int.parse(time) >= 10 && int.parse(time) < 18) {
+            welcome = CzechStrings.goodday;
+          } else if ((int.parse(time) >= 0 && int.parse(time) < 3) ||
+              (int.parse(time) >= 18 && int.parse(time) <= 24)) {
+            welcome = CzechStrings.goodevening;
+          } else if (int.parse(time) >= 3 && int.parse(time) < 10) {
+            welcome = CzechStrings.goodmorning;
+          }
 
           return SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                CustomPaint(
+                  painter: BoxShadowPainter(),
+                  child: ClipPath(
+                    clipper: MyClipper(),
+                    child: Container(
+                      height: 220,
+                      width: Responsive.width(100, context),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white,
+                            Colors.white,
+                          ],
+                          begin: Alignment.bottomRight,
+                          end: Alignment.topLeft,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(1, 1),
+                            blurRadius: 10,
+                            spreadRadius: 0,
+                          )
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            bottom: 30,
+                            right: 30,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  CzechStrings.app_name,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 60,
+                                    fontFamily: 'Galada',
+                                  ),
+                                ),
+                                Text(welcome, style: TextStyle(fontSize: 20)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  margin: EdgeInsets.fromLTRB(0, 70, 0, 0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _proceedToOrder(userData),
-                      if (activeOrderList.length > 0)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            CustomDivider(padding: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(width: 15),
-                                Icon(Icons.check_circle, color: Colors.green),
-                                text(CzechStrings.activeOrders),
-                              ],
-                            ),
-                            SizedBox(
-                              height: Responsive.height(20, context),
-                              child: ListView.builder(
-                                itemBuilder: (context, index) => OrderTile(
-                                  order: activeOrderList[index],
-                                  time: time,
-                                  role: 'customer',
-                                ),
-                                itemCount: activeOrderList.length,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                              ),
-                            ),
+                            _squareButton(1),
+                            _squareButton(2),
                           ],
                         ),
-                      if (passiveOrderList.length > 0)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CustomDivider(padding: 10),
-                            Row(
-                              children: [
-                                SizedBox(width: 15),
-                                Icon(Icons.restore, color: Colors.blue),
-                                text(CzechStrings.orderHistory),
-                              ],
-                            ),
-                            SizedBox(
-                              height: Responsive.height(20, context),
-                              child: ListView.builder(
-                                itemBuilder: (context, index) => OrderTile(
-                                  order: passiveOrderList[index],
-                                  time: time,
-                                  role: 'customer',
-                                ),
-                                itemCount: passiveOrderList.length,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                              ),
-                            ),
-                          ],
-                        ),
+                      )
                     ],
                   ),
                 ),
@@ -128,26 +135,66 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
     );
   }
 
-  List<Order> _getActiveOrdersForUser(
-      List<Order> orderList, UserData userData) {
-    List<Order> result = [];
-    for (var item in orderList) {
-      if (item.userId == userData.uid) result.add(item);
-    }
-    return result;
-  }
-
-  Widget text(String string) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: Text(
-        string,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 16,
-          fontWeight: FontWeight.normal,
+  Widget _squareButton(int type) {
+    return Container(
+      height: 150,
+      width: 150,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(30),
         ),
-        textAlign: TextAlign.left,
+        image: DecorationImage(
+          colorFilter: new ColorFilter.mode(
+            Colors.black.withOpacity(1),
+            BlendMode.dstATop,
+          ),
+          image: type == 1
+              ? AssetImage('assets/cafeteria2.jpg')
+              : AssetImage('assets/coin.jpg'),
+          fit: BoxFit.cover,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade600,
+            offset: Offset(1, 1),
+            blurRadius: 10,
+            spreadRadius: 0,
+          )
+        ],
+      ),
+      child: InkWell(
+        onTap: () async {
+          Navigator.push(
+            context,
+            new MaterialPageRoute(
+              builder: (context) => type == 1 ? MyOrders() : QRTokens(),
+            ),
+          );
+        },
+        child: Stack(
+          children: [
+            Positioned(
+              bottom: 10,
+              right: 20,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.white,
+                ),
+                child: Text(
+                  type == 1 ? CzechStrings.myOrders : CzechStrings.myTokens,
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black,
+                    fontSize: 11,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -179,7 +226,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
         ],
       ),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           Navigator.push(
             context,
             new MaterialPageRoute(
@@ -225,26 +272,45 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
   }
 }
 
-// decoration: BoxDecoration(
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(30),
-//                       topRight: Radius.circular(30),
-//                     ),
-//                     image: DecorationImage(
-//                       colorFilter: new ColorFilter.mode(
-//                         Colors.black.withOpacity(0),
-//                         BlendMode.dstATop,
-//                       ),
-//                       image: AssetImage('assets/cafeback2.jpg'),
-//                       fit: BoxFit.cover,
-//                     ),
-//                     color: Colors.white,
-//                     boxShadow: [
-//                       BoxShadow(
-//                         color: Colors.grey.shade600,
-//                         offset: Offset(1, 1),
-//                         blurRadius: 15,
-//                         spreadRadius: 0,
-//                       )
-//                     ],
-//                   ),
+class MyClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = new Path();
+    path.lineTo(0, size.height - 70);
+    var controllPoint = Offset(10, size.height);
+    var endPoint = Offset(size.width / 2, size.height);
+    path.quadraticBezierTo(
+        controllPoint.dx, controllPoint.dy, endPoint.dx, endPoint.dy);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width, 0);
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return true;
+  }
+}
+
+class BoxShadowPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Path path = Path();
+    // here are my custom shapes
+    path.lineTo(0, size.height - 70);
+    var controllPoint = Offset(10, size.height);
+    var endPoint = Offset(size.width / 2, size.height);
+    path.quadraticBezierTo(
+        controllPoint.dx, controllPoint.dy, endPoint.dx, endPoint.dy);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width, 0);
+    path.close();
+
+    canvas.drawShadow(path, Colors.black45, 20.0, false);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
+  }
+}

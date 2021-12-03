@@ -1,11 +1,10 @@
-import 'package:qr_coffee/models/coffee.dart';
+import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/place.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/coffee_inventory.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/custom_app_bar.dart';
 import 'package:qr_coffee/shared/custom_buttons.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/loading.dart';
@@ -49,141 +48,135 @@ class _SetOrderFrameState extends State<SetOrderFrame>
   Widget build(BuildContext context) {
     // GET CURRENTLY LOGGED USER AND DATA STREAMS
     final user = Provider.of<User?>(context);
-    return StreamBuilder3<List<Coffee>, List<Place>, UserData>(
+    return StreamBuilder3<List<Item>, List<Place>, UserData>(
       streams: Tuple3(DatabaseService().coffeeList, DatabaseService().placeList,
           DatabaseService(uid: user!.uid).userData),
       builder: (context, snapshots) {
         if (snapshots.item1.hasData &&
             snapshots.item2.hasData &&
             snapshots.item3.hasData) {
-          List<Coffee> coffees = snapshots.item1.data!;
+          List<Item> items = snapshots.item1.data!;
           List<Place> places = snapshots.item2.data!;
           UserData userData = snapshots.item3.data!;
 
-          return Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios, size: 22),
-                onPressed: () {
-                  screenNum == 1 ? Navigator.pop(context) : switchScreenNum();
-                },
-              ),
-              title: Text(CzechStrings.orderTitle),
-              centerTitle: true,
-              elevation: 5,
-              bottom: screenNum == 1
-                  ? TabBar(
-                      controller: controller,
-                      labelPadding: EdgeInsets.symmetric(vertical: 0),
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.grey.shade800,
-                      indicatorColor: Colors.black,
-                      tabs: choices
-                          .map<Widget>((choice) => Tab(text: choice))
-                          .toList(),
-                    )
-                  : null,
-              flexibleSpace: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/cafeteria1.jpg'),
-                    fit: BoxFit.cover,
-                    colorFilter: new ColorFilter.mode(
-                      Colors.black.withOpacity(0.45),
-                      BlendMode.dstATop,
-                    ),
-                  ),
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back_ios, size: 22),
+                  onPressed: () {
+                    screenNum == 1 ? Navigator.pop(context) : switchScreenNum();
+                  },
                 ),
-              ),
-            ),
-            body: Column(
-              children: [
-                Expanded(
-                    child: screenNum == 1
-                        ? _orderContent(coffees)
-                        : _orderDelivery(places)),
-                Container(
-                  padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    // image: DecorationImage(
-                    //   colorFilter: new ColorFilter.mode(
-                    //     Colors.black.withOpacity(0),
-                    //     BlendMode.dstATop,
-                    //   ),
-                    //   image: AssetImage('assets/cafeback2.jpg'),
-                    //   fit: BoxFit.cover,
-                    // ),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade400,
-                        offset: Offset(1, 1),
-                        blurRadius: 15,
-                        spreadRadius: 0,
+                title: Text(
+                  CzechStrings.orderTitle,
+                  style: TextStyle(fontWeight: FontWeight.normal),
+                ),
+                centerTitle: true,
+                elevation: 0,
+                bottom: screenNum == 1
+                    ? TabBar(
+                        controller: controller,
+                        labelPadding: EdgeInsets.symmetric(vertical: 0),
+                        labelColor: Colors.black,
+                        unselectedLabelColor: Colors.grey.shade300,
+                        indicatorColor: Colors.black,
+                        tabs: choices
+                            .map<Widget>((choice) => Tab(text: choice))
+                            .toList(),
                       )
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _text(
-                            '${CzechStrings.yourOrder}:    ',
-                            16,
-                            FontWeight.normal,
-                          ),
-                          _text(
-                            '${getTotalPrice(coffees, _selectedItems)} Kč',
-                            22,
-                            FontWeight.bold,
-                          ),
-                        ],
+                    : null,
+              ),
+              body: Column(
+                children: [
+                  Expanded(
+                      child: screenNum == 1
+                          ? _orderContent(items)
+                          : _orderDelivery(places)),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
                       ),
-                      _dynamicChips(),
-                      SizedBox(height: Responsive.height(1, context)),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: Responsive.width(12, context)),
-                        child: ElevatedButton.icon(
-                          icon: Icon(
-                            screenNum == 1
-                                ? CommunityMaterialIcons.arrow_right_circle
-                                : Icons.check_circle,
-                            color: Colors.green,
-                          ),
-                          label: Text(
-                            screenNum == 1
-                                ? CzechStrings.continueOn
-                                : CzechStrings.orderNow,
-                            style: TextStyle(
-                              fontSize: 17,
-                              color: Colors.white,
+                      // image: DecorationImage(
+                      //   colorFilter: new ColorFilter.mode(
+                      //     Colors.black.withOpacity(0),
+                      //     BlendMode.dstATop,
+                      //   ),
+                      //   image: AssetImage('assets/cafeback2.jpg'),
+                      //   fit: BoxFit.cover,
+                      // ),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.shade400,
+                          offset: Offset(1, 1),
+                          blurRadius: 15,
+                          spreadRadius: 0,
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _text(
+                              '${CzechStrings.yourOrder}:    ',
+                              16,
+                              FontWeight.normal,
                             ),
-                          ),
-                          onPressed: () {
-                            if (screenNum == 1) {
-                              setState(() {
-                                screenNum = 2;
-                              });
-                            } else {
-                              _placeOrderEvent(coffees, userData);
-                            }
-                          },
-                          style: customButtonStyle(),
+                            _text(
+                              '${getTotalPrice(items, _selectedItems)} Kč',
+                              22,
+                              FontWeight.bold,
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(height: Responsive.height(2, context)),
-                    ],
+                        _dynamicChips(),
+                        SizedBox(height: Responsive.height(1, context)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: Responsive.width(12, context)),
+                          child: ElevatedButton.icon(
+                            icon: Icon(
+                              screenNum == 1
+                                  ? CommunityMaterialIcons.arrow_right_circle
+                                  : Icons.check_circle,
+                              color: Colors.green,
+                            ),
+                            label: Text(
+                              screenNum == 1
+                                  ? CzechStrings.continueOn
+                                  : CzechStrings.orderNow,
+                              style: TextStyle(
+                                fontSize: 17,
+                                color: Colors.white,
+                              ),
+                            ),
+                            onPressed: () {
+                              if (screenNum == 1) {
+                                setState(() {
+                                  screenNum = 2;
+                                });
+                              } else {
+                                _placeOrderEvent(items, userData);
+                              }
+                            },
+                            style: customButtonStyle(),
+                          ),
+                        ),
+                        SizedBox(height: Responsive.height(2, context)),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         } else {
@@ -205,9 +198,9 @@ class _SetOrderFrameState extends State<SetOrderFrame>
     });
   }
 
-  List<Coffee> _filter(List<Coffee> coffees, String choice) {
-    List<Coffee> result = [];
-    for (var item in coffees) {
+  List<Item> _filter(List<Item> items, String choice) {
+    List<Item> result = [];
+    for (var item in items) {
       if (item.type == 'drink' && choice == CzechStrings.drink) {
         result.add(item);
       }
@@ -253,26 +246,24 @@ class _SetOrderFrameState extends State<SetOrderFrame>
     );
   }
 
-  Widget _orderContent(List<Coffee> coffees) {
+  Widget _orderContent(List<Item> items) {
     return TabBarView(
       controller: controller,
-      children: choices.map((choice) => _orderGrid(coffees, choice)).toList(),
+      children: choices.map((choice) => _orderGrid(items, choice)).toList(),
     );
   }
 
-  Widget _orderGrid(coffees, choice) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: GridView(
-        children: _filter(coffees, choice)
-            .map((item) => CoffeeKindTile(coffee: item, callback: appendItem))
-            .toList(),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200,
-          childAspectRatio: 1,
-          mainAxisSpacing: 0,
-          crossAxisSpacing: 0,
-        ),
+  Widget _orderGrid(items, choice) {
+    return GridView(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      children: _filter(items, choice)
+          .map((item) => CoffeeKindTile(coffee: item, callback: appendItem))
+          .toList(),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 200,
+        childAspectRatio: 1,
+        mainAxisSpacing: 0,
+        crossAxisSpacing: 0,
       ),
     );
   }
@@ -323,33 +314,41 @@ class _SetOrderFrameState extends State<SetOrderFrame>
     );
   }
 
-  void _placeOrderEvent(List<Coffee> coffees, UserData userData) async {
+  void _placeOrderEvent(List<Item> items, UserData userData) async {
     setState(() {
       loading = true;
       //errorMessage = '';
     });
     if (_selectedItems.isNotEmpty && _currentPlace != null) {
-      // create order params
+      // CREATE ORDER PARAMETERS
       String state = 'active';
-      List<String> items = getStringList(_selectedItems);
-      int price = getTotalPrice(coffees, _selectedItems);
+      List<String> stringList = getStringList(_selectedItems);
+      int price = getTotalPrice(items, _selectedItems);
       String pickUpTime = getPickUpTime(plusTime);
       String username = '${userData.name} ${userData.surname}';
-      String spz = userData.spz;
       String place = _currentPlace.toString();
+      String flag = 'real';
       String orderId = '';
       String userId = userData.uid;
 
-      // place an active order to database
-      DocumentReference _docRef = await DatabaseService().createOrder(state,
-          items, price, pickUpTime, username, spz, place, orderId, userId);
+      // PLACE AN ACTIVE ORDER TO DATABASE
+      DocumentReference _docRef = await DatabaseService().createOrder(
+          state,
+          stringList,
+          price,
+          pickUpTime,
+          username,
+          place,
+          flag,
+          orderId,
+          userId);
 
-      // get and add order ID
-      await DatabaseService().setOrderId(state, items, price, pickUpTime,
-          username, spz, place, _docRef.id, userId);
+      // GET AN ORDER ID
+      await DatabaseService().setOrderId(state, stringList, price, pickUpTime,
+          username, place, flag, _docRef.id, userId);
 
-      // update quantity of particular coffee type
-      for (Coffee item in _selectedItems) {
+      // UPDATE QUANTITY OF A PARTICULAR ITEM TYPE
+      for (Item item in _selectedItems) {
         print(item.name);
         await DatabaseService().updateCoffeeData(
           item.uid,
@@ -360,24 +359,35 @@ class _SetOrderFrameState extends State<SetOrderFrame>
         );
       }
 
-      // create order instance for webview
+      // UPDATE USER DATA
+      await DatabaseService(uid: userData.uid).updateUserData(
+        userData.name,
+        userData.surname,
+        userData.email,
+        userData.role,
+        userData.tokens,
+        userData.stand,
+        userData.numOrders + 1,
+      );
+
+      // CREATE ORDER INSTANCE FOR WEBVIEW
       Order order = Order(
         state: state,
-        coffee: items,
+        coffee: stringList,
         price: price,
         pickUpTime: pickUpTime,
         username: username,
-        spz: spz,
         place: place,
+        flag: 'real',
         orderId: _docRef.id,
         userId: userId,
       );
 
-      // launch webview
-      //launchPaymentGateway(context, _totalOrderPrice(coffees), coffees, order);
+      // LAUNCH WEBVIEW
+      //launchPaymentGateway(context, getTotalPrice(items,_selectedItems), items, order);
       Navigator.pop(context);
     } else {
-      // notify user something is wrong with order parameters
+      // NOTIFY USER SOMETHING IS WRONG WITH ORDER PARAMETERS
       String message;
 
       if (_selectedItems.isEmpty && _currentPlace != null) {

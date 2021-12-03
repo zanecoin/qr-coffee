@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:qr_coffee/models/coffee.dart';
+import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/screens/order_screens/order_inventory.dart';
 import 'package:qr_coffee/shared/custom_app_bar.dart';
@@ -18,7 +18,7 @@ String pubSEC = '12f071174cb7eb79d4aac5bc2f07563f';
 launchPaymentGateway(
   BuildContext context,
   int price,
-  List<Coffee> coffees,
+  List<Item> items,
   Order order,
 ) async {
   // GET AUTHORIZATION

@@ -1,5 +1,5 @@
 import 'package:qr_coffee/models/article.dart';
-import 'package:qr_coffee/models/coffee.dart';
+import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/credit_card.dart';
 import 'package:qr_coffee/models/order.dart';
@@ -16,15 +16,15 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('users');
 
   Future updateUserData(String name, String surname, String email, String role,
-      String spz, String stand, int card) async {
+      int tokens, String stand, int numOrders) async {
     return await userCollection.doc(uid).set({
       'name': name,
       'surname': surname,
       'email': email,
       'role': role,
-      'spz': spz,
+      'tokens': tokens,
       'stand': stand,
-      'card': card,
+      'numOrders': numOrders,
     });
   }
 
@@ -36,9 +36,9 @@ class DatabaseService {
       surname: (snapshot.data() as dynamic)['surname'],
       email: (snapshot.data() as dynamic)['email'],
       role: (snapshot.data() as dynamic)['role'],
-      spz: (snapshot.data() as dynamic)['spz'],
+      tokens: (snapshot.data() as dynamic)['tokens'],
       stand: (snapshot.data() as dynamic)['stand'],
-      card: (snapshot.data() as dynamic)['card'],
+      numOrders: (snapshot.data() as dynamic)['numOrders'],
     );
   }
 
@@ -56,9 +56,9 @@ class DatabaseService {
         surname: (doc.data() as dynamic)['surname'],
         email: (doc.data() as dynamic)['email'],
         role: (doc.data() as dynamic)['role'],
-        spz: (doc.data() as dynamic)['spz'],
+        tokens: (doc.data() as dynamic)['tokens'],
         stand: (doc.data() as dynamic)['stand'],
-        card: (doc.data() as dynamic)['card'],
+        numOrders: (doc.data() as dynamic)['numOrders'],
       );
     }).toList();
   }
@@ -86,8 +86,8 @@ class DatabaseService {
     int price,
     String pickUpTime,
     String username,
-    String spz,
     String place,
+    String flag,
     String orderId,
     String userId,
   ) async {
@@ -98,8 +98,8 @@ class DatabaseService {
         'price': price,
         'pickUpTime': pickUpTime,
         'username': username,
-        'spz': spz,
         'place': place,
+        'flag': flag,
         'orderId': orderId,
         'userId': userId,
       });
@@ -110,8 +110,8 @@ class DatabaseService {
         'price': price,
         'pickUpTime': pickUpTime,
         'username': username,
-        'spz': spz,
         'place': place,
+        'flag': flag,
         'orderId': orderId,
         'userId': userId,
       });
@@ -125,8 +125,8 @@ class DatabaseService {
     int price,
     String pickUpTime,
     String username,
-    String spz,
     String place,
+    String flag,
     String orderId,
     String userId,
   ) async {
@@ -137,8 +137,8 @@ class DatabaseService {
         'price': price,
         'pickUpTime': pickUpTime,
         'username': username,
-        'spz': spz,
         'place': place,
+        'flag': flag,
         'orderId': orderId,
         'userId': userId,
       });
@@ -149,8 +149,8 @@ class DatabaseService {
         'price': price,
         'pickUpTime': pickUpTime,
         'username': username,
-        'spz': spz,
         'place': place,
+        'flag': flag,
         'orderId': orderId,
         'userId': userId,
       });
@@ -166,8 +166,8 @@ class DatabaseService {
         price: (doc.data() as dynamic)['price'],
         pickUpTime: (doc.data() as dynamic)['pickUpTime'],
         username: (doc.data() as dynamic)['username'],
-        spz: (doc.data() as dynamic)['spz'],
         place: (doc.data() as dynamic)['place'],
+        flag: (doc.data() as dynamic)['flag'],
         orderId: (doc.data() as dynamic)['orderId'],
         userId: (doc.data() as dynamic)['userId'],
       );
@@ -208,12 +208,12 @@ class DatabaseService {
   // END ARTICLE --------------------------------------------------------------------------
 
   // COFFEE -------------------------------------------------------------------------------
-  final CollectionReference coffeeCollection =
-      FirebaseFirestore.instance.collection('coffees');
+  final CollectionReference itemCollection =
+      FirebaseFirestore.instance.collection('items');
 
   Future updateCoffeeData(
       String uid, String name, String type, int price, int count) async {
-    return await coffeeCollection.doc(uid).set({
+    return await itemCollection.doc(uid).set({
       'uid': uid,
       'name': name,
       'price': price,
@@ -222,10 +222,10 @@ class DatabaseService {
     });
   }
 
-  // coffees from snapshot
-  List<Coffee> _coffeesFromSnapshot(QuerySnapshot snapshot) {
+  // items from snapshot
+  List<Item> _itemsFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
-      return Coffee(
+      return Item(
         name: (doc.data() as dynamic)['name'],
         price: (doc.data() as dynamic)['price'],
         type: (doc.data() as dynamic)['type'],
@@ -235,9 +235,9 @@ class DatabaseService {
     }).toList();
   }
 
-  // get coffee doc stream
-  Stream<List<Coffee>> get coffeeList {
-    return coffeeCollection.snapshots().map(_coffeesFromSnapshot);
+  // get item doc stream
+  Stream<List<Item>> get coffeeList {
+    return itemCollection.snapshots().map(_itemsFromSnapshot);
   }
 
   // END COFFEE ---------------------------------------------------------------------------

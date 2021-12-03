@@ -5,9 +5,8 @@ class Order {
   int price;
   String pickUpTime;
   String username;
-  String spz;
   String place;
-
+  String flag;
   String orderId;
   String userId;
 
@@ -17,8 +16,8 @@ class Order {
     required this.price,
     required this.pickUpTime,
     required this.username,
-    required this.spz,
     required this.place,
+    required this.flag,
     required this.orderId,
     required this.userId,
   });

@@ -27,6 +27,10 @@ class ImageBanner extends StatelessWidget {
         height = 70;
         width = 55;
         break;
+      case 'baby':
+        height = 45;
+        width = 30;
+        break;
     }
     return Container(
       constraints: BoxConstraints.expand(height: height, width: width),

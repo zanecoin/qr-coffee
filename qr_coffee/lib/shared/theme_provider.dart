@@ -25,7 +25,7 @@ class ThemeProvider with ChangeNotifier {
         statusBarColor: Colors.transparent,
         statusBarBrightness: Brightness.dark,
         statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0x4F26242e),
+        systemNavigationBarColor: Color(0xFF000000),
         systemNavigationBarIconBrightness: Brightness.light,
       ));
     }
@@ -59,7 +59,7 @@ class ThemeProvider with ChangeNotifier {
           : Color(0x3F26242e), //Color(0xFF26242e),
       appBarTheme: AppBarTheme(
         color: isLightTheme ? Color(0xFFFFFFFF) : Color(0x3F26242e),
-      ), 
+      ),
     );
   }
 

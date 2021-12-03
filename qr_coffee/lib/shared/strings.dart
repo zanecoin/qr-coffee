@@ -34,6 +34,7 @@ class CzechStrings {
   static const String forgotPassword = 'Zapomněli jste heslo?';
   static const String workerIdQuestion =
       'Máte změstnanecké ID? Klikněte zde pro registraci jako zaměsnanec.';
+  static const String userNotFound = 'Uživatel nebyl nalezen';
 
   // CREDENTIALS
   static const String name = 'Jméno';
@@ -54,6 +55,12 @@ class CzechStrings {
   static const String activeOrders = 'Vaše aktivní objednávky';
   static const String orderHistory = 'Objednejte si na základě své historie';
 
+  static const String goodmorning = 'Dobré ráno!';
+  static const String goodday = 'Dobrý den!';
+  static const String goodevening = 'Dobrý večer!';
+  static const String myOrders = 'Moje objednávky';
+  static const String myTokens = 'Moje QR-Tokeny';
+
   // SIDEBAR
   static const String personal = 'Osobní údaje';
   static const String settings = 'Nastavení';
@@ -62,6 +69,8 @@ class CzechStrings {
   static const String logout = 'Odhlásit se';
   static const String darkmode = 'Tmavý režim';
   static const String activateStand = 'Aktivovat stanoviště';
+  static const String workMode = 'Pracovní režim';
+  static const String stats = 'Statistika';
 
   // ALERT DIALOG
   static const String question = 'Opravdu?';

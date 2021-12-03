@@ -53,7 +53,7 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
           if (userData.stand != '') {
             return SingleChildScrollView(
               child: Container(
-                margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -61,20 +61,17 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
                     _orderFilter(),
                     CustomDivider(),
                     if (orderList.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: SizedBox(
-                          child: ListView.builder(
-                            itemBuilder: (context, index) => OrderTile(
-                              order: orderList[index],
-                              time: time,
-                              role: 'worker',
-                            ),
-                            itemCount: orderList.length,
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            physics: NeverScrollableScrollPhysics(),
+                      SizedBox(
+                        child: ListView.builder(
+                          itemBuilder: (context, index) => OrderTile(
+                            order: orderList[index],
+                            time: time,
+                            role: 'worker-on',
                           ),
+                          itemCount: orderList.length,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          physics: NeverScrollableScrollPhysics(),
                         ),
                       ),
                     if (orderList.isEmpty)

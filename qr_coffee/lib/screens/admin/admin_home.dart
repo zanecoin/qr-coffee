@@ -1,12 +1,13 @@
 import 'dart:async';
 
-import 'package:qr_coffee/models/coffee.dart';
+import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/place.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/admin/bar_chart.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/custom_app_bar.dart';
 import 'package:qr_coffee/shared/custom_buttons.dart';
 import 'package:qr_coffee/shared/custom_small_widgets.dart';
 import 'package:qr_coffee/shared/functions.dart';
@@ -17,6 +18,7 @@ import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_coffee/shared/strings.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({Key? key}) : super(key: key);
@@ -32,7 +34,7 @@ class _AdminHomeState extends State<AdminHome> {
   Widget build(BuildContext context) {
     // GET CURRENTLY LOGGED USER AND DATA STREAMS
     final user = Provider.of<User?>(context);
-    return StreamBuilder4<List<Order>, List<Coffee>, List<Place>, UserData>(
+    return StreamBuilder4<List<Order>, List<Item>, List<Place>, UserData>(
       streams: Tuple4(
         DatabaseService().passiveOrderList,
         DatabaseService().coffeeList,
@@ -45,34 +47,39 @@ class _AdminHomeState extends State<AdminHome> {
             snapshots.item3.hasData &&
             snapshots.item4.hasData) {
           List<Order> passiveOrderList = snapshots.item1.data!;
-          List<Coffee> coffees = snapshots.item2.data!;
+          List<Item> items = snapshots.item2.data!;
           List<Place> places = snapshots.item3.data!;
           UserData userData = snapshots.item4.data!;
 
-          return Container(
-            child: Column(
-              children: [
-                SizedBox(height: Responsive.height(2, context)),
-                show
-                    ? BarChartSample2(orders: passiveOrderList)
-                    : Container(
-                        height: 360,
-                        child: Center(
-                          child: Loading(),
+          List<Order> filteredOrderList = _getFiltered(passiveOrderList);
+
+          return Scaffold(
+            appBar: customAppBar(context, title: Text(CzechStrings.stats)),
+            body: Container(
+              child: Column(
+                children: [
+                  SizedBox(height: Responsive.height(2, context)),
+                  show
+                      ? BarChartSample2(orders: filteredOrderList)
+                      : Container(
+                          height: 360,
+                          child: Center(
+                            child: Loading(),
+                          ),
                         ),
-                      ),
-                CustomDivider(),
-                SizedBox(height: Responsive.height(2, context)),
-                _genButton(
-                    context, coffees, places, 1, 'Generovat 1 objednávku'),
-                SizedBox(height: Responsive.height(1, context)),
-                _genButton(
-                    context, coffees, places, 10, 'Generovat 10 objednávek'),
-                SizedBox(height: Responsive.height(1, context)),
-                _genButton(
-                    context, coffees, places, 100, 'Generovat 100 objednávek'),
-                SizedBox(height: Responsive.height(2, context)),
-              ],
+                  CustomDivider(),
+                  SizedBox(height: Responsive.height(2, context)),
+                  _genButton(
+                      context, items, places, 1, 'Generovat 1 objednávku'),
+                  SizedBox(height: Responsive.height(1, context)),
+                  _genButton(
+                      context, items, places, 10, 'Generovat 10 objednávek'),
+                  SizedBox(height: Responsive.height(1, context)),
+                  _genButton(
+                      context, items, places, 100, 'Generovat 100 objednávek'),
+                  SizedBox(height: Responsive.height(2, context)),
+                ],
+              ),
             ),
           );
         } else {
@@ -84,7 +91,7 @@ class _AdminHomeState extends State<AdminHome> {
 
   Widget _genButton(
     context,
-    List<Coffee> coffees,
+    List<Item> items,
     List<Place> places,
     int iterations,
     String title,
@@ -104,7 +111,7 @@ class _AdminHomeState extends State<AdminHome> {
           ),
         ),
         onPressed: () {
-          _orderGenerator(coffees, places, iterations);
+          _orderGenerator(items, places, iterations);
           setState(() {
             show = !show;
           });
@@ -120,8 +127,18 @@ class _AdminHomeState extends State<AdminHome> {
   }
 }
 
+List<Order> _getFiltered(List<Order> unfiltered) {
+  List<Order> filtered = [];
+  for (var item in unfiltered) {
+    if (item.flag == 'virtual') {
+      filtered.add(item);
+    }
+  }
+  return filtered;
+}
+
 Future _orderGenerator(
-  List<Coffee> coffees,
+  List<Item> items,
   List<Place> places,
   int iterations,
 ) async {
@@ -157,31 +174,31 @@ Future _orderGenerator(
     }
     String pickUpTime = '$yyyyMM$dd$HH$mm$ss';
 
-    List<Coffee> selectedItems = [];
+    List<Item> selectedItems = [];
     if (random(1, 101) % 4 == 0) {
       // 25% chance for croissant
-      selectedItems.add(coffees[8]);
+      selectedItems.add(items[8]);
     } else {
       // 75% chance for drink
-      selectedItems.add(coffees[random(0, 8)]);
+      selectedItems.add(items[random(0, 8)]);
     }
     if (random(1, 101) % 5 == 0) {
       // 20% chance for for ordering 2nd item
-      selectedItems.add(coffees[random(0, 9)]);
+      selectedItems.add(items[random(0, 9)]);
     }
     if (random(1, 101) % 20 == 0) {
       // 5% chance for for ordering 3rd item
-      selectedItems.add(coffees[random(0, 9)]);
+      selectedItems.add(items[random(0, 9)]);
     }
     if (random(1, 101) % 50 == 0) {
       // 2% chance for for ordering 4th item
-      selectedItems.add(coffees[random(0, 9)]);
+      selectedItems.add(items[random(0, 9)]);
     }
 
-    List<String> items = getStringList(selectedItems);
-    int price = getTotalPrice(coffees, selectedItems);
+    List<String> stringList = getStringList(selectedItems);
+    int price = getTotalPrice(items, selectedItems);
     String username = names[random(0, 10)];
-    String spz = '1A1 9966';
+    String flag = 'virtual';
     String place = places[random(0, 2)].address;
     String orderId = '';
     String userId = 'ID';
@@ -192,16 +209,15 @@ Future _orderGenerator(
     // print('price: $price Kč');
     // print('pickUpTime: ${timeFormatter(pickUpTime)}');
     // print('username: $username');
-    // print('spz: $spz');
     // print('place: $place');
 
     // place an active order to database
     DocumentReference _docRef = await DatabaseService().createOrder('active',
-        items, price, pickUpTime, username, spz, place, orderId, userId);
+        stringList, price, pickUpTime, username, place, flag, orderId, userId);
 
     // move order from active to passive category
-    await DatabaseService().createOrder(state, items, price, pickUpTime,
-        username, spz, place, _docRef.id, userId);
+    await DatabaseService().createOrder(state, stringList, price, pickUpTime,
+        username, place, flag, _docRef.id, userId);
 
     // delete active order
     await DatabaseService().deleteOrder(_docRef.id);

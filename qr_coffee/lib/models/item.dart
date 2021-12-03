@@ -1,11 +1,11 @@
-class Coffee {
+class Item {
   final String uid;
   final String name;
   final String type;
   final int price;
   final int count;
 
-  Coffee({
+  Item({
     required this.uid,
     required this.name,
     required this.type,

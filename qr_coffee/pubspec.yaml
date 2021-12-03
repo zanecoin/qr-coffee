@@ -50,13 +50,16 @@ flutter_icons:
 flutter:
   uses-material-design: true
   assets:
+    - assets/coin.jpg
     - assets/cafe.jpg
-    - assets/cafe3.jpg
+    - assets/cafe2.jpg
     - assets/cafeback1.jpg
+    - assets/cafeback3.jpg
     - assets/cafeback2_narrow.jpg
     - assets/map.jpg
     - assets/croissant.jpg
     - assets/cafeteria1.jpg
+    - assets/cafeteria2.jpg
   fonts:
     - family: Galada
       fonts:

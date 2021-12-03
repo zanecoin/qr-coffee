@@ -1,4 +1,3 @@
-import 'package:qr_coffee/api/model/data.dart';
 import 'package:qr_coffee/api/retrofit/api_client.dart';
 import 'package:dio/dio.dart';
 

@@ -1,4 +1,4 @@
-import 'package:qr_coffee/models/coffee.dart';
+import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -10,12 +10,12 @@ String timeFormatter(String time) {
   return '${time.substring(8, 10)}:${time.substring(10, 12)} • ${time.substring(6, 8)}.${time.substring(4, 6)}.${time.substring(0, 4)}';
 }
 
-int getTotalPrice(List<Coffee> coffees, selectedItems) {
-  // PARAMS: coffees = all items from database, selectedItems = all items selected by user
+int getTotalPrice(List<Item> items, selectedItems) {
+  // PARAMS: items = all items from database, selectedItems = all items selected by user
   // RETURN: price = total order price
   int price = 0;
   for (var item in selectedItems) {
-    for (var coffee in coffees) {
+    for (var coffee in items) {
       if (coffee.name == item.name) price += coffee.price;
     }
   }

@@ -6,11 +6,11 @@ import 'package:qr_coffee/shared/custom_app_bar.dart';
 import 'package:qr_coffee/shared/custom_small_widgets.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/image_banner.dart';
-import 'package:qr_coffee/shared/loading.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
+import 'package:qr_coffee/shared/strings.dart';
 
 // tile with order in the order list
 class OrderTile extends StatelessWidget {
@@ -58,9 +58,9 @@ class OrderTile extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: 5, vertical: role == 'worker' ? 5 : 10),
+          horizontal: 5, vertical: role == 'worker-on' ? 5 : 10),
       child: Card(
-        elevation: 4,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
         ),
@@ -77,7 +77,16 @@ class OrderTile extends StatelessWidget {
             height: Responsive.height(15, context),
             width: Responsive.width(67, context),
             decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade300,
+                  offset: Offset(1, 1),
+                  blurRadius: 15,
+                  spreadRadius: 0,
+                )
+              ],
               //border: Border.all(color: Colors.grey, width: 1.5),
             ),
             child: Center(
@@ -88,7 +97,8 @@ class OrderTile extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       ImageBanner(path: 'assets/cafe.jpg', size: 'small'),
-                      if (role == 'worker') Positioned(child: icon, top: 32.5),
+                      if (role == 'worker-on')
+                        Positioned(child: icon, top: 32.5),
                     ],
                   ),
                   SizedBox(width: Responsive.width(2, context)),
@@ -103,17 +113,13 @@ class OrderTile extends StatelessWidget {
                         Text(remainingTime, style: TextStyle(color: color)),
                       ],
                     ),
-                  if (role == 'worker')
+                  if (role == 'worker-on')
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                            order.spz == ''
-                                ? '${order.username}'
-                                : '${order.username}',
+                        Text('${order.username}',
                             style: TextStyle(fontWeight: FontWeight.bold)),
-                        if (order.spz != '') Text('${order.spz}'),
                         Text('${coffeeLabel}'),
                         Text(remainingTime, style: TextStyle(color: color)),
                       ],
@@ -154,118 +160,124 @@ class _UserOrderState extends State<UserOrder> {
         Stream.periodic(const Duration(seconds: 1)),
       ),
       builder: (context, snapshots) {
-        if (snapshots.item1.hasData) {
-          UserData userData = snapshots.item1.data!;
-          String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-          String remainingTime = '';
-          Color color = Colors.black;
+        UserData? userData = snapshots.item1.data;
+        String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+        String remainingTime = '';
+        Color color = Colors.black;
 
-          if (order.state == 'active') {
-            List returnArray = time == ''
-                ? ['?', Colors.black]
-                : getRemainingTime(order, time);
-            remainingTime = returnArray[0];
-            color = returnArray[1];
-          } else {
-            remainingTime = '${timeFormatter(order.pickUpTime)}';
-            color = Colors.black;
-          }
+        if (order.state == 'active') {
+          List returnArray =
+              time == '' ? ['?', Colors.black] : getRemainingTime(order, time);
+          remainingTime = returnArray[0];
+          color = returnArray[1];
+        } else {
+          remainingTime = '${timeFormatter(order.pickUpTime)}';
+          color = Colors.black;
+        }
 
-          return Scaffold(
-            appBar: customAppBar(context,
-                title: Text(remainingTime, style: TextStyle(color: color))),
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _fancyInfoCard(order, userData, role),
-                  SizedBox(height: 10),
-                  Text('Položky',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  CustomDivider(indent: 90),
-                  SizedBox(
-                    child: ListView.builder(
-                      itemBuilder: (context, index) => Center(
-                          child: Text(
-                        order.coffee[index],
-                        style: TextStyle(fontSize: 20),
-                      )),
-                      itemCount: order.coffee.length,
-                      shrinkWrap: true,
-                      scrollDirection: Axis.vertical,
-                      physics: NeverScrollableScrollPhysics(),
-                    ),
+        return Scaffold(
+          appBar: customAppBar(context,
+              title: Text(remainingTime, style: TextStyle(color: color))),
+          body: userData == null
+              ? Center(
+                  child: Text(
+                    CzechStrings.userNotFound,
                   ),
-                  SizedBox(height: 20),
-                  if (order.state == 'active')
-                    if (role == 'worker')
-                      Column(
-                        children: [
-                          SizedBox(height: 40),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                )
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _fancyInfoCard(order, userData, role),
+                      SizedBox(height: 10),
+                      Text('Položky',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                      CustomDivider(indent: 90),
+                      SizedBox(
+                        child: ListView.builder(
+                          itemBuilder: (context, index) => Center(
+                              child: Text(
+                            order.coffee[index],
+                            style: TextStyle(fontSize: 20),
+                          )),
+                          itemCount: order.coffee.length,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          physics: NeverScrollableScrollPhysics(),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      if (order.state == 'active')
+                        if (role == 'worker-on')
+                          Column(
                             children: [
-                              _resultBtn('abandoned', 'Nevyzvednuto',
-                                  Icons.clear, Colors.red),
-                              _resultBtn('complete', 'Vyzvednuto', Icons.done,
-                                  Colors.green),
+                              SizedBox(height: 40),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _resultBtn('abandoned', 'Nevyzvednuto',
+                                      Icons.clear, Colors.red),
+                                  _resultBtn('complete', 'Vyzvednuto',
+                                      Icons.done, Colors.green),
+                                ],
+                              ),
                             ],
                           ),
-                        ],
-                      ),
-                  if (order.state == 'active')
-                    if (role == 'customer')
-                      Column(
-                        children: [
-                          SizedBox(height: 40),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      if (order.state == 'active')
+                        if (role == 'customer')
+                          Column(
                             children: [
-                              _resultBtn('aborted', 'Zrušit moji objednávku',
-                                  Icons.clear, Colors.red),
+                              SizedBox(height: 40),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _resultBtn(
+                                      'aborted',
+                                      'Zrušit moji objednávku',
+                                      Icons.clear,
+                                      Colors.red),
+                                ],
+                              ),
                             ],
                           ),
-                        ],
-                      ),
-                  // order result info window
-                  if (order.state == 'complete')
-                    _resultWindow('Objednávka vyzvednuta',
-                        Colors.green.shade100, checkIcon()),
-                  if (order.state == 'abandoned')
-                    _resultWindow('Objednávka nevyzvednuta',
-                        Colors.orange.shade100, questionIcon()),
-                  if (order.state == 'aborted')
-                    _resultWindow(
-                        'Objednávka zrušena', Colors.red.shade100, errorIcon()),
-                  if (order.state != 'active' && role == 'customer')
-                    Column(
-                      children: [
-                        SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      // order result info window
+                      if (order.state == 'complete')
+                        _resultWindow('Objednávka vyzvednuta',
+                            Colors.green.shade100, checkIcon()),
+                      if (order.state == 'abandoned')
+                        _resultWindow('Objednávka nevyzvednuta',
+                            Colors.orange.shade100, questionIcon()),
+                      if (order.state == 'aborted')
+                        _resultWindow('Objednávka zrušena', Colors.red.shade100,
+                            errorIcon()),
+                      if (order.state != 'active' && role == 'customer')
+                        Column(
                           children: [
-                            _resultBtn('active', 'Objednat znovu',
-                                Icons.refresh, Colors.green),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _resultBtn('active', 'Objednat znovu',
+                                    Icons.refresh, Colors.green),
+                              ],
+                            ),
+                            Text(
+                              'Na ${timeFormatter(order.pickUpTime).substring(0, 5)}',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            Text(
+                              '(Platba uloženou kartou)',
+                              style: TextStyle(fontSize: 18),
+                            )
                           ],
                         ),
-                        Text(
-                          'Na ${timeFormatter(order.pickUpTime).substring(0, 5)}',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                        Text(
-                          '(Platba uloženou kartou)',
-                          style: TextStyle(fontSize: 18),
-                        )
-                      ],
-                    ),
-                  SizedBox(height: 30),
-                ],
-              ),
-            ),
-          );
-        } else {
-          return Loading();
-        }
+                      SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+        );
       },
     );
   }
@@ -354,7 +366,7 @@ Widget _fancyInfoCard(Order order, UserData userData, String role) {
               ),
             ],
           ),
-          if (role == 'worker')
+          if (role == 'worker-on')
             Align(
               alignment: Alignment.center,
               child: Column(
@@ -368,7 +380,7 @@ Widget _fancyInfoCard(Order order, UserData userData, String role) {
                         fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    order.spz,
+                    order.flag,
                     style: TextStyle(
                       fontSize: 30,
                       color: Colors.black,
@@ -416,7 +428,7 @@ Future _answerOrder(String result, Order order, BuildContext context) async {
     order.price,
     order.pickUpTime,
     order.username,
-    order.spz,
+    order.flag,
     order.place,
     order.orderId,
     order.userId,
@@ -434,7 +446,7 @@ Future _repeatOrder(String result, Order order, BuildContext context) async {
     order.price,
     order.pickUpTime,
     order.username,
-    order.spz,
+    order.flag,
     order.place,
     '',
     order.userId,
@@ -445,7 +457,7 @@ Future _repeatOrder(String result, Order order, BuildContext context) async {
     order.price,
     order.pickUpTime,
     order.username,
-    order.spz,
+    order.flag,
     order.place,
     _docRef.id,
     order.userId,
