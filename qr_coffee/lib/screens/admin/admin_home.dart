@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/place.dart';
@@ -12,7 +13,6 @@ import 'package:qr_coffee/shared/custom_buttons.dart';
 import 'package:qr_coffee/shared/custom_small_widgets.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/loading.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
@@ -51,8 +51,6 @@ class _AdminHomeState extends State<AdminHome> {
           List<Place> places = snapshots.item3.data!;
           UserData userData = snapshots.item4.data!;
 
-          List<Order> filteredOrderList = _getFiltered(passiveOrderList);
-
           return Scaffold(
             appBar: customAppBar(context, title: Text(CzechStrings.stats)),
             body: Container(
@@ -60,7 +58,7 @@ class _AdminHomeState extends State<AdminHome> {
                 children: [
                   SizedBox(height: Responsive.height(2, context)),
                   show
-                      ? BarChartSample2(orders: filteredOrderList)
+                      ? BarChartSample2(orders: passiveOrderList)
                       : Container(
                           height: 360,
                           child: Center(
@@ -127,16 +125,6 @@ class _AdminHomeState extends State<AdminHome> {
   }
 }
 
-List<Order> _getFiltered(List<Order> unfiltered) {
-  List<Order> filtered = [];
-  for (var item in unfiltered) {
-    if (item.flag == 'virtual') {
-      filtered.add(item);
-    }
-  }
-  return filtered;
-}
-
 Future _orderGenerator(
   List<Item> items,
   List<Place> places,
@@ -144,16 +132,18 @@ Future _orderGenerator(
 ) async {
   for (var i = 1; i < iterations + 1; i++) {
     // STATE
-    String state = states[0];
+    String status = states[0];
     if (random(1, 101) % 25 == 0) {
-      state = states[1];
+      status = states[1];
     }
     if (random(1, 101) % 50 == 0) {
-      state = states[2];
+      status = states[2];
     }
 
     // TIME (not considering month underflow)
-    String presentTime = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+    DateTime date = DateTime.now();
+    String presentTime = DateFormat('yyyyMMddHHmmss').format(date);
+    String day = DateFormat('EEEE').format(date);
 
     String yyyyMM = presentTime.substring(0, 6);
     String dd = random(1, 8).toString();
@@ -197,8 +187,7 @@ Future _orderGenerator(
 
     List<String> stringList = getStringList(selectedItems);
     int price = getTotalPrice(items, selectedItems);
-    String username = names[random(0, 10)];
-    String flag = 'virtual';
+    String username = names[random(0, 40)];
     String place = places[random(0, 2)].address;
     String orderId = '';
     String userId = 'ID';
@@ -211,16 +200,20 @@ Future _orderGenerator(
     // print('username: $username');
     // print('place: $place');
 
-    // place an active order to database
-    DocumentReference _docRef = await DatabaseService().createOrder('active',
-        stringList, price, pickUpTime, username, place, flag, orderId, userId);
+    // place virtual order to database
+    DocumentReference _docRef = await DatabaseService().createVirtualOrder(
+      status,
+      stringList,
+      price,
+      pickUpTime,
+      username,
+      place,
+      orderId,
+      userId,
+      day,
+    );
 
-    // move order from active to passive category
-    await DatabaseService().createOrder(state, stringList, price, pickUpTime,
-        username, place, flag, _docRef.id, userId);
-
-    // delete active order
-    await DatabaseService().deleteOrder(_docRef.id);
+    await DatabaseService().updateVirtualOrderId(_docRef.id);
   }
 }
 
@@ -239,11 +232,41 @@ List<String> names = [
   'Josef Pávek',
   'Růžena Pavlíková',
   'Vladislav Horný',
-  'Monika Holková'
+  'Monika Holková',
+  'Olga Holubová',
+  'Simona Dáňová',
+  'Jan Kubita',
+  'Dana Nováková',
+  'Jaroslava Turečková',
+  'Jiří Jozifek',
+  'Martina Mitregová',
+  'David Moni',
+  'Ellen Kadlecová',
+  'Martin Kůzl',
+  'Zdeněk Pastorek',
+  'David Petrák',
+  'Hana Syrová',
+  'Lenka Tušinovská',
+  'Josef Bílek',
+  'Jaromír Skalický',
+  'Jan Sloboda',
+  'Jiří Polák',
+  'Otakar Šimonovič',
+  'Rosalinda Malátová',
+  'Petr Čech',
+  'Milan Vondruška',
+  'Ondřej Dragoun',
+  'Michaela Veliká',
+  'Ladislav Renda',
+  'Aneta Pokorná',
+  'Miroslav Škrobák',
+  'Věra Tydlačková',
+  'Ján Böswart',
+  'Vít Kuba',
 ];
 
 List<String> states = [
-  'complete',
-  'aborted',
-  'abandoned',
+  'COMPLETED',
+  'ABORTED',
+  'ABANDONED',
 ];

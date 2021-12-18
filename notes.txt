@@ -1,61 +1,61 @@
 Funkční:
 - úvodní obrazovka, přihlášení a registrace přes email a heslo, odhlášení (+řešení většiny vyjímečných situací typu neplatný e-mail)
 - role: 'pracovník'/'zákazník' (každý má svou domovskou stránku)
-- možnost upravit své jméno a SPZ
-- možnost přidat platební kartu
-- možnost rozkliknout nápovědu a kontakt na firmu
 - zákazník může odeslat objednávku, kde si může zvolit druh kávy, odběrové místo a za jak dlouho si objednávku vyzvedne (objednávka získá status - 'aktvní')
 - zákazník může zrušit objednávku (objednávka získá status - 'zrušená')
 - pracovník může odkliknout vyzvednuté/nevyzvednuté objednávky (objednávka získá status - 'vyzvednutá'/'nevyzvednutá')
 - seznam aktvních objednávek na domovské obrazovce zákazníka
 - zobrazení historie objednávek na domovské obrazovce zákazníka + možnost objednat kávu na základě předchozí objednávky (objednávka opět získá status - 'aktvní')
-- řazení objednávek podle času
 - filtr objednávek na domovské stránce pracovníka ('všechny' - 'aktvní' - 'vyzvednuté' - 'nevyzvednuté' - 'zrušené' - 'vyřízené')
-- katalog druhů káv na domovské obrazovce zákazníka
 - přesný dynamický výpočet časů objednávek skrz celou aplikaci + zabarvení časových údajů podle hodnoty
 - pracovník může přepínat mezi pracovním a zákaznickým účtem, zákazník má pouze zákaznický účet
 - pracovník může v nastavení aktivovat a deaktivovat stanoviště, na kterém právě pracuje
 - uchovávání počtu zakoupených káv v databázi (později se dá udělat statistika zobrazující, jaký druh kávy je nejkupovanější)
 
 
-V plánu:
-- platba kartou přes platební bránu!
+BRÁNA
+- platební metody omezit na kartu
+- auto-complete
+- zabezpečení platební brány
 
-- statistiky: vytíženost stánků, poměr úspěšných objednávek, odběr surovin
+STATISTIKY
+- vytíženost stánků, poměr úspěšných objednávek, odběr surovin
 
-- odstranit horní lištu
-- prodloužit objednávku o 5 min
-- dodělat objednávkový interface
+OBJEDNÁVKY
 - pop-up při zadávání produktu
-- při zadávání objednávky manuálně nezapínat platební bránu
-- zavést tokeny, možnost platit tokeny nebo penězi
-- responzivita
-- QR kódy
-- před provedením důležitých akcí přidat alert dialog
+- zobrazovat pending objednávky?
+- načíst další
+
+DATABÁZE A FUNKCE
 - počítání prodaných položek
 - každá položka musí mít suroviny a pole featur
+- sekundový trigger na checkování internet connection
++ přidat stav - objednávka připravena
+- zabezpečení databáze
+- odhlašování nefaká
 
-- vyřešit dakrmode ve webview
+KOSMETIKA
+- opravit zobrazovaní horní lišty
+- snackbars
+- responzivita
+- vyřešit dakrmode ve webview??
+- před provedením důležitých akcí přidat alert dialog
+- tmavý režim
+- omezit délku jména
+
+PROJEKTY
 - mapa zobrazující polohu stánků
 - obrazovka s tutoriálem bezprostředně po registraci
 - přihlášení přes Google a Facebook
 - podpora iOS
-- tmavý režim
 - kompletní anonymní přehled polohy uživatelů
+- notifikace - prodlužování objednávek
 
 
-Technické:
-- výška tiles na domovské obrazovce zákazníka
-- počítání káv
-- responsivita
-- snackbars
-
-
-Do budoucna:
+DO BUDOUCNA
 - vytvořit application ID
-- firebase bill alerts
-- storno objednávky a vracení peněz
 - registrace zaměstnanců
+- privacy policy
 
 
 Platební brány:
@@ -69,19 +69,3 @@ GB WebPay - poplatek na vyžádání, nejde integrovat s Android/iOS
 Global Payments - poplatek na vyžádání, nejde integrovat s Android/iOS
 ThePay - poplatek 10+2 kč, integrace?
 GoPay - poplatek 10+3 kč, integrace?
-
-
-Odvezeno:
-talíř, hrnek, vařečka, flipperka
-Ptačí oko, sojovka
-Oblečení, ručník, utěrka, ložní prádlo
-
-Neodvezeno:
-Kartáček na zuby, pasta, tyčinky do uší, deodorant, kapesníky, toaleťák
-Pánev, hrnec, miska, příbor, prkno
-sůl, pepř, Káva, čaj, 
-Čočky, vitamíny
-Reprák, komarkiller
-
-Koupit:
-Trenky, sešity

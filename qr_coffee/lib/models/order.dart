@@ -1,24 +1,24 @@
 class Order {
-  String state;
+  String status;
 
-  List coffee;
+  List items;
   int price;
   String pickUpTime;
   String username;
   String place;
-  String flag;
   String orderId;
   String userId;
+  String day;
 
   Order({
-    required this.state,
-    required this.coffee,
+    required this.status,
+    required this.items,
     required this.price,
     required this.pickUpTime,
     required this.username,
     required this.place,
-    required this.flag,
     required this.orderId,
     required this.userId,
+    required this.day,
   });
 }

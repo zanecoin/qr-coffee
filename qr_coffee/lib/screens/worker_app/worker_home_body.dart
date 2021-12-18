@@ -41,14 +41,19 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
             snapshots.item2.hasData &&
             snapshots.item3.hasData) {
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-
           UserData userData = snapshots.item3.data!;
+
           List<Order> passiveOrderList = snapshots.item1.data!;
-          List<Order> activeOrderList = snapshots.item2.data!;
+          passiveOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
+          passiveOrderList = passiveOrderList.reversed.toList();
+
+          List<Order> activeOrderList =
+              _filterOutPending(snapshots.item2.data!, userData);
+          activeOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
+
           List<Order> orderList = activeOrderList + passiveOrderList;
-          orderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
-          orderList = orderList.reversed.toList();
-          orderList = _getOrderType(orderList);
+          orderList = _getOrderByPlace(orderList, userData.stand);
+          orderList = _getOrderByType(orderList);
 
           if (userData.stand != '') {
             return SingleChildScrollView(
@@ -98,28 +103,49 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     );
   }
 
-  List<Order> _getOrderType(List<Order> orders) {
+  List<Order> _filterOutPending(List<Order> orders, UserData userData) {
+    List<Order> result = [];
+    for (var item in orders) {
+      if (item.status != 'PENDING') {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+
+  List<Order> _getOrderByPlace(List<Order> orders, String place) {
+    List<Order> result = [];
+    for (var item in orders) {
+      if (item.place == place) {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+
+  List<Order> _getOrderByType(List<Order> orders) {
     List<Order> result = [];
     if (_currentFilter == 'Všechny') {
       return orders;
     } else {
       for (var order in orders) {
         if (_currentFilter == 'Vyřízené' &&
-            (order.state == 'complete' ||
-                order.state == 'aborted' ||
-                order.state == 'abandoned')) {
+            (order.status == 'COMPLETED' ||
+                order.status == 'ABORTED' ||
+                order.status == 'ABANDONED')) {
           result.add(order);
         }
-        if (_currentFilter == 'Čekající' && order.state == 'active') {
+        if (_currentFilter == 'Čekající' &&
+            (order.status == 'ACTIVE' || order.status == 'READY')) {
           result.add(order);
         }
-        if (_currentFilter == 'Vyzvednuté' && order.state == 'complete') {
+        if (_currentFilter == 'Vyzvednuté' && order.status == 'COMPLETED') {
           result.add(order);
         }
-        if (_currentFilter == 'Nevyzvednuté' && order.state == 'abandoned') {
+        if (_currentFilter == 'Nevyzvednuté' && order.status == 'ABANDONED') {
           result.add(order);
         }
-        if (_currentFilter == 'Zrušené' && order.state == 'aborted') {
+        if (_currentFilter == 'Zrušené' && order.status == 'ABORTED') {
           result.add(order);
         }
       }
@@ -133,7 +159,7 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
       ['Všechny', allIcon(size: 25)],
       ['Vyřízené', thumbIcon(size: 25)],
       ['Čekající', waitingIcon(size: 25)],
-      ['Vyzvednuté', checkIcon(size: 25)],
+      ['Vyzvednuté', checkIcon(size: 25, color: Colors.green.shade400)],
       ['Nevyzvednuté', questionIcon(size: 25)],
       ['Zrušené', errorIcon(size: 25)],
     ];

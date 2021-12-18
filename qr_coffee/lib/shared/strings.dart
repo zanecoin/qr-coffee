@@ -1,8 +1,9 @@
 class CzechStrings {
   // APP NAME
   static const String app_name = 'QR Coffee';
+  static const String currency = 'Kč';
 
-  // ORDER SCREEN
+  // CREATE ORDER SCREEN
   static const String orderTitle = 'TVORBA OBJEDNÁVKY';
   static const String drink = 'Nápoje';
   static const String food = 'Jídlo';
@@ -15,14 +16,36 @@ class CzechStrings {
   static const String yourOrder = 'Vaše objednávka';
   static const String orderNow = 'Objednat nyní!';
   static const String createOrder = 'Vytvořit objednávku!';
+  static const String orderCreationSuccess = 'Objednávka úspěšně vytvořena!';
 
   static const String chooseItems = 'Přidejte položky do objednávky';
   static const String choosePlace = 'Vyberte odběrové místo';
+  static const String noPlace = 'Žádné místo k dispozici';
 
   static const String chooseItemsDot = 'Přidejte položky do objednávky.';
   static const String choosePlaceDot = 'Vyberte odběrové místo.';
   static const String chooseBothDot =
       'Přidejte položky do objednávky a vyberte odběrové místo.';
+  static const String paymentMethod = 'Jak chcete platit?';
+  static const String withCard = 'Kartou';
+  static const String withTokens = 'QR Tokeny';
+  static const String insufficientTokenBalace = 'Nedostatek QR Tokenů!';
+
+  // ORDER TILE
+  static const String collected = 'Vyzvednuto';
+  static const String abandoned = 'Nevyzvednuto';
+  static const String ready = 'Připraveno?';
+  static const String cancelOrder = 'Zrušit moji objednávku?';
+  static const String orderCollected = 'Objednávka vyzvednuta';
+  static const String orderAbandoned = 'Objednávka nevyzvednuta';
+  static const String orderCancelled = 'Objednávka zrušena';
+  static const String orderRecieved = 'Objednávka přijata!';
+  static const String orderPending = 'Objednávka se zpracovává...';
+  static const String orderReady = 'Objednávka připravena';
+  static const String orderNotFound = 'Objednávka nebyla nalezena';
+  static const String manualAnswer =
+      'Klikněte pro manuální vyřízení objednávky';
+  static const String orderCode = 'Kód objednávky';
 
   // AUTHORIZATION
   static const String registration1 = 'Registrace';

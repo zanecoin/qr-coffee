@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 class ImageBanner extends StatelessWidget {
   final String path;
   final String size;
+  final Color color;
 
-  ImageBanner({required this.path, required this.size});
+  ImageBanner(
+      {required this.path, required this.size, this.color = Colors.white});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class ImageBanner extends StatelessWidget {
     }
     return Container(
       constraints: BoxConstraints.expand(height: height, width: width),
-      decoration: BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(color: color),
       child: Image.asset(
         path,
         fit: BoxFit.contain,

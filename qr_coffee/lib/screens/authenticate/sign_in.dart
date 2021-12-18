@@ -129,7 +129,7 @@ class _SignInState extends State<SignIn> {
     if (_key.currentState!.validate()) {
       FocusManager.instance.primaryFocus!.unfocus();
       _key.currentState!.save();
-      formField.forEach((label, value) => formValues.add(value));
+      formField.forEach((label, value) => formValues.add(value.trim()));
 
       errorMessage = await _auth.signInWithEmailAndPassword(
         formValues[0],

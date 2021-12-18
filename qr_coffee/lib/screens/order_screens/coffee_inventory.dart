@@ -1,13 +1,44 @@
 import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/shared/custom_app_bar.dart';
-import 'package:qr_coffee/shared/image_banner.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CoffeeKindTile extends StatelessWidget {
-  final Item coffee;
+  final Item item;
   final Function callback;
+  final String imageUrl;
 
-  CoffeeKindTile({required this.coffee, required this.callback});
+  CoffeeKindTile(
+      {required this.item, required this.callback, required this.imageUrl});
+
+  Image image() {
+    if (imageUrl == '') {
+      return Image.asset('assets/blank.png');
+    } else {
+      //return Image.network(imageUrl);
+      // return Image(
+      //     image: CachedNetworkImageProvider(
+      //   imageUrl,
+      // ));
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.fill,
+        loadingBuilder: (BuildContext context, Widget child,
+            ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              color: Colors.red,
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +55,7 @@ class CoffeeKindTile extends StatelessWidget {
             Colors.black.withOpacity(1),
             BlendMode.dstATop,
           ),
-          image: coffee.type == 'drink'
-              ? AssetImage('assets/cafe2.jpg')
-              : AssetImage('assets/croissant.jpg'),
+          image: image().image,
           fit: BoxFit.cover,
         ),
         boxShadow: [
@@ -39,7 +68,7 @@ class CoffeeKindTile extends StatelessWidget {
         ],
       ),
       child: InkWell(
-        onTap: () => callback(coffee),
+        onTap: () => callback(item),
         child: Stack(
           children: [
             Positioned(
@@ -53,7 +82,7 @@ class CoffeeKindTile extends StatelessWidget {
                   color: Colors.white,
                 ),
                 child: Text(
-                  '${coffee.name}\n${coffee.price} Kč',
+                  '${item.name}\n${item.price} Kč',
                   style: TextStyle(
                     fontWeight: FontWeight.normal,
                     color: Colors.black,

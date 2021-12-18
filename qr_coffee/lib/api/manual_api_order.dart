@@ -57,20 +57,22 @@ launchPaymentGateway(
       'Authorization': 'Bearer $token',
     },
     body: jsonEncode(<String, dynamic>{
-      //'notifyUrl': 'https://www.herself.cz',
+      'notifyUrl':
+          'https://us-central1-cafe-app-937c9.cloudfunctions.net/gatewayNotification',
+      'continueUrl': 'https://www.herself.cz/',
       'customerIp': '127.0.0.1',
       'merchantPosId': '$sndID',
-      'description': 'RTV market',
+      'description': 'QR Coffee',
       'currencyCode': 'PLN',
       'totalAmount': '${price * 100}',
+      'extOrderId': '${order.orderId}',
       'products': [
         {'name': 'Wireless mouse', 'unitPrice': '15000', 'quantity': '1'},
         {'name': 'HDMI cable', 'unitPrice': '6000', 'quantity': '1'}
       ],
       // 'payMethods': {
       //   'payMethod': {
-      //     'type': 'PBL',
-      //     'value': 'c',
+      //     'type': "CARD_TOKEN",
       //   }
       // }
     }),
@@ -107,16 +109,6 @@ launchPaymentGateway(
       ),
     );
   }
-  // GET ORDER STATUS?
-  final response4 = await http.get(
-    Uri.parse('https://secure.snd.payu.com/api/v2_1/orders/$orderId'),
-    headers: <String, String>{
-      'Authorization': 'Bearer $token',
-    },
-  );
-
-  print(jsonDecode(response4.statusCode.toString()));
-  print(jsonDecode(response4.body).toString());
 }
 
 class PaymentWebView extends StatefulWidget {
@@ -140,42 +132,47 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: customAppBar(context),
-      body: Column(
-        children: [
-          Expanded(
-            child: WebView(
-              initialUrl: url,
-              javascriptMode: JavascriptMode.unrestricted,
-              onWebViewCreated: (controller) {
-                this.controller = controller;
-              },
-              onPageStarted: (newUrl) {
-                if (newUrl == 'https://www.herself.cz/') {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                      builder: (context) => UserOrder(
-                        role: 'customer',
-                        order: order,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        appBar: customAppBar(context),
+        body: Column(
+          children: [
+            Expanded(
+              child: WebView(
+                initialUrl: url,
+                javascriptMode: JavascriptMode.unrestricted,
+                onWebViewCreated: (controller) {
+                  this.controller = controller;
+                },
+                onPageStarted: (newUrl) {
+                  if (newUrl == 'https://www.herself.cz/') {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                        builder: (context) => UserOrder(
+                          role: 'customer',
+                          order: order,
+                          mode: 'after-creation',
+                        ),
                       ),
-                    ),
-                  );
-                }
-              },
-              onProgress: (progress) => setState(() {
-                this.progress = progress / 100;
-              }),
+                    );
+                  }
+                },
+                onProgress: (progress) => setState(() {
+                  this.progress = progress / 100;
+                }),
+              ),
             ),
-          ),
-          LinearProgressIndicator(
-            value: progress,
-            color: Colors.red,
-          ),
-        ],
+            if (progress != 1)
+              LinearProgressIndicator(
+                value: progress,
+                color: Colors.green,
+              ),
+          ],
+        ),
       ),
     );
   }

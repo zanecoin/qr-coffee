@@ -21,9 +21,9 @@ Widget errorIcon({double size = icon_size}) => Icon(
       size: size,
     );
 
-Widget checkIcon({double size = icon_size}) => Icon(
+Widget checkIcon({double size = icon_size, required Color color}) => Icon(
       Icons.check_circle,
-      color: Colors.green.shade400,
+      color: color,
       size: size,
     );
 

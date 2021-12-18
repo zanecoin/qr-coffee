@@ -75,113 +75,150 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('active_orders');
   final CollectionReference passiveOrderCollection =
       FirebaseFirestore.instance.collection('passive_orders');
+  final CollectionReference virtualOrderCollection =
+      FirebaseFirestore.instance.collection('virtual_orders');
 
   Future deleteOrder(String orderId) async {
     return await activeOrderCollection.doc(orderId).delete();
   }
 
   Future createOrder(
-    String state,
-    List coffee,
+    String status,
+    List items,
     int price,
     String pickUpTime,
     String username,
     String place,
-    String flag,
     String orderId,
     String userId,
+    String day,
   ) async {
-    if (state == 'active') {
+    if (status == 'ACTIVE' || status == 'PENDING') {
       return await activeOrderCollection.add({
-        'state': state,
-        'coffee': coffee,
+        'status': status,
+        'items': items,
         'price': price,
         'pickUpTime': pickUpTime,
         'username': username,
         'place': place,
-        'flag': flag,
         'orderId': orderId,
         'userId': userId,
+        'day': day,
       });
     } else {
-      return await passiveOrderCollection.doc(orderId).set({
-        'state': state,
-        'coffee': coffee,
+      return await passiveOrderCollection.add({
+        'status': status,
+        'items': items,
         'price': price,
         'pickUpTime': pickUpTime,
         'username': username,
         'place': place,
-        'flag': flag,
         'orderId': orderId,
         'userId': userId,
+        'day': day,
       });
     }
   }
 
-  // set ID for new order
-  Future setOrderId(
-    String state,
-    List coffee,
+  Future createVirtualOrder(
+    String status,
+    List items,
     int price,
     String pickUpTime,
     String username,
     String place,
-    String flag,
     String orderId,
     String userId,
+    String day,
   ) async {
-    if (state == 'active') {
-      return await activeOrderCollection.doc(orderId).set({
-        'state': state,
-        'coffee': coffee,
-        'price': price,
-        'pickUpTime': pickUpTime,
-        'username': username,
-        'place': place,
-        'flag': flag,
+    return await virtualOrderCollection.add({
+      'status': status,
+      'items': items,
+      'price': price,
+      'pickUpTime': pickUpTime,
+      'username': username,
+      'place': place,
+      'orderId': orderId,
+      'userId': userId,
+      'day': day,
+    });
+  }
+
+  // SET ID FOR NEW ORDER
+  Future updateOrderId(
+    String orderId,
+    String status,
+  ) async {
+    if (status == 'ACTIVE' || status == 'PENDING') {
+      return await activeOrderCollection.doc(orderId).update({
         'orderId': orderId,
-        'userId': userId,
       });
     } else {
-      return await passiveOrderCollection.doc(orderId).set({
-        'state': state,
-        'coffee': coffee,
-        'price': price,
-        'pickUpTime': pickUpTime,
-        'username': username,
-        'place': place,
-        'flag': flag,
+      return await passiveOrderCollection.doc(orderId).update({
         'orderId': orderId,
-        'userId': userId,
       });
     }
   }
 
-  // active orders list from snapshot
+  // SET ID FOR NEW VIRTUAL ORDER
+  Future updateVirtualOrderId(
+    String orderId,
+  ) async {
+    return await virtualOrderCollection.doc(orderId).update({
+      'orderId': orderId,
+    });
+  }
+
+  // GET ORDER LIST FROM DATABASE
   List<Order> _OrderListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Order(
-        state: (doc.data() as dynamic)['state'],
-        coffee: (doc.data() as dynamic)['coffee'],
+        status: (doc.data() as dynamic)['status'],
+        items: (doc.data() as dynamic)['items'],
         price: (doc.data() as dynamic)['price'],
         pickUpTime: (doc.data() as dynamic)['pickUpTime'],
         username: (doc.data() as dynamic)['username'],
         place: (doc.data() as dynamic)['place'],
-        flag: (doc.data() as dynamic)['flag'],
         orderId: (doc.data() as dynamic)['orderId'],
         userId: (doc.data() as dynamic)['userId'],
+        day: (doc.data() as dynamic)['day'],
       );
     }).toList();
   }
 
-  // get active orders list stream
+  // GET ACTIVE ORDERS LIST STREAM
   Stream<List<Order>> get activeOrderList {
     return activeOrderCollection.snapshots().map(_OrderListFromSnapshot);
   }
 
-  // get passive orders list stream
+  // GET PASSIVE ORDERS LIST STREAM
   Stream<List<Order>> get passiveOrderList {
     return passiveOrderCollection.snapshots().map(_OrderListFromSnapshot);
+  }
+
+  // GET VIRTUAL ORDERS LIST STREAM
+  Stream<List<Order>> get virtualOrderList {
+    return passiveOrderCollection.snapshots().map(_OrderListFromSnapshot);
+  }
+
+  // GET SPECIFIC ORDER FROM DATABASE
+  Order _OrderFromSnapshot(DocumentSnapshot snapshot) {
+    return Order(
+      status: (snapshot.data() as dynamic)['status'],
+      items: (snapshot.data() as dynamic)['items'],
+      price: (snapshot.data() as dynamic)['price'],
+      pickUpTime: (snapshot.data() as dynamic)['pickUpTime'],
+      username: (snapshot.data() as dynamic)['username'],
+      place: (snapshot.data() as dynamic)['place'],
+      orderId: (snapshot.data() as dynamic)['orderId'],
+      userId: (snapshot.data() as dynamic)['userId'],
+      day: (snapshot.data() as dynamic)['day'],
+    );
+  }
+
+  // GET SPECIFIC ORDER DOCUMENT STREAM
+  Stream<Order> get order {
+    return activeOrderCollection.doc(uid).snapshots().map(_OrderFromSnapshot);
   }
 
   // END ORDER ----------------------------------------------------------------------------
@@ -207,18 +244,19 @@ class DatabaseService {
 
   // END ARTICLE --------------------------------------------------------------------------
 
-  // COFFEE -------------------------------------------------------------------------------
+  // ITEMS -------------------------------------------------------------------------------
   final CollectionReference itemCollection =
       FirebaseFirestore.instance.collection('items');
 
-  Future updateCoffeeData(
-      String uid, String name, String type, int price, int count) async {
+  Future updateCoffeeData(String uid, String name, String type, int price,
+      int count, String picture) async {
     return await itemCollection.doc(uid).set({
       'uid': uid,
       'name': name,
       'price': price,
       'count': count,
       'type': type,
+      'picture': picture
     });
   }
 
@@ -231,6 +269,7 @@ class DatabaseService {
         type: (doc.data() as dynamic)['type'],
         count: (doc.data() as dynamic)['count'],
         uid: (doc.data() as dynamic)['uid'],
+        picture: (doc.data() as dynamic)['picture'],
       );
     }).toList();
   }
@@ -240,7 +279,7 @@ class DatabaseService {
     return itemCollection.snapshots().map(_itemsFromSnapshot);
   }
 
-  // END COFFEE ---------------------------------------------------------------------------
+  // END ITEM ---------------------------------------------------------------------------
 
   // PLACE -------------------------------------------------------------------------------
   final CollectionReference placeCollection =

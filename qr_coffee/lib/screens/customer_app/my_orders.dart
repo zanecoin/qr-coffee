@@ -39,6 +39,9 @@ class _MyOrdersState extends State<MyOrders> {
           List<Order> passiveOrderList =
               _getActiveOrdersForUser(snapshots.item3.data!, userData);
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+          activeOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
+          passiveOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
+          passiveOrderList = passiveOrderList.reversed.toList();
 
           return Scaffold(
               appBar: customAppBar(context, title: Text('')),
@@ -64,7 +67,6 @@ class _MyOrdersState extends State<MyOrders> {
                         ),
                       if (activeOrderList.length > 0)
                         SizedBox(
-                          height: Responsive.height(20, context),
                           child: ListView.builder(
                             itemBuilder: (context, index) => OrderTile(
                               order: activeOrderList[index],
@@ -94,7 +96,6 @@ class _MyOrdersState extends State<MyOrders> {
                         ),
                       if (passiveOrderList.length > 0)
                         SizedBox(
-                          height: Responsive.height(20, context),
                           child: ListView.builder(
                             itemBuilder: (context, index) => OrderTile(
                               order: passiveOrderList[index],
@@ -122,7 +123,9 @@ class _MyOrdersState extends State<MyOrders> {
       List<Order> orderList, UserData userData) {
     List<Order> result = [];
     for (var item in orderList) {
-      if (item.userId == userData.uid) result.add(item);
+      if (item.userId == userData.uid && item.status != 'PENDING') {
+        result.add(item);
+      }
     }
     return result;
   }

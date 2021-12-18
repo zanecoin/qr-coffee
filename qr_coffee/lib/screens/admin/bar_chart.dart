@@ -1,6 +1,7 @@
 import 'package:qr_coffee/models/order.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class BarChartSample2 extends StatefulWidget {
   final List<Order> orders;
@@ -24,7 +25,8 @@ class BarChartSample2State extends State<BarChartSample2> {
 
   int touchedGroupIndex = -1;
 
-  late int total_price = 0;
+  int total_price = 0;
+  double max = 0;
 
   @override
   void initState() {
@@ -33,7 +35,7 @@ class BarChartSample2State extends State<BarChartSample2> {
     final items = _orderSumList(orders);
 
     total_price = items[1];
-
+    max = items[2];
     rawBarGroups = items[0];
 
     showingBarGroups = rawBarGroups;
@@ -65,7 +67,7 @@ class BarChartSample2State extends State<BarChartSample2> {
               Expanded(
                 child: BarChart(
                   BarChartData(
-                    maxY: total_price.toDouble() / 6,
+                    maxY: max,
                     barTouchData: BarTouchData(
                         touchTooltipData: BarTouchTooltipData(
                           tooltipBgColor: Colors.grey,
@@ -157,14 +159,14 @@ class BarChartSample2State extends State<BarChartSample2> {
                         getTitles: (value) {
                           if (value == 0) {
                             return '0';
-                          } else if (value == total_price ~/ 24) {
-                            return '${total_price ~/ 24}';
-                          } else if (value == total_price ~/ 12) {
-                            return '${total_price ~/ 12}';
-                          } else if (value == total_price ~/ 8) {
-                            return '${total_price ~/ 8}';
-                          } else if (value == total_price ~/ 6) {
-                            return '${total_price ~/ 6}';
+                          } else if (value == max ~/ 4) {
+                            return '${(max ~/ 4).toInt()}';
+                          } else if (value == max ~/ 2) {
+                            return '${(max ~/ 2).toInt()}';
+                          } else if (value == max ~/ 1.33) {
+                            return '${(max ~/ 1.33).toInt()}';
+                          } else if (value == max) {
+                            return '${max.toInt()}';
                           } else {
                             return '';
                           }
@@ -202,11 +204,39 @@ class BarChartSample2State extends State<BarChartSample2> {
   List<dynamic> _orderSumList(List<Order> orders) {
     List<double> sums = [0, 0, 0, 0, 0, 0, 0];
     int total_price = 0;
+    int idx = 0;
     for (var order in orders) {
-      int idx = int.parse(order.pickUpTime.substring(6, 8)) - 1;
+      String day = order.day;
+      switch (day) {
+        case 'Monday':
+          idx = 0;
+          break;
+        case 'Tueseday':
+          idx = 1;
+          break;
+        case 'Wednesday':
+          idx = 2;
+          break;
+        case 'Thursday':
+          idx = 3;
+          break;
+        case 'Friday':
+          idx = 4;
+          break;
+        case 'Saturday':
+          idx = 5;
+          break;
+        case 'Sunday':
+          idx = 6;
+          break;
+        default:
+          idx = 0;
+      }
       sums[idx] += order.price;
       total_price += order.price;
     }
+
+    double max = sums.reduce((curr, next) => curr > next ? curr : next);
 
     final barGroup1 = makeGroupData(0, sums[0]);
     final barGroup2 = makeGroupData(1, sums[1]);
@@ -225,6 +255,6 @@ class BarChartSample2State extends State<BarChartSample2> {
       barGroup6,
       barGroup7,
     ];
-    return [items, total_price];
+    return [items, total_price, max];
   }
 }

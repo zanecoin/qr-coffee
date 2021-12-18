@@ -4,6 +4,7 @@ class Item {
   final String type;
   final int price;
   final int count;
+  final String picture;
 
   Item({
     required this.uid,
@@ -11,5 +12,6 @@ class Item {
     required this.type,
     required this.price,
     required this.count,
+    required this.picture,
   });
 }

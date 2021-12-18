@@ -1,8 +1,35 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+
+Future<List<Map<String, dynamic>>> loadImages(String folder) async {
+  List<Map<String, dynamic>> files = [];
+
+  final ListResult result = await FirebaseStorage.instance.ref(folder).list();
+  final List<Reference> allFiles = result.items;
+
+  await Future.forEach<Reference>(allFiles, (file) async {
+    final String fileUrl = await file.getDownloadURL();
+    files.add({
+      'url': fileUrl,
+      'path': file.fullPath,
+    });
+  });
+  return files;
+}
+
+String chooseUrl(List<Map<String, dynamic>> addresses, String picturePath) {
+  String url = '';
+  for (var address in addresses) {
+    if (address['path'] == picturePath) {
+      url = address['url'];
+    }
+  }
+  return url;
+}
 
 String timeFormatter(String time) {
   // PARAMS: time in format 'yyyyMMddHHmmss'
@@ -54,6 +81,10 @@ String getPickUpTime(double plusTime) {
 
   if (int.parse(augumentMinutes) >= 60) {
     String hourUp = (int.parse(presentTime.substring(8, 10)) + 1).toString();
+
+    if (hourUp == '24') {
+      hourUp = '00';
+    }
     augumentMinutes = (int.parse(augumentMinutes) - 60).toString();
     if (hourUp.length == 1) {
       hourUp = '0$hourUp';

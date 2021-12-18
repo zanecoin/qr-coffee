@@ -137,7 +137,7 @@ class _RegisterState extends State<Register> {
     if (_key.currentState!.validate()) {
       FocusManager.instance.primaryFocus!.unfocus();
       _key.currentState!.save();
-      formField.forEach((label, value) => formValues.add(value));
+      formField.forEach((label, value) => formValues.add(value.trim()));
 
       errorMessage = await _auth.registerWithEmailAndPassword(
         formValues[0],
