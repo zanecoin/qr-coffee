@@ -4,6 +4,7 @@ import 'package:qr_coffee/models/order.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_coffee/shared/strings.dart';
 
 Future<List<Map<String, dynamic>>> loadImages(String folder) async {
   List<Map<String, dynamic>> files = [];
@@ -122,17 +123,17 @@ List<dynamic> getRemainingTime(Order order, String time) {
     result = (m1 - m2 + 60 * (h1 - h2)).toString();
 
     if (int.parse(result) > 2) {
-      result = 'Za $result min';
+      result = '${CzechStrings.pickUpIn} $result min';
       color = Colors.green.shade800;
     } else if (int.parse(result) <= 2 && int.parse(result) > -1) {
-      result = 'Za $result min';
+      result = '${CzechStrings.pickUpIn} $result min';
       color = Colors.yellow.shade800;
     } else {
-      result = 'Před ${-int.parse(result)} min';
+      result = '${CzechStrings.pickUpBefore} ${-int.parse(result)} min';
       color = Colors.red.shade700;
     }
   } else {
-    result = 'Před více než 30 min';
+    result = '${CzechStrings.pickUp30} min';
     color = Colors.black;
   }
 

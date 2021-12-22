@@ -2,7 +2,7 @@ import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/order_screens/order_inventory.dart';
+import 'package:qr_coffee/screens/order_screens/order_tile.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/custom_app_bar.dart';
 import 'package:qr_coffee/shared/custom_small_widgets.dart';
@@ -37,7 +37,7 @@ class _MyOrdersState extends State<MyOrders> {
           List<Order> activeOrderList =
               _getActiveOrdersForUser(snapshots.item2.data!, userData);
           List<Order> passiveOrderList =
-              _getActiveOrdersForUser(snapshots.item3.data!, userData);
+              _getPassiveOrdersForUser(snapshots.item3.data!, userData);
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
           activeOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
           passiveOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
@@ -113,7 +113,7 @@ class _MyOrdersState extends State<MyOrders> {
                 ),
               ));
         } else {
-          return Loading();
+          return Container(color: Colors.white);
         }
       },
     );
@@ -130,6 +130,17 @@ class _MyOrdersState extends State<MyOrders> {
     return result;
   }
 
+  List<Order> _getPassiveOrdersForUser(
+      List<Order> orderList, UserData userData) {
+    List<Order> result = [];
+    for (var item in orderList) {
+      if (item.userId == userData.uid) {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+
   Widget _text(String string) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -137,7 +148,9 @@ class _MyOrdersState extends State<MyOrders> {
         string,
         style: TextStyle(
           color: Colors.black,
-          fontSize: 16,
+          fontSize: Responsive.deviceWidth(context) < 500
+              ? Responsive.width(4.2, context)
+              : 16,
           fontWeight: FontWeight.normal,
         ),
         textAlign: TextAlign.left,

@@ -32,6 +32,37 @@
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
+
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js"></script>
+
+  <!-- Add for Firebase Storage: https://pub.dev/packages/firebase_storage -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-storage.js"></script>
+
+  <!-- Add for Cloud Firestore: https://pub.dev/packages/cloud_firestore -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-firestore.js"></script>
+
+  <!-- Add for Firebase Auth: https://pub.dev/packages/firebase_auth -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-auth.js"></script>
+
+  <!-- Add for Cloud Functions: https://pub.dev/packages/cloud_functions -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-functions.js"></script>
+
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDSh_rvCtcMl1PSIDekFWwPDe8o0GZ63xI",
+      authDomain: "cafe-app-937c9.firebaseapp.com",
+      projectId: "cafe-app-937c9",
+      storageBucket: "cafe-app-937c9.appspot.com",
+      messagingSenderId: "678897375051",
+      appId: "1:678897375051:web:fdee3cee0f770752d4face",
+      measurementId: "G-M1DY5G5FKS"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
   <script>
     var serviceWorkerVersion = null;
     var scriptLoaded = false;

@@ -17,7 +17,8 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: Responsive.height(9, context),
+      height: Responsive.height(6, context),
+      margin: EdgeInsets.symmetric(vertical: Responsive.height(1, context)),
       child: TextFormField(
         initialValue: initVal,
         decoration: InputDecoration(

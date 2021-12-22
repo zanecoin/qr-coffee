@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qr_coffee/shared/constants.dart';
 
 class ImageBanner extends StatelessWidget {
   final String path;
@@ -14,8 +15,8 @@ class ImageBanner extends StatelessWidget {
     double width = 55;
     switch (size) {
       case 'large':
-        height = 235;
-        width = 200;
+        height = Responsive.height(30, context); //235
+        width = Responsive.height(20, context); //200
         break;
       case 'medium':
         height = 120;
@@ -26,8 +27,8 @@ class ImageBanner extends StatelessWidget {
         width = 85;
         break;
       case 'small':
-        height = 70;
-        width = 55;
+        height = Responsive.height(10, context); //70
+        width = Responsive.height(8, context); //55
         break;
       case 'baby':
         height = 45;

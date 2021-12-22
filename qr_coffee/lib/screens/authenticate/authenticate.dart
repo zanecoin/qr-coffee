@@ -20,64 +20,61 @@ class _AuthenticateState extends State<Authenticate> {
       child: SafeArea(
         child: Scaffold(
           body: SingleChildScrollView(
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  width: Responsive.width(100, context),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      SizedBox(height: Responsive.height(4, context)),
-                      Text(
-                        CzechStrings.app_name,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 60,
-                          fontFamily: 'Galada',
-                        ),
-                      ),
-                      ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
-                      SizedBox(height: Responsive.height(4, context)),
-                      Container(
-                        width: Responsive.width(60, context),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            AuthButton(
-                              label: CzechStrings.registration1,
-                              screen: Register(),
-                            ),
-                            SizedBox(height: 10),
-                            AuthButton(
-                              label: CzechStrings.login1,
-                              screen: SignIn(),
-                            ),
-                            SizedBox(height: 10),
-                            SocialButton(
-                              label: CzechStrings.googleLogin,
-                              icon: Icon(
-                                CommunityMaterialIcons.google,
-                                color: Colors.white,
-                              ),
-                              color: Colors.red,
-                            ),
-                            SizedBox(height: 10),
-                            SocialButton(
-                              label: CzechStrings.fbLogin,
-                              icon: Icon(
-                                CommunityMaterialIcons.facebook,
-                                color: Colors.white,
-                              ),
-                              color: Colors.blue.shade700,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+            child: Center(
+              //width: Responsive.width(100, context),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: Responsive.height(4, context)),
+                  Text(
+                    CzechStrings.app_name,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: Responsive.width(12, context), //60
+                      fontFamily: 'Galada',
+                    ),
                   ),
-                ),
-              ],
+                  ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
+                  SizedBox(height: Responsive.height(4, context)),
+                  Container(
+                    width: Responsive.width(60, context),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        AuthButton(
+                          label: CzechStrings.registration1,
+                          screen: Register(),
+                        ),
+                        SizedBox(height: 10),
+                        AuthButton(
+                          label: CzechStrings.login1,
+                          screen: SignIn(),
+                        ),
+                        SizedBox(height: 10),
+                        SocialButton(
+                          label: CzechStrings.googleLogin,
+                          icon: Icon(
+                            CommunityMaterialIcons.google,
+                            color: Colors.white,
+                          ),
+                          color: Colors.red,
+                        ),
+                        SizedBox(height: 10),
+                        SocialButton(
+                          label: CzechStrings.fbLogin,
+                          icon: Icon(
+                            CommunityMaterialIcons.facebook,
+                            color: Colors.white,
+                          ),
+                          color: Colors.blue.shade700,
+                        ),
+                        SizedBox(height: Responsive.height(4, context)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

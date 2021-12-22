@@ -1,6 +1,25 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 
+// CLASS FOR VARIABLE HEIGHT AND WIDTH
+class Responsive {
+  static double width(double p, BuildContext context) {
+    return MediaQuery.of(context).size.width * (p / 100);
+  }
+
+  static double height(double p, BuildContext context) {
+    return MediaQuery.of(context).size.height * (p / 100);
+  }
+
+  static double deviceWidth(BuildContext context) {
+    return MediaQuery.of(context).size.width;
+  }
+
+  static double deviceHeight(BuildContext context) {
+    return MediaQuery.of(context).size.height;
+  }
+}
+
 // CUSTOM ICONS
 const double icon_size = 25;
 Widget waitingIcon({double size = icon_size}) => Icon(
@@ -38,14 +57,3 @@ Widget thumbIcon({double size = icon_size}) => Icon(
       color: Colors.black,
       size: size,
     );
-
-// CLASS FOR VARIABLE HEIGHT AND WIDTH
-class Responsive {
-  static double width(double p, BuildContext context) {
-    return MediaQuery.of(context).size.width * (p / 100);
-  }
-
-  static double height(double p, BuildContext context) {
-    return MediaQuery.of(context).size.height * (p / 100);
-  }
-}

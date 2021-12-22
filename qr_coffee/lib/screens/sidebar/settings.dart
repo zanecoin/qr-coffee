@@ -5,6 +5,7 @@ import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/auth.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/animated_toggle.dart';
+import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/custom_app_bar.dart';
 import 'package:qr_coffee/shared/custom_buttons.dart';
 import 'package:qr_coffee/shared/custom_small_widgets.dart';
@@ -50,178 +51,201 @@ class _SettingsState extends State<Settings> {
     // get currently logged user and theme provider
     final user = Provider.of<User?>(context);
     themeProvider = Provider.of<ThemeProvider>(context);
+    final double deviceWidth = Responsive.deviceWidth(context);
 
-    return StreamBuilder3<List<Place>, UserData, Company>(
-      streams: Tuple3(
-        DatabaseService().placeList,
-        DatabaseService(uid: user!.uid).userData,
-        DatabaseService(uid: 'info_uid').company,
-      ),
-      builder: (context, snapshots) {
-        if (snapshots.item1.hasData &&
-            snapshots.item2.hasData &&
-            snapshots.item3.hasData) {
-          places = snapshots.item1.data!;
-          userData = snapshots.item2.data!;
-          company = snapshots.item3.data!;
-          showPlaces = userData.stand == '' ? false : true;
-          darkMode = !themeProvider.isLightTheme;
-          workMode = userData.role == 'worker-off' ? false : true;
+    if (user != null) {
+      return StreamBuilder3<List<Place>, UserData, Company>(
+        streams: Tuple3(
+          DatabaseService().placeList,
+          DatabaseService(uid: user.uid).userData,
+          DatabaseService(uid: 'info_uid').company,
+        ),
+        builder: (context, snapshots) {
+          if (snapshots.item1.hasData &&
+              snapshots.item2.hasData &&
+              snapshots.item3.hasData) {
+            places = snapshots.item1.data!;
+            userData = snapshots.item2.data!;
+            company = snapshots.item3.data!;
+            showPlaces = userData.stand == '' ? false : true;
+            darkMode = !themeProvider.isLightTheme;
+            workMode = userData.role == 'worker-off' ? false : true;
 
-          return Scaffold(
-            appBar: customAppBar(context, title: Text('')),
-            body: SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 60),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // GENERAL SETTINGS
-
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     Text(CzechStrings.darkmode,
-                    //         style: TextStyle(fontSize: 16)),
-                    //     animatedToggle(darkMode, callbackTheme),
-                    //   ],
-                    // ),
-
-                    if (userData.role == 'worker-on' ||
-                        userData.role == 'worker-off')
-                      Column(
+            return Scaffold(
+              appBar: customAppBar(context, title: Text('')),
+              body: SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 60),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // GENERAL SETTINGS
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(CzechStrings.settings,
-                              style: TextStyle(fontSize: 20)),
-                          SizedBox(height: 10),
-                          SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(CzechStrings.workMode,
-                                  style: TextStyle(fontSize: 16)),
-                              animatedToggle(workMode, callbackMode),
-                            ],
-                          ),
+                          Text(CzechStrings.darkmode,
+                              style: TextStyle(fontSize: 16)),
+                          animatedToggle(darkMode, callbackTheme),
                         ],
                       ),
 
-                    if (userData.role == 'worker-on')
+                      if (userData.role == 'worker-on' ||
+                          userData.role == 'worker-off')
+                        Column(
+                          children: [
+                            Text(CzechStrings.settings,
+                                style: TextStyle(fontSize: 20)),
+                            SizedBox(height: 10),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(CzechStrings.workMode,
+                                    style: TextStyle(fontSize: 16)),
+                                animatedToggle(workMode, callbackMode),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                      if (userData.role == 'worker-on')
+                        Column(
+                          children: [
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(CzechStrings.activateStand,
+                                    style: TextStyle(fontSize: 16)),
+                                _currentPlace.toString() == 'null' &&
+                                        userData.stand == ''
+                                    ? disabledAnimatedToggle()
+                                    : animatedToggle(showPlaces, callbackPlace),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            userData.stand == ''
+                                ? _placeSelect(places)
+                                : _placeBanner(),
+                          ],
+                        ),
+                      if (userData.role == 'worker-on' ||
+                          userData.role == 'worker-off')
+                        Column(
+                          children: [
+                            SizedBox(height: 30),
+                            CustomDivider(
+                              indent: 0,
+                            ),
+                            SizedBox(height: 30),
+                          ],
+                        ),
+
+                      // PERSONAL INFO SETTINGS
+                      Text(CzechStrings.personal,
+                          style: TextStyle(fontSize: 20)),
+                      SizedBox(height: 10),
+                      Form(
+                        key: _key,
+                        child: Column(
+                          children: <Widget>[
+                            CustomTextField(
+                              CzechStrings.name,
+                              Icons.person_outline,
+                              callbackForm,
+                              initVal: userData.name,
+                            ),
+                            CustomTextField(
+                              CzechStrings.surname,
+                              Icons.person,
+                              callbackForm,
+                              initVal: userData.surname,
+                            ),
+                            SizedBox(height: 10),
+                            Container(
+                              child: _changeInfoBtn(
+                                userData,
+                                user,
+                                context,
+                                themeProvider,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                      CustomDivider(
+                        indent: 0,
+                      ),
+                      SizedBox(height: 30),
+
+                      // CONTACT PANEL
+                      Text(CzechStrings.contact,
+                          style: TextStyle(fontSize: 20)),
+                      SizedBox(height: 10),
                       Column(
                         children: [
-                          SizedBox(height: 20),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(CzechStrings.activateStand,
-                                  style: TextStyle(fontSize: 16)),
-                              _currentPlace.toString() == 'null' &&
-                                      userData.stand == ''
-                                  ? disabledAnimatedToggle()
-                                  : animatedToggle(showPlaces, callbackPlace),
+                              if (deviceWidth > 340) _circleAvatar(),
+                              if (deviceWidth > 340) SizedBox(width: 20),
+                              Column(
+                                crossAxisAlignment: deviceWidth > 340
+                                    ? CrossAxisAlignment.start
+                                    : CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    company.name,
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    '${company.phone.substring(0, 4)} '
+                                    '${company.phone.substring(4, 7)} '
+                                    '${company.phone.substring(7, 10)} '
+                                    '${company.phone.substring(10)}'
+                                    '\n${company.email}'
+                                    '\n${company.headquarters}',
+                                    style: TextStyle(fontSize: 16),
+                                    textAlign: deviceWidth > 340
+                                        ? TextAlign.left
+                                        : TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          userData.stand == ''
-                              ? _placeSelect(places)
-                              : _placeBanner(),
-                        ],
-                      ),
-                    if (userData.role == 'worker-on' ||
-                        userData.role == 'worker-off')
-                      Column(
-                        children: [
+                          SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _phoneBtn(company.phone),
+                              _mailBtn(company.email),
+                            ],
+                          ),
                           SizedBox(height: 30),
                           CustomDivider(
                             indent: 0,
                           ),
                           SizedBox(height: 30),
+                          _logoutBtn(),
                         ],
                       ),
-
-                    // PERSONAL INFO SETTINGS
-                    Text(CzechStrings.personal, style: TextStyle(fontSize: 20)),
-                    SizedBox(height: 10),
-                    Form(
-                      key: _key,
-                      child: Column(
-                        children: <Widget>[
-                          CustomTextField(
-                              'Jméno', Icons.person_outline, callbackForm,
-                              initVal: userData.name),
-                          CustomTextField(
-                              'Příjmení', Icons.person, callbackForm,
-                              initVal: userData.surname),
-                          Container(
-                            child: _confirmButton(
-                                userData, user, context, themeProvider),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 30),
-                    CustomDivider(
-                      indent: 0,
-                    ),
-                    SizedBox(height: 30),
-                    // CONTACT PANEL
-                    Text(CzechStrings.contact, style: TextStyle(fontSize: 20)),
-                    SizedBox(height: 10),
-                    Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _circleAvatar(),
-                            SizedBox(width: 20),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  company.name,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  '${company.phone.substring(0, 4)} '
-                                  '${company.phone.substring(4, 7)} '
-                                  '${company.phone.substring(7, 10)} '
-                                  '${company.phone.substring(10)}'
-                                  '\n${company.email}'
-                                  '\n${company.headquarters}',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _phoneBtn(company.phone),
-                            _mailBtn(company.email),
-                          ],
-                        ),
-                        SizedBox(height: 30),
-                        CustomDivider(
-                          indent: 0,
-                        ),
-                        SizedBox(height: 30),
-                        _logout(),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        } else {
-          return Loading();
-        }
-      },
-    );
+            );
+          } else {
+            return Loading();
+          }
+        },
+      );
+    } else {
+      return Loading();
+    }
   }
 
   callbackPlace() {
@@ -241,7 +265,7 @@ class _SettingsState extends State<Settings> {
   }
 
   // CONFRIM PERSONAL INFO CHANGES
-  Widget _confirmButton(UserData? userData, User user, BuildContext context,
+  Widget _changeInfoBtn(UserData? userData, User user, BuildContext context,
       ThemeProvider themeProvider) {
     return ElevatedButton.icon(
       icon: Icon(
@@ -365,7 +389,7 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-  // WIDGET FOR PLACE TOGGLE
+  // WIDGET FOR PLACE BANNER
   Widget _placeBanner() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -385,7 +409,9 @@ class _SettingsState extends State<Settings> {
             ),
             SizedBox(width: 5),
             Text(
-              userData.stand,
+              userData.stand.length < 20
+                  ? ' ${userData.stand}'
+                  : ' ${userData.stand.substring(0, 20)}...',
               style: TextStyle(
                 fontWeight: FontWeight.normal,
                 color: Colors.black,
@@ -423,7 +449,9 @@ class _SettingsState extends State<Settings> {
                           color: place.active ? Colors.grey : Colors.black,
                         ),
                         Text(
-                          ' ${place.address}',
+                          place.address.length < 18
+                              ? ' ${place.address}'
+                              : ' ${place.address.substring(0, 18)}...',
                           style: TextStyle(
                             color: place.active ? Colors.grey : Colors.black,
                           ),
@@ -513,7 +541,7 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  Widget _logout() {
+  Widget _logoutBtn() {
     return ElevatedButton.icon(
       icon: Icon(
         Icons.exit_to_app,
@@ -524,6 +552,7 @@ class _SettingsState extends State<Settings> {
         style: TextStyle(fontSize: 17, color: Colors.white),
       ),
       onPressed: () async {
+        Navigator.pop(context);
         await _auth.userSignOut();
       },
       style: customButtonStyle(),

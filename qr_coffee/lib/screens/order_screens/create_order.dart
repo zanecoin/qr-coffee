@@ -4,7 +4,7 @@ import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/place.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/coffee_inventory.dart';
-import 'package:qr_coffee/screens/order_screens/order_inventory.dart';
+import 'package:qr_coffee/screens/order_screens/order_details.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/custom_buttons.dart';
@@ -311,11 +311,8 @@ class _CreateOrderState extends State<CreateOrder>
                 imageUrl: chooseUrl(databaseImages, item.picture),
               ))
           .toList(),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 200,
-        childAspectRatio: 1,
-        mainAxisSpacing: 0,
-        crossAxisSpacing: 0,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
       ),
     );
   }
@@ -340,6 +337,7 @@ class _CreateOrderState extends State<CreateOrder>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          SizedBox(height: Responsive.height(2, context)),
           _text(CzechStrings.orderPlace, 16, FontWeight.normal),
           _placeSelect(places),
           Padding(
@@ -522,7 +520,7 @@ class _CreateOrderState extends State<CreateOrder>
           Navigator.push(
             context,
             new MaterialPageRoute(
-              builder: (context) => UserOrder(
+              builder: (context) => OrderDetails(
                 role: 'customer',
                 order: order,
                 mode: 'after-creation',
@@ -535,7 +533,7 @@ class _CreateOrderState extends State<CreateOrder>
         Navigator.push(
           context,
           new MaterialPageRoute(
-            builder: (context) => UserOrder(
+            builder: (context) => OrderDetails(
               role: 'customer',
               order: order,
               mode: 'normal',
@@ -572,9 +570,11 @@ class _CreateOrderState extends State<CreateOrder>
           children: [
             Expanded(
               child: DropdownButtonFormField(
-                hint: Text(filteredPlaces.length > 0
-                    ? CzechStrings.choosePlace
-                    : CzechStrings.noPlace),
+                hint: Text(
+                  filteredPlaces.length > 0
+                      ? CzechStrings.choosePlace
+                      : CzechStrings.noPlace,
+                ),
                 value: _currentPlace,
                 items: filteredPlaces.map((place) {
                   return DropdownMenuItem(
@@ -585,7 +585,9 @@ class _CreateOrderState extends State<CreateOrder>
                           color: place.active ? Colors.black : Colors.grey,
                         ),
                         Text(
-                          ' ${place.address}',
+                          place.address.length < 17
+                              ? ' ${place.address}'
+                              : ' ${place.address.substring(0, 17)}...',
                           style: TextStyle(
                             color: place.active ? Colors.black : Colors.grey,
                           ),

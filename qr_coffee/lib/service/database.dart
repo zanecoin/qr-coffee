@@ -160,6 +160,16 @@ class DatabaseService {
     }
   }
 
+  // UPDATE ORDER STATUS FROM 'ACTIVE' TO 'READY'
+  Future updateOrderStatus(
+    String orderId,
+    String status,
+  ) async {
+    return await activeOrderCollection.doc(orderId).update({
+      'status': status,
+    });
+  }
+
   // SET ID FOR NEW VIRTUAL ORDER
   Future updateVirtualOrderId(
     String orderId,

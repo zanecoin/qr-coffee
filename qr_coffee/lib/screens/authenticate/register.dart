@@ -42,11 +42,12 @@ class _RegisterState extends State<Register> {
               CzechStrings.app_name,
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 40,
+                fontSize: Responsive.width(12, context), //40
                 fontFamily: 'Galada',
               ),
             ),
-            ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
+            if (Responsive.deviceHeight(context) > 700)
+              ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
             Container(
               padding: EdgeInsets.symmetric(
                   horizontal: Responsive.width(15, context)),
@@ -105,13 +106,13 @@ class _RegisterState extends State<Register> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        CzechStrings.workerIdQuestion,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                    // TextButton(
+                    //   onPressed: () {},
+                    //   child: Text(
+                    //     CzechStrings.workerIdQuestion,
+                    //     textAlign: TextAlign.center,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

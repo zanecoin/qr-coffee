@@ -1,7 +1,13 @@
 class CzechStrings {
-  // APP NAME
+  // APP NAME & MOTTO
   static const String app_name = 'QR Coffee';
+  static const String motto = 'Nejefektivnější občerstvení v ČR!';
+
+  // GENERAL
+  static const String checkInternet = 'Zkontrolujte připojení k internetu ...';
   static const String currency = 'Kč';
+  static const String scanQr = 'Naskenujte QR kód';
+  static const String back = 'Zpět';
 
   // CREATE ORDER SCREEN
   static const String orderTitle = 'TVORBA OBJEDNÁVKY';
@@ -31,7 +37,7 @@ class CzechStrings {
   static const String withTokens = 'QR Tokeny';
   static const String insufficientTokenBalace = 'Nedostatek QR Tokenů!';
 
-  // ORDER TILE
+  // ORDER INFO
   static const String collected = 'Vyzvednuto';
   static const String abandoned = 'Nevyzvednuto';
   static const String ready = 'Připraveno?';
@@ -41,11 +47,16 @@ class CzechStrings {
   static const String orderCancelled = 'Objednávka zrušena';
   static const String orderRecieved = 'Objednávka přijata!';
   static const String orderPending = 'Objednávka se zpracovává...';
-  static const String orderReady = 'Objednávka připravena';
+  static const String orderReady = 'Objednávka připravena!';
   static const String orderNotFound = 'Objednávka nebyla nalezena';
   static const String manualAnswer =
       'Klikněte pro manuální vyřízení objednávky';
   static const String orderCode = 'Kód objednávky';
+
+  // ORDER TILE
+  static const String pickUpIn = 'Vyzvednutí za';
+  static const String pickUpBefore = 'Vyzvednutí před';
+  static const String pickUp30 = 'Vyzvednutí před více než 30';
 
   // AUTHORIZATION
   static const String registration1 = 'Registrace';

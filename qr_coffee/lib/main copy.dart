@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
+import 'dart:io';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/image_banner.dart';
@@ -21,7 +22,6 @@ import 'package:qr_coffee/service/auth.dart';
 void main() async {
   // INITIALIZATION
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final appDocumentDirectory =
       await pathProvider.getApplicationDocumentsDirectory();
 
@@ -66,11 +66,6 @@ class _MyAppState extends State<MyApp> {
       // INITIALIZE FLUTTERFIRE
       future: _initialization,
       builder: (context, snapshot) {
-        // Check for errors
-        if (snapshot.hasError) {
-          // TODO: err handling
-        }
-
         // ONCE COMPLETE, SHOW YOUR APPLICATION
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
@@ -79,6 +74,7 @@ class _MyAppState extends State<MyApp> {
                 create: (context) => AuthService().user,
                 initialData: User.initialData(),
               ),
+              //Provider<AuthService>(create: (context) => AuthService(),),
             ],
             child: MaterialApp(
               title: CzechStrings.app_name,
@@ -89,7 +85,7 @@ class _MyAppState extends State<MyApp> {
           );
         }
 
-        return Container(color: Colors.white);
+        return Splash();
       },
     );
   }
@@ -103,16 +99,51 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  late StreamSubscription subscription;
+  bool isInternet = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInternet();
+  }
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: loadImages('pictures/'),
-      builder:
-          (context, AsyncSnapshot<List<Map<String, dynamic>>> picSnapshot) {
-        if (picSnapshot.connectionState == ConnectionState.done) {
-          return Wrapper(databaseImages: picSnapshot.data!);
-        } else {
-          return Splash();
+    if (isInternet) {
+      return FutureBuilder(
+        // LOAD ALL IMAGES
+        future: loadImages('pictures/'),
+        builder:
+            (context, AsyncSnapshot<List<Map<String, dynamic>>> picSnapshot) {
+          if (picSnapshot.connectionState == ConnectionState.done) {
+            return Wrapper(databaseImages: picSnapshot.data!);
+          } else {
+            return Splash();
+          }
+        },
+      );
+    } else {
+      return Scaffold(body: LoadingInternet());
+    }
+  }
+
+  _checkInternet() {
+    subscription = InternetConnectionChecker().onStatusChange.listen(
+      (status) {
+        switch (status) {
+          case InternetConnectionStatus.disconnected:
+            setState(() => isInternet = false);
+            break;
+          case InternetConnectionStatus.connected:
+            setState(() => isInternet = true);
+            break;
         }
       },
     );
@@ -138,13 +169,13 @@ class Splash extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(height: Responsive.height(6, context)),
+                    SizedBox(height: Responsive.height(4, context)),
                     Text(
                       CzechStrings.app_name,
                       style: TextStyle(
                           decoration: TextDecoration.none,
                           color: Colors.black,
-                          fontSize: Responsive.width(12, context),
+                          fontSize: 60,
                           fontFamily: 'Galada'),
                     ),
                     ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
@@ -155,7 +186,7 @@ class Splash extends StatelessWidget {
                         children: <Widget>[
                           SpinKitSpinningLines(
                             color: Colors.blue,
-                            size: Responsive.height(15, context),
+                            size: 100.0,
                           ),
                           SizedBox(height: Responsive.height(8, context)),
                           Text(

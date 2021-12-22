@@ -141,7 +141,9 @@ class _TabTempState extends State<TabTemp> with SingleTickerProviderStateMixin {
           );
           break;
         case CzechStrings.usermode:
-          result = CustomerHomeBody();
+          result = CustomerHomeBody(
+            databaseImages: [],
+          );
           break;
         case CzechStrings.adminmode:
           result = AdminHome();

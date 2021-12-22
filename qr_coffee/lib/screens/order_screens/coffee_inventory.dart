@@ -1,4 +1,5 @@
 import 'package:qr_coffee/models/item.dart';
+import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -42,9 +43,11 @@ class CoffeeKindTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double deviceWidth = Responsive.deviceWidth(context);
+
     return Container(
       margin: EdgeInsets.all(15),
-      height: 150,
+      height: 200,
       width: 150,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(
@@ -70,30 +73,59 @@ class CoffeeKindTile extends StatelessWidget {
       child: InkWell(
         onTap: () => callback(item),
         child: Stack(
+          alignment: Alignment.bottomCenter,
           children: [
-            Positioned(
-              bottom: 10,
-              right: 20,
-              child: Container(
-                width: 110,
-                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Colors.white,
-                ),
-                child: Text(
-                  '${item.name}\n${item.price} Kč',
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
-                    fontSize: 11,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
+            deviceWidth > 340
+                ? _textContainerA(context)
+                : _textContainerB(context),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _textContainerA(BuildContext context) {
+    return Positioned(
+      bottom: 15,
+      child: Container(
+        width: Responsive.width(35, context),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          color: Colors.white,
+        ),
+        child: Text(
+          '${item.name}\n${item.price} Kč',
+          style: TextStyle(
+            fontWeight: FontWeight.normal,
+            color: Colors.black,
+            fontSize: 11,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _textContainerB(BuildContext context) {
+    return Container(
+      width: Responsive.width(100, context),
+      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+        ),
+        color: Colors.white,
+      ),
+      child: Text(
+        '${item.name}\n${item.price} Kč',
+        style: TextStyle(
+          fontWeight: FontWeight.normal,
+          color: Colors.black,
+          fontSize: 11,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }

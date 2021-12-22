@@ -43,7 +43,6 @@ PreferredSizeWidget customAppBar(
     centerTitle: true,
     elevation: elevation,
     bottom: bottom,
-    backgroundColor: Colors.transparent,
     actions: actions,
   );
 }

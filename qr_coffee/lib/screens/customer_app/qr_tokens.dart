@@ -5,6 +5,7 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
 class QRTokens extends StatefulWidget {
   @override
@@ -35,6 +36,7 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     // GET CURRENTLY LOGGED USER AND DATA STREAMS
     final user = Provider.of<User?>(context);
+
     return StreamBuilder<UserData>(
       stream: DatabaseService(uid: user!.uid).userData,
       builder: (context, snapshot) {
@@ -44,6 +46,7 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
           return Scaffold(
             appBar: customAppBar(context, title: Text('')),
             body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   child: Center(
@@ -53,8 +56,8 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
                     function: _playAnimation,
                   )),
                 ),
-                TextButton(
-                    onPressed: () => _playAnimation(), child: Text('play'))
+                // TextButton(
+                //     onPressed: () => _playAnimation(), child: Text('play'))
               ],
             ),
           );

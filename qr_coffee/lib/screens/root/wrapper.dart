@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:qr_coffee/screens/customer_app/customer_home.dart';
 import 'package:qr_coffee/screens/worker_app/worker_home.dart';
@@ -13,6 +11,10 @@ import 'package:provider/provider.dart';
 
 // CHECKS INTERNET CONNECTION AND DECIDES BEETWEEN WORKER AND CUSTOMER SCREEN
 class Wrapper extends StatefulWidget {
+  const Wrapper({Key? key, required this.databaseImages}) : super(key: key);
+
+  final List<Map<String, dynamic>> databaseImages;
+
   @override
   State<Wrapper> createState() => _WrapperState();
 }
@@ -20,18 +22,12 @@ class Wrapper extends StatefulWidget {
 class _WrapperState extends State<Wrapper> {
   late StreamSubscription subscription;
 
-  bool isInternet = false;
+  bool isInternet = true;
 
   @override
   void initState() {
     super.initState();
     _checkInternet();
-    // SystemChrome.setSystemUIOverlayStyle(
-    //   SystemUiOverlayStyle(
-    //     statusBarColor: Colors.transparent,
-    //     statusBarIconBrightness: Brightness.dark,
-    //   ),
-    // );
   }
 
   @override
@@ -44,7 +40,7 @@ class _WrapperState extends State<Wrapper> {
   Widget build(BuildContext context) {
     final user = Provider.of<User?>(context);
 
-    if (isInternet) {
+    if (isInternet || !isInternet) {
       // return either Home or Auth widget
       if (user == null || user.uid == '') {
         return Authenticate();
@@ -56,12 +52,12 @@ class _WrapperState extends State<Wrapper> {
               UserData userData = snapshot.data!;
 
               if (userData.role == 'worker-on') {
-                return WorkerHome();
+                return WorkerHome(databaseImages: widget.databaseImages);
               } else {
-                return CustomerHome();
+                return CustomerHome(databaseImages: widget.databaseImages);
               }
             } else {
-              return Loading();
+              return Container(color: Colors.white);
             }
           },
         );

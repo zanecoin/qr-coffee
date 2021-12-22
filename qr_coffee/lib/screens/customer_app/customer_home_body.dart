@@ -15,143 +15,121 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class CustomerHomeBody extends StatefulWidget {
-  const CustomerHomeBody({Key? key}) : super(key: key);
+  const CustomerHomeBody({
+    Key? key,
+    required this.databaseImages,
+  }) : super(key: key);
+
+  final List<Map<String, dynamic>> databaseImages;
 
   @override
   _CustomerHomeBodyState createState() => _CustomerHomeBodyState();
 }
 
 class _CustomerHomeBodyState extends State<CustomerHomeBody> {
+  String time =
+      DateFormat('yyyyMMddHHmmss').format(DateTime.now()).substring(8, 10);
+  String welcome = '';
+  @override
+  void initState() {
+    super.initState();
+
+    if (int.parse(time) >= 10 && int.parse(time) < 18) {
+      welcome = CzechStrings.goodday;
+    } else if ((int.parse(time) >= 0 && int.parse(time) < 3) ||
+        (int.parse(time) >= 18 && int.parse(time) <= 24)) {
+      welcome = CzechStrings.goodevening;
+    } else if (int.parse(time) >= 3 && int.parse(time) < 10) {
+      welcome = CzechStrings.goodmorning;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // GET CURRENTLY LOGGED USER, DATA STREAMS AND LOAD PICTURES FROM DATABASE
-    final user = Provider.of<User?>(context);
-    return FutureBuilder(
-        future: loadImages('pictures/'),
-        builder:
-            (context, AsyncSnapshot<List<Map<String, dynamic>>> picSnapshot) {
-          return StreamBuilder<UserData>(
-            stream: DatabaseService(uid: user!.uid).userData,
-            builder: (context, snapshot) {
-              if (snapshot.hasData &&
-                  picSnapshot.connectionState == ConnectionState.done) {
-                UserData userData = snapshot.data!;
-                List<Map<String, dynamic>> databaseImages = picSnapshot.data!;
-                String time = DateFormat('yyyyMMddHHmmss')
-                    .format(DateTime.now())
-                    .substring(8, 10);
-
-                String welcome = '';
-                if (int.parse(time) >= 10 && int.parse(time) < 18) {
-                  welcome = CzechStrings.goodday;
-                } else if ((int.parse(time) >= 0 && int.parse(time) < 3) ||
-                    (int.parse(time) >= 18 && int.parse(time) <= 24)) {
-                  welcome = CzechStrings.goodevening;
-                } else if (int.parse(time) >= 3 && int.parse(time) < 10) {
-                  welcome = CzechStrings.goodmorning;
-                }
-
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      CustomPaint(
-                        painter: BoxShadowPainter(),
-                        child: ClipPath(
-                          clipper: MyClipper(),
-                          child: Container(
-                            height: 220,
-                            width: Responsive.width(100, context),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.white,
-                                  Colors.white,
-                                ],
-                                begin: Alignment.bottomRight,
-                                end: Alignment.topLeft,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black,
-                                  offset: Offset(1, 1),
-                                  blurRadius: 10,
-                                  spreadRadius: 0,
-                                )
-                              ],
-                            ),
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                  bottom: 30,
-                                  right: 30,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        CzechStrings.app_name,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 60,
-                                          fontFamily: 'Galada',
-                                        ),
-                                      ),
-                                      Text(welcome,
-                                          style: TextStyle(fontSize: 20)),
-                                    ],
-                                  ),
-                                ),
-                              ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          CustomPaint(
+            painter: BoxShadowPainter(),
+            child: ClipPath(
+              clipper: MyClipper(),
+              child: Container(
+                height: Responsive.height(36, context) /
+                    Responsive.height(0.16, context),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(1, 1),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                    )
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: 23,
+                      right: 30,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            CzechStrings.app_name,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 50,
+                              fontFamily: 'Galada',
                             ),
                           ),
-                        ),
+                          Text(welcome, style: TextStyle(fontSize: 20)),
+                        ],
                       ),
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0, 70, 0, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _proceedToOrder(userData, databaseImages),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 20),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  _squareButton(1, databaseImages),
-                                  _squareButton(2, databaseImages),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 30),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(0, Responsive.height(9, context), 0, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _proceedToOrder(widget.databaseImages),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: Responsive.height(2, context), horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _squareButton(1, widget.databaseImages),
+                      _squareButton(2, widget.databaseImages),
                     ],
                   ),
-                );
-              } else {
-                return Loading();
-              }
-            },
-          );
-        });
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 30),
+        ],
+      ),
+    );
   }
 
   Widget _squareButton(int type, List<Map<String, dynamic>> databaseImages) {
     return Container(
-      height: 150,
-      width: 150,
+      height: Responsive.height(21, context),
+      width: Responsive.width(42.5, context),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(
           Radius.circular(30),
         ),
         image: DecorationImage(
           colorFilter: new ColorFilter.mode(
-            Colors.black.withOpacity(1),
-            BlendMode.dstATop,
-          ),
+              Colors.black.withOpacity(1), BlendMode.dstATop),
           image: type == 1
               ? NetworkImage(
                   chooseUrl(databaseImages, 'pictures/my_orders_tile.JPG'))
@@ -178,10 +156,10 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
           );
         },
         child: Stack(
+          alignment: Alignment.bottomCenter,
           children: [
             Positioned(
               bottom: 10,
-              right: 20,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -205,11 +183,10 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
     );
   }
 
-  Widget _proceedToOrder(
-      UserData userData, List<Map<String, dynamic>> databaseImages) {
+  Widget _proceedToOrder(List<Map<String, dynamic>> databaseImages) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-      height: 150,
+      height: Responsive.height(21, context),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(
           Radius.circular(30),

@@ -53,30 +53,32 @@ class _AdminHomeState extends State<AdminHome> {
 
           return Scaffold(
             appBar: customAppBar(context, title: Text(CzechStrings.stats)),
-            body: Container(
-              child: Column(
-                children: [
-                  SizedBox(height: Responsive.height(2, context)),
-                  show
-                      ? BarChartSample2(orders: passiveOrderList)
-                      : Container(
-                          height: 360,
-                          child: Center(
-                            child: Loading(),
+            body: SingleChildScrollView(
+              child: Container(
+                child: Column(
+                  children: [
+                    SizedBox(height: Responsive.height(2, context)),
+                    show
+                        ? BarChartSample2(orders: passiveOrderList)
+                        : Container(
+                            height: 360,
+                            child: Center(
+                              child: Loading(),
+                            ),
                           ),
-                        ),
-                  CustomDivider(),
-                  SizedBox(height: Responsive.height(2, context)),
-                  _genButton(
-                      context, items, places, 1, 'Generovat 1 objednávku'),
-                  SizedBox(height: Responsive.height(1, context)),
-                  _genButton(
-                      context, items, places, 10, 'Generovat 10 objednávek'),
-                  SizedBox(height: Responsive.height(1, context)),
-                  _genButton(
-                      context, items, places, 100, 'Generovat 100 objednávek'),
-                  SizedBox(height: Responsive.height(2, context)),
-                ],
+                    CustomDivider(),
+                    SizedBox(height: Responsive.height(2, context)),
+                    _genButton(
+                        context, items, places, 1, 'Generovat 1 objednávku'),
+                    SizedBox(height: Responsive.height(1, context)),
+                    _genButton(
+                        context, items, places, 10, 'Generovat 10 objednávek'),
+                    SizedBox(height: Responsive.height(1, context)),
+                    _genButton(context, items, places, 100,
+                        'Generovat 100 objednávek'),
+                    SizedBox(height: Responsive.height(2, context)),
+                  ],
+                ),
               ),
             ),
           );
@@ -119,7 +121,7 @@ class _AdminHomeState extends State<AdminHome> {
             });
           });
         },
-        style: customButtonStyle(color: Colors.grey.shade300),
+        style: customButtonStyle(color: Colors.grey.shade200),
       ),
     );
   }
@@ -143,7 +145,7 @@ Future _orderGenerator(
     // TIME (not considering month underflow)
     DateTime date = DateTime.now();
     String presentTime = DateFormat('yyyyMMddHHmmss').format(date);
-    String day = DateFormat('EEEE').format(date);
+    String day = days[random(0, 6)];
 
     String yyyyMM = presentTime.substring(0, 6);
     String dd = random(1, 8).toString();
@@ -165,24 +167,18 @@ Future _orderGenerator(
     String pickUpTime = '$yyyyMM$dd$HH$mm$ss';
 
     List<Item> selectedItems = [];
-    if (random(1, 101) % 4 == 0) {
-      // 25% chance for croissant
-      selectedItems.add(items[8]);
-    } else {
-      // 75% chance for drink
-      selectedItems.add(items[random(0, 8)]);
-    }
+    selectedItems.add(items[random(1, 10)]);
     if (random(1, 101) % 5 == 0) {
       // 20% chance for for ordering 2nd item
-      selectedItems.add(items[random(0, 9)]);
+      selectedItems.add(items[random(1, 10)]);
     }
     if (random(1, 101) % 20 == 0) {
       // 5% chance for for ordering 3rd item
-      selectedItems.add(items[random(0, 9)]);
+      selectedItems.add(items[random(1, 10)]);
     }
     if (random(1, 101) % 50 == 0) {
       // 2% chance for for ordering 4th item
-      selectedItems.add(items[random(0, 9)]);
+      selectedItems.add(items[random(1, 10)]);
     }
 
     List<String> stringList = getStringList(selectedItems);
@@ -269,4 +265,14 @@ List<String> states = [
   'COMPLETED',
   'ABORTED',
   'ABANDONED',
+];
+
+List<String> days = [
+  'Monday',
+  'Tueseday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
 ];

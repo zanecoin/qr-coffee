@@ -32,12 +32,11 @@ DATABÁZE A FUNKCE
 - sekundový trigger na checkování internet connection
 + přidat stav - objednávka připravena
 - zabezpečení databáze
-- odhlašování nefaká
+- no internet během prvotního loadingu
 
 KOSMETIKA
-- opravit zobrazovaní horní lišty
 - snackbars
-- responzivita
+- responzivita: iphone, tablet, dlouhe nazvy ulic, order tile icon
 - vyřešit dakrmode ve webview??
 - před provedením důležitých akcí přidat alert dialog
 - tmavý režim
@@ -56,6 +55,12 @@ DO BUDOUCNA
 - vytvořit application ID
 - registrace zaměstnanců
 - privacy policy
+
+Widgety:
+- Wrap: více textových bloků s různými vlastnostmi
+- Stateful Widget: widget.data (tímto se nemusí 2x přeposílat data v rámci 1 Stateful widgetu)
+- Navigator.pushReplacement()
+- Timer(Duration(seconds: x), function);
 
 
 Platební brány:

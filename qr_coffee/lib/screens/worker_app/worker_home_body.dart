@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/order_screens/order_inventory.dart';
+import 'package:qr_coffee/screens/order_screens/order_tile.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/custom_small_widgets.dart';
@@ -164,9 +164,10 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
       ['Zrušené', errorIcon(size: 25)],
     ];
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
+        width: Responsive.deviceWidth(context) < 500 ? null : 250,
         decoration: BoxDecoration(
             border: Border.all(width: 1, color: Colors.grey),
             borderRadius: BorderRadius.circular(10)),

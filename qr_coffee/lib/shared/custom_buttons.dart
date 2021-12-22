@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 ButtonStyle customButtonStyle(
-    {Color color = Colors.black87, double elevation = 4}) {
+    {Color color = Colors.black, double elevation = 4}) {
   return ElevatedButton.styleFrom(
     primary: color,
     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),

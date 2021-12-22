@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/screens/order_screens/order_inventory.dart';
+import 'package:qr_coffee/screens/order_screens/order_details.dart';
 import 'package:qr_coffee/shared/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -152,7 +152,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                     Navigator.push(
                       context,
                       new MaterialPageRoute(
-                        builder: (context) => UserOrder(
+                        builder: (context) => OrderDetails(
                           role: 'customer',
                           order: order,
                           mode: 'after-creation',
