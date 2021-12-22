@@ -1,7 +1,7 @@
-import 'package:qr_coffee/shared/custom_app_bar.dart';
-import 'package:qr_coffee/shared/custom_buttons.dart';
-import 'package:qr_coffee/shared/custom_text_field.dart';
-import 'package:qr_coffee/shared/image_banner.dart';
+import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
+import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
+import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/auth.dart';
@@ -32,6 +32,8 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
+    final double deviceHeight = Responsive.deviceHeight(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: customAppBar(context, title: Text(''), elevation: 0),
@@ -46,7 +48,7 @@ class _RegisterState extends State<Register> {
                 fontFamily: 'Galada',
               ),
             ),
-            if (Responsive.deviceHeight(context) > 700)
+            if (deviceHeight > kDeviceHeightTreshold)
               ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
             Container(
               padding: EdgeInsets.symmetric(

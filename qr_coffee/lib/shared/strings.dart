@@ -97,6 +97,7 @@ class CzechStrings {
 
   // SIDEBAR
   static const String personal = 'Osobní údaje';
+  static const String updatePersonal = 'Upravit údaje';
   static const String settings = 'Nastavení';
   static const String help = 'Nápověda';
   static const String contact = 'Kontakt';
@@ -105,6 +106,8 @@ class CzechStrings {
   static const String activateStand = 'Aktivovat stanoviště';
   static const String workMode = 'Pracovní režim';
   static const String stats = 'Statistika';
+  static const String infoChangeSuccess =
+      'Změna osobních údajů proběhla úspěšně!';
 
   // ALERT DIALOG
   static const String question = 'Opravdu?';

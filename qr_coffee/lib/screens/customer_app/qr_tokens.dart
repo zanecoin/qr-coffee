@@ -1,10 +1,10 @@
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/shared/custom_app_bar.dart';
+import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/database.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 
 class QRTokens extends StatefulWidget {

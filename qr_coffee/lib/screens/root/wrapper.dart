@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/authenticate/authenticate.dart';
 import 'package:qr_coffee/service/database.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:provider/provider.dart';
 
 // CHECKS INTERNET CONNECTION AND DECIDES BEETWEEN WORKER AND CUSTOMER SCREEN

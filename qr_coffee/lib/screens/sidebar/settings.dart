@@ -4,13 +4,14 @@ import 'package:qr_coffee/models/place.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/auth.dart';
 import 'package:qr_coffee/service/database.dart';
-import 'package:qr_coffee/shared/animated_toggle.dart';
+import 'package:qr_coffee/shared/widgets/animated_toggle.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/custom_app_bar.dart';
-import 'package:qr_coffee/shared/custom_buttons.dart';
-import 'package:qr_coffee/shared/custom_small_widgets.dart';
-import 'package:qr_coffee/shared/custom_text_field.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
+import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_divider.dart';
+import 'package:qr_coffee/shared/widgets/custom_dropdown.dart';
+import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
@@ -35,7 +36,7 @@ class _SettingsState extends State<Settings> {
 
   // PLACES
   bool showPlaces = false;
-  Object? _currentPlace;
+  String? _currentPlace;
   late List<Place> places = [];
 
   // USER DATA FORM
@@ -75,7 +76,7 @@ class _SettingsState extends State<Settings> {
               appBar: customAppBar(context, title: Text('')),
               body: SingleChildScrollView(
                 child: Container(
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 60),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 40),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -117,15 +118,15 @@ class _SettingsState extends State<Settings> {
                               children: [
                                 Text(CzechStrings.activateStand,
                                     style: TextStyle(fontSize: 16)),
-                                _currentPlace.toString() == 'null' &&
-                                        userData.stand == ''
+                                _currentPlace == 'null' && userData.stand == ''
                                     ? disabledAnimatedToggle()
                                     : animatedToggle(showPlaces, callbackPlace),
                               ],
                             ),
                             SizedBox(height: 10),
                             userData.stand == ''
-                                ? _placeSelect(places)
+                                ? CustomPlaceDropdown(places, false,
+                                    callbackDropdown, _currentPlace)
                                 : _placeBanner(),
                           ],
                         ),
@@ -188,12 +189,15 @@ class _SettingsState extends State<Settings> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (deviceWidth > 340) _circleAvatar(),
-                              if (deviceWidth > 340) SizedBox(width: 20),
+                              if (deviceWidth > kDeviceWidthTreshold)
+                                _circleAvatar(),
+                              if (deviceWidth > kDeviceWidthTreshold)
+                                SizedBox(width: 20),
                               Column(
-                                crossAxisAlignment: deviceWidth > 340
-                                    ? CrossAxisAlignment.start
-                                    : CrossAxisAlignment.center,
+                                crossAxisAlignment:
+                                    deviceWidth > kDeviceWidthTreshold
+                                        ? CrossAxisAlignment.start
+                                        : CrossAxisAlignment.center,
                                 children: [
                                   Text(
                                     company.name,
@@ -209,9 +213,10 @@ class _SettingsState extends State<Settings> {
                                     '\n${company.email}'
                                     '\n${company.headquarters}',
                                     style: TextStyle(fontSize: 16),
-                                    textAlign: deviceWidth > 340
-                                        ? TextAlign.left
-                                        : TextAlign.center,
+                                    textAlign:
+                                        deviceWidth > kDeviceWidthTreshold
+                                            ? TextAlign.left
+                                            : TextAlign.center,
                                   ),
                                 ],
                               ),
@@ -248,20 +253,31 @@ class _SettingsState extends State<Settings> {
     }
   }
 
-  callbackPlace() {
+  void callbackDropdown(value) {
+    _currentPlace = value;
+  }
+
+  void callbackPlace() {
     _togglePlace();
   }
 
-  callbackTheme() {
+  void callbackTheme() {
     _toggleTheme();
   }
 
-  callbackMode() {
+  void callbackMode() {
     _toggleMode();
   }
 
-  callbackForm(varLabel, varValue) {
+  void callbackForm(varLabel, varValue) {
     formField[varLabel] = varValue;
+  }
+
+  // PHONE AND EMAIL LAUNCHER
+  void customLaunch(command) async {
+    if (await canLaunch(command)) {
+      await launch(command);
+    }
   }
 
   // CONFRIM PERSONAL INFO CHANGES
@@ -273,7 +289,7 @@ class _SettingsState extends State<Settings> {
         color: Colors.white,
       ),
       label: Text(
-        'Upravit údaje',
+        CzechStrings.updatePersonal,
         style: TextStyle(fontSize: 17, color: Colors.white),
       ),
       onPressed: () async {
@@ -298,7 +314,7 @@ class _SettingsState extends State<Settings> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Změna osobních údajů proběhla úspěšně!'),
+              content: Text(CzechStrings.infoChangeSuccess),
               duration: Duration(milliseconds: 1200),
             ),
           );
@@ -409,9 +425,9 @@ class _SettingsState extends State<Settings> {
             ),
             SizedBox(width: 5),
             Text(
-              userData.stand.length < 20
+              userData.stand.length < Responsive.textTreshold(context)
                   ? ' ${userData.stand}'
-                  : ' ${userData.stand.substring(0, 20)}...',
+                  : ' ${userData.stand.substring(0, Responsive.textTreshold(context))}...',
               style: TextStyle(
                 fontWeight: FontWeight.normal,
                 color: Colors.black,
@@ -423,60 +439,6 @@ class _SettingsState extends State<Settings> {
         ),
       ),
     );
-  }
-
-  // WIDGET FOR PLACE TOGGLE
-  Widget _placeSelect(List<Place> places) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 15),
-        decoration: BoxDecoration(
-            border: Border.all(width: 1, color: Colors.grey),
-            borderRadius: BorderRadius.circular(10)),
-        child: Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField(
-                hint: Text(CzechStrings.choosePlace),
-                value: _currentPlace,
-                items: places.map((place) {
-                  return DropdownMenuItem(
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.place,
-                          color: place.active ? Colors.grey : Colors.black,
-                        ),
-                        Text(
-                          place.address.length < 18
-                              ? ' ${place.address}'
-                              : ' ${place.address.substring(0, 18)}...',
-                          style: TextStyle(
-                            color: place.active ? Colors.grey : Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                    value: place.address,
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  setState(() => _currentPlace = val!);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // PHONE AND EMAIL LAUNCHER
-  void customLaunch(command) async {
-    if (await canLaunch(command)) {
-      await launch(command);
-    }
   }
 
   Widget _circleAvatar() {

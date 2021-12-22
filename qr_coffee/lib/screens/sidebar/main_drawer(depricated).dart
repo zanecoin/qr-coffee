@@ -1,8 +1,8 @@
 import 'package:qr_coffee/screens/admin/admin_home.dart';
-import 'package:qr_coffee/screens/sidebar/help.dart';
-import 'package:qr_coffee/shared/custom_buttons.dart';
-import 'package:qr_coffee/shared/custom_small_widgets.dart';
-import 'package:qr_coffee/shared/image_banner.dart';
+import 'package:qr_coffee/screens/sidebar/help(depricated).dart';
+import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_divider.dart';
+import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +10,7 @@ import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/sidebar/settings.dart';
 import 'package:qr_coffee/service/auth.dart';
 import 'package:qr_coffee/service/database.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:provider/provider.dart';
 

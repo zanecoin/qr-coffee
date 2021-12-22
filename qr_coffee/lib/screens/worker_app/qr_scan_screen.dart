@@ -1,13 +1,12 @@
 import 'dart:io';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/screens/order_screens/order_details.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/custom_app_bar.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
 class QRScanScreen extends StatefulWidget {
@@ -108,7 +107,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
   void onQRViewCreated(QRViewController controller) {
     setState(() => this.controller = controller);
 
-    controller.scannedDataStream.listen((barcode) {
+    controller.scannedDataStream.listen((barcode) async {
       Order? order;
 
       for (var ord in activeOrders) {
@@ -119,6 +118,26 @@ class _QRScanScreenState extends State<QRScanScreen> {
       }
 
       if (order != null) {
+        if (order.status == 'READY') {
+          String status = 'COMPLETED';
+          DocumentReference _docRef = await DatabaseService().createOrder(
+            status,
+            order.items,
+            order.price,
+            order.pickUpTime,
+            order.username,
+            order.place,
+            order.orderId,
+            order.userId,
+            order.day,
+            order.triggerNum,
+          );
+
+          await DatabaseService().updateOrderId(_docRef.id, status);
+          await DatabaseService().deleteOrder(order.orderId);
+          order.orderId = _docRef.id;
+        }
+
         Navigator.pop(context);
         Navigator.push(
           context,
@@ -130,6 +149,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
             ),
           ),
         );
+
+        if (order.status == 'ACTIVE') {
+          await DatabaseService().triggerOrder(order.orderId, 1);
+          print('trigger: 1');
+          Future.delayed(Duration(milliseconds: 3000));
+          await DatabaseService().triggerOrder(order.orderId, 0);
+          print('trigger: 0');
+        }
       } else {
         setState(() => this.barcode = CzechStrings.orderNotFound);
       }

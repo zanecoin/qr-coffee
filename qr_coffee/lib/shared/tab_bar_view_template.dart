@@ -4,7 +4,7 @@ import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/admin/admin_home.dart';
 import 'package:qr_coffee/screens/worker_app/worker_home_body.dart';
 import 'package:qr_coffee/service/database.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';

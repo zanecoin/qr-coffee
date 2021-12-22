@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:qr_coffee/screens/customer_app/customer_home_body.dart';
-import 'package:qr_coffee/shared/custom_app_bar.dart';
+import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class CustomerHome extends StatefulWidget {

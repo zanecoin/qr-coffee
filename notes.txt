@@ -1,16 +1,8 @@
-Funkční:
-- úvodní obrazovka, přihlášení a registrace přes email a heslo, odhlášení (+řešení většiny vyjímečných situací typu neplatný e-mail)
-- role: 'pracovník'/'zákazník' (každý má svou domovskou stránku)
-- zákazník může odeslat objednávku, kde si může zvolit druh kávy, odběrové místo a za jak dlouho si objednávku vyzvedne (objednávka získá status - 'aktvní')
-- zákazník může zrušit objednávku (objednávka získá status - 'zrušená')
-- pracovník může odkliknout vyzvednuté/nevyzvednuté objednávky (objednávka získá status - 'vyzvednutá'/'nevyzvednutá')
-- seznam aktvních objednávek na domovské obrazovce zákazníka
-- zobrazení historie objednávek na domovské obrazovce zákazníka + možnost objednat kávu na základě předchozí objednávky (objednávka opět získá status - 'aktvní')
-- filtr objednávek na domovské stránce pracovníka ('všechny' - 'aktvní' - 'vyzvednuté' - 'nevyzvednuté' - 'zrušené' - 'vyřízené')
+Vlatnosti:
+- role: 'pracovník'/'zákazník'
 - přesný dynamický výpočet časů objednávek skrz celou aplikaci + zabarvení časových údajů podle hodnoty
 - pracovník může přepínat mezi pracovním a zákaznickým účtem, zákazník má pouze zákaznický účet
 - pracovník může v nastavení aktivovat a deaktivovat stanoviště, na kterém právě pracuje
-- uchovávání počtu zakoupených káv v databázi (později se dá udělat statistika zobrazující, jaký druh kávy je nejkupovanější)
 
 
 BRÁNA
@@ -22,39 +14,35 @@ STATISTIKY
 - vytíženost stánků, poměr úspěšných objednávek, odběr surovin
 
 OBJEDNÁVKY
-- pop-up při zadávání produktu
 - zobrazovat pending objednávky?
 - načíst další
 
 DATABÁZE A FUNKCE
 - počítání prodaných položek
-- každá položka musí mít suroviny a pole featur
 - sekundový trigger na checkování internet connection
-+ přidat stav - objednávka připravena
 - zabezpečení databáze
 - no internet během prvotního loadingu
+- loading obrázků
 
 KOSMETIKA
-- snackbars
-- responzivita: iphone, tablet, dlouhe nazvy ulic, order tile icon
-- vyřešit dakrmode ve webview??
-- před provedením důležitých akcí přidat alert dialog
++ snackbars
++ responzivita: iphone, tablet, order tile icon
++ před provedením důležitých akcí přidat alert dialog
 - tmavý režim
-- omezit délku jména
 
 PROJEKTY
+- pop-up při zadávání produktu (každá položka musí mít suroviny a pole featur)
 - mapa zobrazující polohu stánků
 - obrazovka s tutoriálem bezprostředně po registraci
 - přihlášení přes Google a Facebook
-- podpora iOS
 - kompletní anonymní přehled polohy uživatelů
 - notifikace - prodlužování objednávek
-
 
 DO BUDOUCNA
 - vytvořit application ID
 - registrace zaměstnanců
 - privacy policy
+- časová náročnost při hledání v databázi pasivních objednávek
 
 Widgety:
 - Wrap: více textových bloků s různými vlastnostmi

@@ -1,23 +1,20 @@
-import 'package:qr_coffee/api/manual_api_order.dart';
 import 'package:qr_coffee/models/item.dart';
-import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/place.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/coffee_inventory.dart';
-import 'package:qr_coffee/screens/order_screens/order_details.dart';
+import 'package:qr_coffee/screens/order_screens/create_order/func_place_order.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/custom_buttons.dart';
-import 'package:qr_coffee/shared/custom_small_widgets.dart';
+import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_divider.dart';
 import 'package:qr_coffee/shared/functions.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/custom_dropdown.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 class CreateOrder extends StatefulWidget {
   final List<Map<String, dynamic>> databaseImages;
@@ -35,7 +32,7 @@ class _CreateOrderState extends State<CreateOrder>
 
   _CreateOrderState({required this.databaseImages});
 
-  Object? _currentPlace;
+  String? _currentPlace;
   bool loading = false;
   double plusTime = 5;
   List<String> choices = [CzechStrings.drink, CzechStrings.food];
@@ -205,12 +202,34 @@ class _CreateOrderState extends State<CreateOrder>
                                     screenNum = 2;
                                   });
                                 } else if (role == 'worker-on') {
-                                  _placeOrderEvent(items, userData);
+                                  setState(() => loading = true);
+                                  createOrder(
+                                    context,
+                                    items,
+                                    userData,
+                                    _selectedItems,
+                                    _currentPlace,
+                                    paymentMethod,
+                                    role,
+                                    plusTime,
+                                  );
+                                  setState(() => loading = false);
                                 }
                               } else {
                                 if (role == 'customer' ||
                                     role == 'worker-off') {
-                                  _placeOrderEvent(items, userData);
+                                  setState(() => loading = true);
+                                  createOrder(
+                                    context,
+                                    items,
+                                    userData,
+                                    _selectedItems,
+                                    _currentPlace,
+                                    paymentMethod,
+                                    role,
+                                    plusTime,
+                                  );
+                                  setState(() => loading = false);
                                 }
                               }
                             },
@@ -230,6 +249,10 @@ class _CreateOrderState extends State<CreateOrder>
         }
       },
     );
+  }
+
+  void callbackDropdown(value) {
+    _currentPlace = value;
   }
 
   void appendItem(coffee) {
@@ -339,7 +362,7 @@ class _CreateOrderState extends State<CreateOrder>
         children: [
           SizedBox(height: Responsive.height(2, context)),
           _text(CzechStrings.orderPlace, 16, FontWeight.normal),
-          _placeSelect(places),
+          CustomPlaceDropdown(places, true, callbackDropdown, _currentPlace),
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: ClipRRect(
@@ -413,197 +436,6 @@ class _CreateOrderState extends State<CreateOrder>
           ),
           SizedBox(height: Responsive.height(2, context)),
         ],
-      ),
-    );
-  }
-
-  void _placeOrderEvent(List<Item> items, UserData userData) async {
-    int price = getTotalPrice(items, _selectedItems);
-
-    if (_selectedItems.isEmpty ||
-        _currentPlace == null ||
-        (paymentMethod == 2 &&
-            price > userData.tokens &&
-            role != 'worker-on')) {
-      // NOTIFY USER SOMETHING IS WRONG WITH ORDER PARAMETERS
-      String message;
-
-      if (_selectedItems.isEmpty && _currentPlace != null) {
-        message = CzechStrings.chooseItemsDot;
-      } else if (_selectedItems.isNotEmpty && _currentPlace == null) {
-        message = CzechStrings.choosePlaceDot;
-      } else if (paymentMethod == 2 && price > userData.tokens) {
-        message = CzechStrings.insufficientTokenBalace;
-      } else {
-        message = CzechStrings.chooseBothDot;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          duration: Duration(milliseconds: 2000),
-        ),
-      );
-    } else {
-      setState(() => loading = true);
-
-      // CREATE ORDER PARAMETERS
-      String status = 'COMPLETED';
-      String username = 'generated-order^^';
-
-      if (role == 'customer' || role == 'worker-off') {
-        status = paymentMethod == 1 ? 'PENDING' : 'ACTIVE';
-        username = '${userData.name} ${userData.surname}';
-      }
-
-      List<String> stringList = getStringList(_selectedItems);
-      String pickUpTime = getPickUpTime(plusTime);
-      String place = _currentPlace.toString();
-      String orderId = '';
-      String userId = userData.uid;
-      String day = DateFormat('EEEE').format(DateTime.now());
-
-      // PLACE AN ACTIVE ORDER TO DATABASE
-      DocumentReference _docRef = await DatabaseService().createOrder(status,
-          stringList, price, pickUpTime, username, place, orderId, userId, day);
-
-      // UPDATE ORDER WITH ID
-      await DatabaseService().updateOrderId(_docRef.id, status);
-
-      // UPDATE QUANTITY OF A PARTICULAR ITEM TYPE
-      for (Item item in _selectedItems) {
-        print(item.name);
-        await DatabaseService().updateCoffeeData(item.uid, item.name, item.type,
-            item.price, item.count + 1, item.picture);
-      }
-
-      // CREATE ORDER INSTANCE TO SHOW IT TO USER AFTER SUCCESFUL ORDER
-      Order order = Order(
-        status: status,
-        items: stringList,
-        price: price,
-        pickUpTime: pickUpTime,
-        username: username,
-        place: place,
-        orderId: _docRef.id,
-        userId: userId,
-        day: day,
-      );
-
-      if (role == 'customer' || role == 'worker-off') {
-        // UPDATE USER DATA
-        await DatabaseService(uid: userData.uid).updateUserData(
-          userData.name,
-          userData.surname,
-          userData.email,
-          userData.role,
-          userData.tokens,
-          userData.stand,
-          userData.numOrders + 1,
-        );
-
-        if (paymentMethod == 1) {
-          // LAUNCH WEBVIEW
-          launchPaymentGateway(context, price, items, order);
-        } else {
-          // SUBTRACT THE AMOUNT OF TOKENS FROM USER
-          await DatabaseService(uid: userData.uid).updateUserData(
-            userData.name,
-            userData.surname,
-            userData.email,
-            userData.role,
-            userData.tokens - price,
-            userData.stand,
-            userData.numOrders,
-          );
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            new MaterialPageRoute(
-              builder: (context) => OrderDetails(
-                role: 'customer',
-                order: order,
-                mode: 'after-creation',
-              ),
-            ),
-          );
-        }
-      } else {
-        Navigator.pop(context);
-        Navigator.push(
-          context,
-          new MaterialPageRoute(
-            builder: (context) => OrderDetails(
-              role: 'customer',
-              order: order,
-              mode: 'normal',
-            ),
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(CzechStrings.orderCreationSuccess),
-            duration: Duration(milliseconds: 2000),
-          ),
-        );
-      }
-    }
-  }
-
-  Widget _placeSelect(List<Place> places) {
-    List<Place> filteredPlaces = [];
-
-    for (var place in places) {
-      if (place.active) {
-        filteredPlaces.add(place);
-      }
-    }
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-            border: Border.all(width: 1, color: Colors.grey),
-            borderRadius: BorderRadius.circular(10)),
-        child: Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField(
-                hint: Text(
-                  filteredPlaces.length > 0
-                      ? CzechStrings.choosePlace
-                      : CzechStrings.noPlace,
-                ),
-                value: _currentPlace,
-                items: filteredPlaces.map((place) {
-                  return DropdownMenuItem(
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.place,
-                          color: place.active ? Colors.black : Colors.grey,
-                        ),
-                        Text(
-                          place.address.length < 17
-                              ? ' ${place.address}'
-                              : ' ${place.address.substring(0, 17)}...',
-                          style: TextStyle(
-                            color: place.active ? Colors.black : Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    value: place.address,
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  setState(() => _currentPlace = val);
-                },
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

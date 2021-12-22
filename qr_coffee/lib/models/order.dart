@@ -9,6 +9,7 @@ class Order {
   String orderId;
   String userId;
   String day;
+  int triggerNum;
 
   Order({
     required this.status,
@@ -20,5 +21,6 @@ class Order {
     required this.orderId,
     required this.userId,
     required this.day,
+    required this.triggerNum,
   });
 }

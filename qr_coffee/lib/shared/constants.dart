@@ -1,6 +1,10 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 
+// VALUES
+double kDeviceHeightTreshold = 670;
+double kDeviceWidthTreshold = 340;
+
 // CLASS FOR VARIABLE HEIGHT AND WIDTH
 class Responsive {
   static double width(double p, BuildContext context) {
@@ -17,6 +21,14 @@ class Responsive {
 
   static double deviceHeight(BuildContext context) {
     return MediaQuery.of(context).size.height;
+  }
+
+  static int textTreshold(BuildContext context) {
+    return (Responsive.deviceWidth(context) / 15).floor();
+  }
+
+  static int textTresholdShort(BuildContext context) {
+    return (Responsive.deviceWidth(context) / 18).floor();
   }
 }
 

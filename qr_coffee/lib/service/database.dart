@@ -92,6 +92,7 @@ class DatabaseService {
     String orderId,
     String userId,
     String day,
+    int triggerNum,
   ) async {
     if (status == 'ACTIVE' || status == 'PENDING') {
       return await activeOrderCollection.add({
@@ -104,6 +105,7 @@ class DatabaseService {
         'orderId': orderId,
         'userId': userId,
         'day': day,
+        'triggerNum': triggerNum,
       });
     } else {
       return await passiveOrderCollection.add({
@@ -116,6 +118,7 @@ class DatabaseService {
         'orderId': orderId,
         'userId': userId,
         'day': day,
+        'triggerNum': triggerNum,
       });
     }
   }
@@ -141,6 +144,15 @@ class DatabaseService {
       'orderId': orderId,
       'userId': userId,
       'day': day,
+    });
+  }
+
+  // SET ID FOR NEW VIRTUAL ORDER
+  Future updateVirtualOrderId(
+    String orderId,
+  ) async {
+    return await virtualOrderCollection.doc(orderId).update({
+      'orderId': orderId,
     });
   }
 
@@ -170,12 +182,13 @@ class DatabaseService {
     });
   }
 
-  // SET ID FOR NEW VIRTUAL ORDER
-  Future updateVirtualOrderId(
+  // CHANGE ORDER 'TRIGGER FLAG' TO TRIGGER DIFFERENT EVENTS
+  Future triggerOrder(
     String orderId,
+    int triggerNum,
   ) async {
-    return await virtualOrderCollection.doc(orderId).update({
-      'orderId': orderId,
+    return await activeOrderCollection.doc(orderId).update({
+      'triggerNum': triggerNum,
     });
   }
 
@@ -192,6 +205,7 @@ class DatabaseService {
         orderId: (doc.data() as dynamic)['orderId'],
         userId: (doc.data() as dynamic)['userId'],
         day: (doc.data() as dynamic)['day'],
+        triggerNum: (doc.data() as dynamic)['triggerNum'],
       );
     }).toList();
   }
@@ -223,6 +237,7 @@ class DatabaseService {
       orderId: (snapshot.data() as dynamic)['orderId'],
       userId: (snapshot.data() as dynamic)['userId'],
       day: (snapshot.data() as dynamic)['day'],
+      triggerNum: (snapshot.data() as dynamic)['triggerNum'],
     );
   }
 
@@ -232,27 +247,6 @@ class DatabaseService {
   }
 
   // END ORDER ----------------------------------------------------------------------------
-
-  // ARTICLE ------------------------------------------------------------------------------
-  final CollectionReference articleCollection =
-      FirebaseFirestore.instance.collection('help_articles');
-
-  // articles from snapshot
-  List<Article> _articlesFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return Article(
-        title: (doc.data() as dynamic)['title'],
-        body: (doc.data() as dynamic)['body'],
-      );
-    }).toList();
-  }
-
-  // get article doc stream
-  Stream<List<Article>> get articleList {
-    return articleCollection.snapshots().map(_articlesFromSnapshot);
-  }
-
-  // END ARTICLE --------------------------------------------------------------------------
 
   // ITEMS -------------------------------------------------------------------------------
   final CollectionReference itemCollection =
@@ -348,53 +342,74 @@ class DatabaseService {
 
   // CREDIT CARD --------------------------------------------------------------------------
 
-  // add new card
-  Future<DocumentReference> updateCards(String cardNumber, String expiryDate,
-      String cardHolderName, String cvvCode) async {
-    return await userCollection.doc(uid).collection('cards').add({
-      'uid': '',
-      'cardNumber': cardNumber,
-      'expiryDate': expiryDate,
-      'cardHolderName': cardHolderName,
-      'cvvCode': cvvCode,
-    });
-  }
+  // // add new card
+  // Future<DocumentReference> updateCards(String cardNumber, String expiryDate,
+  //     String cardHolderName, String cvvCode) async {
+  //   return await userCollection.doc(uid).collection('cards').add({
+  //     'uid': '',
+  //     'cardNumber': cardNumber,
+  //     'expiryDate': expiryDate,
+  //     'cardHolderName': cardHolderName,
+  //     'cvvCode': cvvCode,
+  //   });
+  // }
 
-  deleteCard(String? cardID) {
-    userCollection.doc(uid).collection('cards').doc(cardID).delete();
-  }
+  // deleteCard(String? cardID) {
+  //   userCollection.doc(uid).collection('cards').doc(cardID).delete();
+  // }
 
-  // add card id
-  Future setCardID(String cardID, String cardNumber, String expiryDate,
-      String cardHolderName, String cvvCode) async {
-    return await userCollection.doc(uid).collection('cards').doc(cardID).set({
-      'uid': cardID,
-      'cardNumber': cardNumber,
-      'expiryDate': expiryDate,
-      'cardHolderName': cardHolderName,
-      'cvvCode': cvvCode,
-    });
-  }
+  // // add card id
+  // Future setCardID(String cardID, String cardNumber, String expiryDate,
+  //     String cardHolderName, String cvvCode) async {
+  //   return await userCollection.doc(uid).collection('cards').doc(cardID).set({
+  //     'uid': cardID,
+  //     'cardNumber': cardNumber,
+  //     'expiryDate': expiryDate,
+  //     'cardHolderName': cardHolderName,
+  //     'cvvCode': cvvCode,
+  //   });
+  // }
 
-  // card List from snapshot
-  List<UserCard> _cardListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return UserCard(
-        uid: (doc.data() as dynamic)['uid'],
-        cardNumber: (doc.data() as dynamic)['cardNumber'],
-        expiryDate: (doc.data() as dynamic)['expiryDate'],
-        cardHolderName: (doc.data() as dynamic)['cardHolderName'],
-        cvvCode: (doc.data() as dynamic)['cvvCode'],
-      );
-    }).toList();
-  }
+  // // card List from snapshot
+  // List<UserCard> _cardListFromSnapshot(QuerySnapshot snapshot) {
+  //   return snapshot.docs.map((doc) {
+  //     return UserCard(
+  //       uid: (doc.data() as dynamic)['uid'],
+  //       cardNumber: (doc.data() as dynamic)['cardNumber'],
+  //       expiryDate: (doc.data() as dynamic)['expiryDate'],
+  //       cardHolderName: (doc.data() as dynamic)['cardHolderName'],
+  //       cvvCode: (doc.data() as dynamic)['cvvCode'],
+  //     );
+  //   }).toList();
+  // }
 
-  // get card doc list stream
-  Stream<List<UserCard>> get cardList {
-    CollectionReference cardCollection =
-        userCollection.doc(uid).collection('cards');
-    return cardCollection.snapshots().map(_cardListFromSnapshot);
-  }
+  // // get card doc list stream
+  // Stream<List<UserCard>> get cardList {
+  //   CollectionReference cardCollection =
+  //       userCollection.doc(uid).collection('cards');
+  //   return cardCollection.snapshots().map(_cardListFromSnapshot);
+  // }
 
   // END CREDIT CARD ----------------------------------------------------------------------
+
+  // ARTICLE ------------------------------------------------------------------------------
+  // final CollectionReference articleCollection =
+  //     FirebaseFirestore.instance.collection('help_articles');
+
+  // // articles from snapshot
+  // List<Article> _articlesFromSnapshot(QuerySnapshot snapshot) {
+  //   return snapshot.docs.map((doc) {
+  //     return Article(
+  //       title: (doc.data() as dynamic)['title'],
+  //       body: (doc.data() as dynamic)['body'],
+  //     );
+  //   }).toList();
+  // }
+
+  // // get article doc stream
+  // Stream<List<Article>> get articleList {
+  //   return articleCollection.snapshots().map(_articlesFromSnapshot);
+  // }
+
+  // END ARTICLE --------------------------------------------------------------------------
 }

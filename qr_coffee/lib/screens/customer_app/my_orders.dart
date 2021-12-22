@@ -4,12 +4,12 @@ import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_tile.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/custom_app_bar.dart';
-import 'package:qr_coffee/shared/custom_small_widgets.dart';
+import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
+import 'package:qr_coffee/shared/widgets/custom_divider.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/database.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:intl/intl.dart';
 
 class MyOrders extends StatefulWidget {

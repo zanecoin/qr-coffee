@@ -2,14 +2,14 @@ import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/custom_app_bar.dart';
-import 'package:qr_coffee/shared/custom_small_widgets.dart';
+import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
+import 'package:qr_coffee/shared/widgets/custom_divider.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
-import 'package:qr_coffee/shared/loading.dart';
+import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -45,256 +45,263 @@ class _OrderDetailsState extends State<OrderDetails> {
   });
 
   bool _showButtons = false;
+  bool _showAlert = false;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder3<UserData, List<Order>, dynamic>(
-        streams: Tuple3(
-          DatabaseService(uid: staticOrder.userId).userData,
-          DatabaseService().activeOrderList,
-          Stream.periodic(const Duration(seconds: 1)),
-        ),
-        builder: (context, snapshots) {
-          if (snapshots.item2.hasData) {
-            UserData? userData = snapshots.item1.data;
-            Order? order = mode == 'normal'
-                ? staticOrder
-                : _getUpdatedOrder(snapshots.item2.data!, staticOrder);
-            String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-            String remainingTime = '';
-            Color color = Colors.black;
+    return StreamBuilder4<UserData, List<Order>, List<Order>, dynamic>(
+      streams: Tuple4(
+        DatabaseService(uid: staticOrder.userId).userData,
+        DatabaseService().activeOrderList,
+        DatabaseService().passiveOrderList,
+        Stream.periodic(const Duration(milliseconds: 100)),
+      ),
+      builder: (context, snapshots) {
+        if (snapshots.item2.hasData && snapshots.item3.hasData) {
+          UserData? userData = snapshots.item1.data;
+          List<Order> orders = snapshots.item2.data! + snapshots.item3.data!;
+          Order? order = _getUpdatedOrder(orders, staticOrder);
+          String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+          String remainingTime = '';
+          Color color = Colors.black;
 
-            if (order == null) {
-              return Scaffold(
-                appBar: customAppBar(context, title: Text('')),
-                body: Center(
-                  child: Text(
-                    CzechStrings.orderNotFound,
-                  ),
+          if (order == null) {
+            return Scaffold(
+              appBar: customAppBar(context, title: Text('')),
+              body: Center(
+                child: Text(
+                  CzechStrings.orderNotFound,
                 ),
-              );
-            } else {
-              // INFORMATION HEADER FORMAT CHOOSER
-              if (order.status == 'ACTIVE') {
-                List returnArray = time == ''
-                    ? ['?', Colors.black]
-                    : getRemainingTime(order, time);
-                remainingTime = returnArray[0];
-                color = returnArray[1];
-              } else {
-                remainingTime = '${timeFormatter(order.pickUpTime)}';
-                color = Colors.black;
-              }
+              ),
+            );
+          } else {
+            // SHOW ALERT IF USER TRIES TO REDEEM ORDER WHICH IS NOT READY
+            if (order.triggerNum == 1) {
+              _showAlert = true;
+            }
 
-              return Scaffold(
-                appBar: customAppBar(context,
-                    title: Text(remainingTime, style: TextStyle(color: color))),
-                body: userData == null
-                    ? Center(
-                        child: Text(
-                          CzechStrings.userNotFound,
-                        ),
-                      )
-                    : SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            // ORDER RESULT INFO WINDOW ----------------------------
-                            SizedBox(height: 10),
-                            if (order.status == 'COMPLETED')
+            // INFORMATION HEADER FORMAT CHOOSER
+            if (order.status == 'ACTIVE') {
+              List returnArray = time == ''
+                  ? ['?', Colors.black]
+                  : getRemainingTime(order, time);
+              remainingTime = returnArray[0];
+              color = returnArray[1];
+            } else {
+              remainingTime = '${timeFormatter(order.pickUpTime)}';
+              color = Colors.black;
+            }
+
+            return Scaffold(
+              appBar: customAppBar(context,
+                  title: Text(remainingTime, style: TextStyle(color: color))),
+              body: userData == null
+                  ? Center(
+                      child: Text(
+                        CzechStrings.userNotFound,
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // ORDER RESULT INFO WINDOW ----------------------------
+                          SizedBox(height: 10),
+                          if (order.status == 'COMPLETED')
+                            _resultWindow(
+                              CzechStrings.orderCollected,
+                              Colors.green.shade100,
+                              checkIcon(color: Colors.green.shade400),
+                            ),
+                          if (order.status == 'ABANDONED')
+                            _resultWindow(
+                              CzechStrings.orderAbandoned,
+                              Colors.orange.shade100,
+                              questionIcon(),
+                            ),
+                          if (order.status == 'ABORTED')
+                            _resultWindow(
+                              CzechStrings.orderCancelled,
+                              Colors.red.shade100,
+                              errorIcon(),
+                            ),
+                          if (order.status == 'PENDING')
+                            _resultWindow(
+                              CzechStrings.orderPending,
+                              Colors.blue.shade100,
+                              waitingIcon(),
+                            ),
+                          if (role == 'customer')
+                            if (order.status == 'READY')
                               _resultWindow(
-                                CzechStrings.orderCollected,
+                                CzechStrings.orderReady,
                                 Colors.green.shade100,
                                 checkIcon(color: Colors.green.shade400),
                               ),
-                            if (order.status == 'ABANDONED')
+                          if (mode == 'after-creation')
+                            if (order.status == 'ACTIVE')
                               _resultWindow(
-                                CzechStrings.orderAbandoned,
-                                Colors.orange.shade100,
-                                questionIcon(),
-                              ),
-                            if (order.status == 'ABORTED')
-                              _resultWindow(
-                                CzechStrings.orderCancelled,
-                                Colors.red.shade100,
-                                errorIcon(),
-                              ),
-                            if (order.status == 'PENDING')
-                              _resultWindow(
-                                CzechStrings.orderPending,
+                                CzechStrings.orderRecieved,
                                 Colors.blue.shade100,
-                                waitingIcon(),
+                                checkIcon(color: Colors.blue.shade400),
                               ),
-                            if (role == 'customer')
-                              if (order.status == 'READY')
-                                _resultWindow(
-                                  CzechStrings.orderReady,
-                                  Colors.green.shade100,
-                                  checkIcon(color: Colors.green.shade400),
-                                ),
-                            if (mode == 'after-creation')
-                              if (order.status == 'ACTIVE')
-                                _resultWindow(
-                                  CzechStrings.orderRecieved,
-                                  Colors.blue.shade100,
-                                  checkIcon(color: Colors.blue.shade400),
-                                ),
 
-                            // QR CODE OR FANCY INFO CARD
-                            if (role == 'customer' || role == 'worker-off')
-                              _QrCard(order, userData, role),
-                            if (role == 'worker-on')
-                              _fancyInfoCard(order, userData),
+                          // QR CODE OR FANCY INFO CARD
+                          if (role == 'customer' || role == 'worker-off')
+                            _QrCard(order, userData, role),
+                          if (role == 'worker-on')
+                            _fancyInfoCard(context, order, userData),
 
-                            // ORDER HEADER INFO -----------------------------
-                            if (role == 'customer')
-                              Text(
-                                '${order.price.toString()} Kč',
-                                style: TextStyle(
-                                    fontSize: 30,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            if (role == 'customer')
-                              Text(
-                                order.place,
-                                style: TextStyle(
-                                  fontSize: 20,
+                          // ORDER HEADER INFO -----------------------------
+                          if (role == 'customer')
+                            Text(
+                              '${order.price.toString()} Kč',
+                              style: TextStyle(
+                                  fontSize: 30,
                                   color: Colors.black,
-                                ),
-                              ),
-                            if (role == 'customer' || role == 'worker-off')
-                              CustomDivider(indent: 40),
-                            SizedBox(
-                              child: ListView.builder(
-                                itemBuilder: (context, index) => Center(
-                                    child: Text(
-                                  order.items[index],
-                                  style: TextStyle(fontSize: 20),
-                                )),
-                                itemCount: order.items.length,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.vertical,
-                                physics: NeverScrollableScrollPhysics(),
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          if (role == 'customer')
+                            Text(
+                              order.place,
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 10),
+                          if (role == 'customer' || role == 'worker-off')
+                            CustomDivider(indent: 40),
+                          SizedBox(
+                            child: ListView.builder(
+                              itemBuilder: (context, index) => Center(
+                                  child: Text(
+                                order.items[index],
+                                style: TextStyle(fontSize: 20),
+                              )),
+                              itemCount: order.items.length,
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              physics: NeverScrollableScrollPhysics(),
+                            ),
+                          ),
+                          SizedBox(height: 10),
 
-                            // ACTION BUTTONS -----------------------------------
-                            if (order.status == 'ACTIVE' &&
-                                role == 'worker-on' &&
-                                mode == 'normal')
-                              _resultBtn(
-                                'READY',
-                                CzechStrings.ready,
-                                Icons.done,
-                                Colors.green,
-                                order,
-                              ),
-                            if (order.status == 'READY' &&
-                                role == 'worker-on' &&
-                                mode == 'normal' &&
-                                _showButtons)
-                              Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      _resultBtn(
-                                          'ABANDONED',
-                                          CzechStrings.abandoned,
-                                          Icons.clear,
-                                          Colors.red,
-                                          order),
-                                      _resultBtn(
-                                          'COMPLETED',
-                                          CzechStrings.collected,
-                                          Icons.done,
-                                          Colors.green,
-                                          order),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            if (order.status == 'READY' &&
-                                role == 'worker-on' &&
-                                mode == 'normal' &&
-                                !_showButtons)
-                              Column(
-                                children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _showButtons = true;
-                                      });
-                                    },
-                                    child: Text(CzechStrings.manualAnswer),
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: Colors.grey.shade100,
-                                      primary: Colors.grey.shade700,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 20),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            if ((order.status == 'ACTIVE' ||
-                                    order.status == 'READY') &&
-                                role == 'customer' &&
-                                mode == 'normal')
-                              Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      _resultBtn(
-                                        'ABORTED',
-                                        CzechStrings.cancelOrder,
+                          // ACTION BUTTONS -----------------------------------
+                          if (order.status == 'ACTIVE' &&
+                              role == 'worker-on' &&
+                              mode == 'normal')
+                            _resultBtn(
+                              'READY',
+                              CzechStrings.ready,
+                              Icons.done,
+                              Colors.green,
+                              order,
+                            ),
+                          if (order.status == 'READY' &&
+                              role == 'worker-on' &&
+                              mode == 'normal' &&
+                              _showButtons)
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    _resultBtn(
+                                        'ABANDONED',
+                                        CzechStrings.abandoned,
                                         Icons.clear,
                                         Colors.red,
-                                        order,
-                                      ),
-                                    ],
+                                        order),
+                                    _resultBtn(
+                                        'COMPLETED',
+                                        CzechStrings.collected,
+                                        Icons.done,
+                                        Colors.green,
+                                        order),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          if (order.status == 'READY' &&
+                              role == 'worker-on' &&
+                              mode == 'normal' &&
+                              !_showButtons)
+                            Column(
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _showButtons = true;
+                                    });
+                                  },
+                                  child: Text(CzechStrings.manualAnswer),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.grey.shade100,
+                                    primary: Colors.grey.shade700,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 20),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
+                            ),
+                          if ((order.status == 'ACTIVE' ||
+                                  order.status == 'READY') &&
+                              role == 'customer' &&
+                              mode == 'normal')
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    _resultBtn(
+                                      'ABORTED',
+                                      CzechStrings.cancelOrder,
+                                      Icons.clear,
+                                      Colors.red,
+                                      order,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
 
-                            // if (order.status != 'ACTIVE' && role == 'customer')
-                            //   Column(
-                            //     children: [
-                            //       SizedBox(height: 20),
-                            //       Row(
-                            //         mainAxisAlignment:
-                            //             MainAxisAlignment.spaceEvenly,
-                            //         children: [
-                            //           _resultBtn('ACTIVE', 'Objednat znovu',
-                            //               Icons.refresh, Colors.green, order),
-                            //         ],
-                            //       ),
-                            //       Text(
-                            //         'Na ${timeFormatter(order.pickUpTime).substring(0, 5)}',
-                            //         style: TextStyle(fontSize: 18),
-                            //       ),
-                            //       Text(
-                            //         '(Platba uloženou kartou)',
-                            //         style: TextStyle(fontSize: 18),
-                            //       )
-                            //     ],
-                            //   ),
-                            SizedBox(height: 30),
-                          ],
-                        ),
+                          // if (order.status != 'ACTIVE' && role == 'customer')
+                          //   Column(
+                          //     children: [
+                          //       SizedBox(height: 20),
+                          //       Row(
+                          //         mainAxisAlignment:
+                          //             MainAxisAlignment.spaceEvenly,
+                          //         children: [
+                          //           _resultBtn('ACTIVE', 'Objednat znovu',
+                          //               Icons.refresh, Colors.green, order),
+                          //         ],
+                          //       ),
+                          //       Text(
+                          //         'Na ${timeFormatter(order.pickUpTime).substring(0, 5)}',
+                          //         style: TextStyle(fontSize: 18),
+                          //       ),
+                          //       Text(
+                          //         '(Platba uloženou kartou)',
+                          //         style: TextStyle(fontSize: 18),
+                          //       )
+                          //     ],
+                          //   ),
+                          SizedBox(height: 30),
+                        ],
                       ),
-              );
-            }
-          } else {
-            return Loading();
+                    ),
+            );
           }
-        });
+        } else {
+          return Loading();
+        }
+      },
+    );
   }
 
   Widget _resultWindow(String text, Color color, Widget icon) {
@@ -352,40 +359,41 @@ class _OrderDetailsState extends State<OrderDetails> {
 
 Widget _QrCard(Order order, UserData userData, String role) {
   return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(
-          Radius.circular(40),
-        ),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.shade300,
-              offset: Offset(0, 0),
-              blurRadius: 15.0,
-              spreadRadius: 5.0),
-        ],
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.all(
+        Radius.circular(40),
       ),
-      child: Column(
-        children: [
-          QrImage(
-            data: order.orderId,
-            size: 220,
+      boxShadow: [
+        BoxShadow(
+            color: Colors.grey.shade300,
+            offset: Offset(0, 0),
+            blurRadius: 15.0,
+            spreadRadius: 5.0),
+      ],
+    ),
+    child: Column(
+      children: [
+        QrImage(
+          data: order.orderId,
+          size: 220,
+        ),
+        Text(
+          '${CzechStrings.orderCode}: "${order.orderId.substring(0, 6).toUpperCase()}"',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
           ),
-          Text(
-            '${CzechStrings.orderCode}: "${order.orderId.substring(0, 6).toUpperCase()}"',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ));
+        ),
+      ],
+    ),
+  );
 }
 
-Widget _fancyInfoCard(Order order, UserData userData) {
+Widget _fancyInfoCard(BuildContext context, Order order, UserData userData) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
     decoration: BoxDecoration(
@@ -429,9 +437,11 @@ Widget _fancyInfoCard(Order order, UserData userData) {
             children: [
               SizedBox(height: 20),
               Text(
-                order.username,
+                order.username.length < Responsive.textTresholdShort(context)
+                    ? '${order.username}'
+                    : '${order.username.substring(0, Responsive.textTresholdShort(context))}...',
                 style: TextStyle(
-                  fontSize: 25,
+                  fontSize: 23,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
@@ -483,6 +493,7 @@ Future _moveOrderToPassive(
     order.orderId,
     order.userId,
     order.day,
+    order.triggerNum,
   );
 
   await DatabaseService().updateOrderId(_docRef.id, status);
@@ -502,6 +513,7 @@ Future _repeatOrder(String status, Order order, BuildContext context) async {
     '',
     order.userId,
     order.day,
+    order.triggerNum,
   );
   await DatabaseService().updateOrderId(_docRef.id, status);
 

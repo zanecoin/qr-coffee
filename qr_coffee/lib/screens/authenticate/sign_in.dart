@@ -1,7 +1,7 @@
-import 'package:qr_coffee/shared/custom_app_bar.dart';
-import 'package:qr_coffee/shared/custom_buttons.dart';
-import 'package:qr_coffee/shared/custom_text_field.dart';
-import 'package:qr_coffee/shared/image_banner.dart';
+import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
+import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
+import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/auth.dart';

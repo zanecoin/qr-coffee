@@ -1,6 +1,6 @@
 import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/custom_app_bar.dart';
+import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -75,7 +75,7 @@ class CoffeeKindTile extends StatelessWidget {
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            deviceWidth > 340
+            deviceWidth > kDeviceWidthTreshold
                 ? _textContainerA(context)
                 : _textContainerB(context),
           ],

@@ -2,7 +2,7 @@ import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/screens/order_screens/order_details.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
-import 'package:qr_coffee/shared/image_banner.dart';
+import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
@@ -129,8 +129,13 @@ class OrderTile extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${order.username}',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          order.username.length <
+                                  Responsive.textTresholdShort(context)
+                              ? '${order.username}'
+                              : '${order.username.substring(0, Responsive.textTresholdShort(context))}...',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         Text('${coffeeLabel}'),
                         Text(remainingTime, style: TextStyle(color: color)),
                         SizedBox(height: 5),

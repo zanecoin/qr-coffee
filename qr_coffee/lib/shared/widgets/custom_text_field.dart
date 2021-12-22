@@ -2,6 +2,15 @@ import 'package:qr_coffee/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
+  CustomTextField(
+    this.label,
+    this.icon,
+    this.callback, {
+    this.initVal = '',
+    this.obscure = false,
+    this.validation = validateText,
+  });
+
   final String label;
   final IconData icon;
   final String initVal;
@@ -9,15 +18,10 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?) validation;
   final Function callback;
 
-  CustomTextField(this.label, this.icon, this.callback,
-      {this.initVal = '',
-      this.obscure = false,
-      this.validation = validateText});
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: Responsive.height(6, context),
+      height: 50,
       margin: EdgeInsets.symmetric(vertical: Responsive.height(1, context)),
       child: TextFormField(
         initialValue: initVal,
