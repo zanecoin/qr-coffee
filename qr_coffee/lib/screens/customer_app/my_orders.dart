@@ -9,7 +9,6 @@ import 'package:qr_coffee/shared/widgets/custom_divider.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/database.dart';
-import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:intl/intl.dart';
 
 class MyOrders extends StatefulWidget {
@@ -18,10 +17,18 @@ class MyOrders extends StatefulWidget {
 }
 
 class _MyOrdersState extends State<MyOrders> {
+  late int _itemCount;
+  @override
+  void initState() {
+    _itemCount = 5;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     // GET CURRENTLY LOGGED USER AND DATA STREAMS
     final user = Provider.of<User?>(context);
+
     return StreamBuilder4<UserData, List<Order>, List<Order>, dynamic>(
       streams: Tuple4(
         DatabaseService(uid: user!.uid).userData,
@@ -95,18 +102,39 @@ class _MyOrdersState extends State<MyOrders> {
                           child: Text(CzechStrings.noOrders),
                         ),
                       if (passiveOrderList.length > 0)
-                        SizedBox(
-                          child: ListView.builder(
-                            itemBuilder: (context, index) => OrderTile(
-                              order: passiveOrderList[index],
-                              time: time,
-                              role: 'customer',
+                        Column(
+                          children: [
+                            SizedBox(
+                              child: ListView.builder(
+                                itemBuilder: (context, index) => OrderTile(
+                                  order: passiveOrderList[index],
+                                  time: time,
+                                  role: 'customer',
+                                ),
+                                itemCount: _itemCount,
+                                shrinkWrap: true,
+                                scrollDirection: Axis.vertical,
+                                physics: NeverScrollableScrollPhysics(),
+                              ),
                             ),
-                            itemCount: passiveOrderList.length,
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            physics: NeverScrollableScrollPhysics(),
-                          ),
+                            if (_itemCount + 5 < passiveOrderList.length)
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _itemCount += 5;
+                                  });
+                                },
+                                child: Text(CzechStrings.loadMore),
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.grey.shade100,
+                                  primary: Colors.grey.shade700,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 20),
+                                ),
+                              ),
+                          ],
                         ),
                     ],
                   ),
@@ -148,9 +176,9 @@ class _MyOrdersState extends State<MyOrders> {
         string,
         style: TextStyle(
           color: Colors.black,
-          fontSize: Responsive.deviceWidth(context) < 500
-              ? Responsive.width(4.2, context)
-              : 16,
+          fontSize: Responsive.deviceWidth(context) > kDeviceUpperWidthTreshold
+              ? 16
+              : Responsive.width(4.2, context),
           fontWeight: FontWeight.normal,
         ),
         textAlign: TextAlign.left,

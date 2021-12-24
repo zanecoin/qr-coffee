@@ -6,16 +6,15 @@ Vlatnosti:
 
 
 BRÁNA
-- platební metody omezit na kartu
-- auto-complete
++ platební metody omezit na kartu
++ auto-complete
 - zabezpečení platební brány
 
 STATISTIKY
-- vytíženost stánků, poměr úspěšných objednávek, odběr surovin
++ vytíženost stánků, poměr úspěšných objednávek, odběr surovin
 
 OBJEDNÁVKY
 - zobrazovat pending objednávky?
-- načíst další
 
 DATABÁZE A FUNKCE
 - počítání prodaných položek
@@ -25,14 +24,14 @@ DATABÁZE A FUNKCE
 - loading obrázků
 
 KOSMETIKA
-+ snackbars
-+ responzivita: iphone, tablet, order tile icon
-+ před provedením důležitých akcí přidat alert dialog
+- před provedením důležitých akcí přidat alert dialog
 - tmavý režim
+- upravit splash screen při landscape
 
 PROJEKTY
++ responzivita: iphone
 - pop-up při zadávání produktu (každá položka musí mít suroviny a pole featur)
-- mapa zobrazující polohu stánků
++ mapa zobrazující polohu stánků
 - obrazovka s tutoriálem bezprostředně po registraci
 - přihlášení přes Google a Facebook
 - kompletní anonymní přehled polohy uživatelů
@@ -43,6 +42,7 @@ DO BUDOUCNA
 - registrace zaměstnanců
 - privacy policy
 - časová náročnost při hledání v databázi pasivních objednávek
+- signing config (qr_coffee\android\app\build.gradle)
 
 Widgety:
 - Wrap: více textových bloků s různými vlastnostmi

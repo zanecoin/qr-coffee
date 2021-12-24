@@ -4,7 +4,8 @@ import 'package:qr_coffee/api/manual_api_order.dart';
 import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/order_screens/order_details.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
@@ -65,7 +66,7 @@ Future<int> createOrder(
     int triggerNum = 0;
 
     // PLACE AN ACTIVE ORDER TO DATABASE
-    DocumentReference _docRef = await DatabaseService().createOrder(
+    DocumentReference _docRef = await DatabaseService().createActiveOrder(
       status,
       stringList,
       price,
@@ -146,7 +147,7 @@ Future<int> createOrder(
         context,
         new MaterialPageRoute(
           builder: (context) => OrderDetails(
-            role: 'customer',
+            role: 'worker-on',
             order: order,
             mode: 'normal',
           ),

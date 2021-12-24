@@ -1,5 +1,8 @@
+import 'dart:math';
+
+import 'package:flutter/services.dart';
 import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/screens/order_screens/order_details.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/widgets/image_banner.dart';
@@ -24,6 +27,7 @@ class OrderTile extends StatelessWidget {
     String remainingTime;
     Widget icon;
     Color color = Colors.black;
+    double iconSize = Responsive.height(4, context);
 
     // CZECH LANGUAGE FORMATTING
     if (order.items.length == 1) {
@@ -36,13 +40,13 @@ class OrderTile extends StatelessWidget {
 
     // ICON CHOOSER
     if (order.status == 'ACTIVE' || order.status == 'READY') {
-      icon = waitingIcon();
+      icon = waitingIcon(size: iconSize);
     } else if (order.status == 'ABANDONED') {
-      icon = questionIcon();
+      icon = questionIcon(size: iconSize);
     } else if (order.status == 'ABORTED') {
-      icon = errorIcon();
+      icon = errorIcon(size: iconSize);
     } else {
-      icon = checkIcon(color: Colors.green.shade400);
+      icon = checkIcon(size: iconSize, color: Colors.green.shade400);
     }
 
     // INFORMATION HEADER FORMAT CHOOSER
@@ -79,7 +83,7 @@ class OrderTile extends StatelessWidget {
             );
           },
           child: Container(
-            height: Responsive.height(15, context),
+            height: max(Responsive.height(15, context), 90),
             width: Responsive.width(67, context),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -107,7 +111,7 @@ class OrderTile extends StatelessWidget {
                       ),
                       if (role == 'worker-on')
                         Positioned(
-                            child: icon, top: Responsive.height(4, context)),
+                            child: icon, top: Responsive.height(4.5, context)),
                     ],
                   ),
                   SizedBox(width: Responsive.width(2, context)),
@@ -154,7 +158,8 @@ class OrderTile extends StatelessWidget {
   Widget _orderReady() => Container(
         padding: EdgeInsets.symmetric(horizontal: 7, vertical: 3),
         decoration: BoxDecoration(
-          color: Colors.green.shade100,
+          color:
+              role == 'customer' ? Colors.green.shade100 : Colors.blue.shade100,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(CzechStrings.orderReady),

@@ -5,12 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class CoffeeKindTile extends StatelessWidget {
-  final Item item;
-  final Function callback;
-  final String imageUrl;
+  CoffeeKindTile({
+    required this.item,
+    required this.onItemTap,
+    required this.imageUrl,
+    required this.largeDevice,
+  });
 
-  CoffeeKindTile(
-      {required this.item, required this.callback, required this.imageUrl});
+  final Item item;
+  final Function onItemTap;
+  final String imageUrl;
+  final bool largeDevice;
 
   Image image() {
     if (imageUrl == '') {
@@ -71,11 +76,11 @@ class CoffeeKindTile extends StatelessWidget {
         ],
       ),
       child: InkWell(
-        onTap: () => callback(item),
+        onTap: () => onItemTap(item),
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            deviceWidth > kDeviceWidthTreshold
+            (deviceWidth > kDeviceLowerWidthTreshold && !largeDevice)
                 ? _textContainerA(context)
                 : _textContainerB(context),
           ],

@@ -49,7 +49,7 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    // get currently logged user and theme provider
+    // INITIALIZATION
     final user = Provider.of<User?>(context);
     themeProvider = Provider.of<ThemeProvider>(context);
     final double deviceWidth = Responsive.deviceWidth(context);
@@ -76,58 +76,76 @@ class _SettingsState extends State<Settings> {
               appBar: customAppBar(context, title: Text('')),
               body: SingleChildScrollView(
                 child: Container(
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 40),
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // GENERAL SETTINGS
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(CzechStrings.darkmode,
-                              style: TextStyle(fontSize: 16)),
-                          animatedToggle(darkMode, callbackTheme),
-                        ],
-                      ),
+                      // Container(
+                      //   margin: EdgeInsets.symmetric(horizontal: 20),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     children: [
+                      //       Text(CzechStrings.darkmode,
+                      //           style: TextStyle(fontSize: 16)),
+                      //       animatedToggle(darkMode, callbackTheme),
+                      //     ],
+                      //   ),
+                      // ),
 
                       if (userData.role == 'worker-on' ||
                           userData.role == 'worker-off')
-                        Column(
-                          children: [
-                            Text(CzechStrings.settings,
-                                style: TextStyle(fontSize: 20)),
-                            SizedBox(height: 10),
-                            SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(CzechStrings.workMode,
-                                    style: TextStyle(fontSize: 16)),
-                                animatedToggle(workMode, callbackMode),
-                              ],
-                            ),
-                          ],
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              Text(CzechStrings.settings,
+                                  style: TextStyle(fontSize: 20)),
+                              SizedBox(height: 10),
+                              SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(CzechStrings.workMode,
+                                      style: TextStyle(fontSize: 16)),
+                                  animatedToggle(workMode, callbackMode),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
 
                       if (userData.role == 'worker-on')
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(CzechStrings.activateStand,
+                                      style: TextStyle(fontSize: 16)),
+                                  _currentPlace == 'null' &&
+                                          userData.stand == ''
+                                      ? disabledAnimatedToggle()
+                                      : animatedToggle(
+                                          showPlaces, callbackPlace),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (userData.role == 'worker-on')
                         Column(
                           children: [
-                            SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(CzechStrings.activateStand,
-                                    style: TextStyle(fontSize: 16)),
-                                _currentPlace == 'null' && userData.stand == ''
-                                    ? disabledAnimatedToggle()
-                                    : animatedToggle(showPlaces, callbackPlace),
-                              ],
-                            ),
                             SizedBox(height: 10),
                             userData.stand == ''
                                 ? CustomPlaceDropdown(places, false,
                                     callbackDropdown, _currentPlace)
-                                : _placeBanner(),
+                                : _placeBanner(deviceWidth),
                           ],
                         ),
                       if (userData.role == 'worker-on' ||
@@ -135,9 +153,7 @@ class _SettingsState extends State<Settings> {
                         Column(
                           children: [
                             SizedBox(height: 30),
-                            CustomDivider(
-                              indent: 0,
-                            ),
+                            CustomDivider(indent: 20),
                             SizedBox(height: 30),
                           ],
                         ),
@@ -146,38 +162,42 @@ class _SettingsState extends State<Settings> {
                       Text(CzechStrings.personal,
                           style: TextStyle(fontSize: 20)),
                       SizedBox(height: 10),
-                      Form(
-                        key: _key,
-                        child: Column(
-                          children: <Widget>[
-                            CustomTextField(
-                              CzechStrings.name,
-                              Icons.person_outline,
-                              callbackForm,
-                              initVal: userData.name,
-                            ),
-                            CustomTextField(
-                              CzechStrings.surname,
-                              Icons.person,
-                              callbackForm,
-                              initVal: userData.surname,
-                            ),
-                            SizedBox(height: 10),
-                            Container(
-                              child: _changeInfoBtn(
-                                userData,
-                                user,
-                                context,
-                                themeProvider,
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        width: deviceWidth > kDeviceUpperWidthTreshold
+                            ? Responsive.width(60, context)
+                            : null,
+                        child: Form(
+                          key: _key,
+                          child: Column(
+                            children: <Widget>[
+                              CustomTextField(
+                                CzechStrings.name,
+                                Icons.person_outline,
+                                callbackForm,
+                                initVal: userData.name,
                               ),
-                            ),
-                          ],
+                              CustomTextField(
+                                CzechStrings.surname,
+                                Icons.person,
+                                callbackForm,
+                                initVal: userData.surname,
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                child: _changeInfoBtn(
+                                  userData,
+                                  user,
+                                  context,
+                                  themeProvider,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       SizedBox(height: 30),
-                      CustomDivider(
-                        indent: 0,
-                      ),
+                      CustomDivider(indent: 20),
                       SizedBox(height: 30),
 
                       // CONTACT PANEL
@@ -189,13 +209,13 @@ class _SettingsState extends State<Settings> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (deviceWidth > kDeviceWidthTreshold)
+                              if (deviceWidth > kDeviceLowerWidthTreshold)
                                 _circleAvatar(),
-                              if (deviceWidth > kDeviceWidthTreshold)
+                              if (deviceWidth > kDeviceLowerWidthTreshold)
                                 SizedBox(width: 20),
                               Column(
                                 crossAxisAlignment:
-                                    deviceWidth > kDeviceWidthTreshold
+                                    deviceWidth > kDeviceLowerWidthTreshold
                                         ? CrossAxisAlignment.start
                                         : CrossAxisAlignment.center,
                                 children: [
@@ -214,7 +234,7 @@ class _SettingsState extends State<Settings> {
                                     '\n${company.headquarters}',
                                     style: TextStyle(fontSize: 16),
                                     textAlign:
-                                        deviceWidth > kDeviceWidthTreshold
+                                        deviceWidth > kDeviceLowerWidthTreshold
                                             ? TextAlign.left
                                             : TextAlign.center,
                                   ),
@@ -231,9 +251,7 @@ class _SettingsState extends State<Settings> {
                             ],
                           ),
                           SizedBox(height: 30),
-                          CustomDivider(
-                            indent: 0,
-                          ),
+                          CustomDivider(indent: 20),
                           SizedBox(height: 30),
                           _logoutBtn(),
                         ],
@@ -330,44 +348,52 @@ class _SettingsState extends State<Settings> {
     bool active;
     Place? finalPlace;
 
-    if (userData.stand == '') {
-      stand = _currentPlace.toString();
-      active = true;
-      for (var place in places) {
-        if (place.address == _currentPlace.toString()) {
-          finalPlace = place;
-        }
-      }
+    if ((_currentPlace == null || _currentPlace == '') &&
+        userData.stand == '') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(CzechStrings.choosePlaceDot),
+          duration: Duration(milliseconds: 1200),
+        ),
+      );
     } else {
-      stand = '';
-      active = false;
-      for (var place in places) {
-        if (place.address == userData.stand) {
-          finalPlace = place;
+      if (userData.stand == '') {
+        stand = _currentPlace.toString();
+        active = true;
+        for (var place in places) {
+          if (place.address == _currentPlace) {
+            finalPlace = place;
+          }
+        }
+      } else {
+        stand = '';
+        active = false;
+        for (var place in places) {
+          if (place.address == userData.stand) {
+            finalPlace = place;
+          }
         }
       }
+
+      await DatabaseService(uid: userData.uid).updateUserData(
+        userData.name,
+        userData.surname,
+        userData.email,
+        userData.role,
+        userData.tokens,
+        stand,
+        userData.numOrders,
+      );
+
+      try {
+        await DatabaseService(uid: finalPlace!.uid)
+            .updatePlaceData(finalPlace.address, finalPlace.coordinate, active);
+      } catch (e) {
+        print(e);
+      }
+
+      setState(() => showPlaces = !showPlaces);
     }
-
-    await DatabaseService(uid: userData.uid).updateUserData(
-      userData.name,
-      userData.surname,
-      userData.email,
-      userData.role,
-      userData.tokens,
-      stand,
-      userData.numOrders,
-    );
-
-    try {
-      await DatabaseService(uid: finalPlace!.uid)
-          .updatePlaceData(finalPlace.address, finalPlace.coordinate, active);
-    } catch (e) {
-      print(e);
-    }
-
-    setState(() {
-      showPlaces = !showPlaces;
-    });
   }
 
   // TOGGLE FOR DARK MODE
@@ -406,9 +432,12 @@ class _SettingsState extends State<Settings> {
   }
 
   // WIDGET FOR PLACE BANNER
-  Widget _placeBanner() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+  Widget _placeBanner(double deviceWidth) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      width: deviceWidth > kDeviceUpperWidthTreshold
+          ? Responsive.width(60, context)
+          : null,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(

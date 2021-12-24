@@ -18,8 +18,10 @@ class CustomPlaceDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double deviceWidth = Responsive.deviceWidth(context);
     List<Place> filteredPlaces = [];
     String? currentPlace;
+
     if (filter) {
       for (var place in places) {
         if (place.active) {
@@ -31,13 +33,12 @@ class CustomPlaceDropdown extends StatelessWidget {
         filteredPlaces.add(place);
       }
     }
-    print('//////////////////////');
-    print(places);
-    print(currentPlace);
-    print(savedPlace);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      width: deviceWidth > kDeviceUpperWidthTreshold
+          ? Responsive.width(60, context)
+          : null,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(

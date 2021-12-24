@@ -3,6 +3,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+import 'package:qr_coffee/shared/constants.dart';
+
 class BarChartSample2 extends StatefulWidget {
   final List<Order> orders;
   const BarChartSample2({Key? key, required this.orders}) : super(key: key);
@@ -43,150 +45,141 @@ class BarChartSample2State extends State<BarChartSample2> {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1,
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        //color: Color(0x000a08f0),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Text(
-                'Celkový příjem: ${total_price} Kč\n'
-                'Počet objednávek: ${orders.length}',
-                style: TextStyle(fontSize: 22),
-              ),
-              const SizedBox(
-                height: 38,
-              ),
-              Expanded(
-                child: BarChart(
-                  BarChartData(
-                    maxY: max,
-                    barTouchData: BarTouchData(
-                        touchTooltipData: BarTouchTooltipData(
-                          tooltipBgColor: Colors.grey,
-                          getTooltipItem: (_a, _b, _c, _d) => null,
-                        ),
-                        touchCallback: (FlTouchEvent event, response) {
-                          if (response == null || response.spot == null) {
-                            setState(() {
-                              touchedGroupIndex = -1;
-                              showingBarGroups = List.of(rawBarGroups);
-                            });
+    return Container(
+      height:
+          min(Responsive.width(100, context), Responsive.height(100, context)),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Celkový příjem: ${total_price} Kč\n'
+            'Počet objednávek: ${orders.length}',
+            style: TextStyle(fontSize: 22),
+          ),
+          SizedBox(height: 38),
+          Container(
+            child: Expanded(
+              child: BarChart(
+                BarChartData(
+                  maxY: max,
+                  barTouchData: BarTouchData(
+                      touchTooltipData: BarTouchTooltipData(
+                        tooltipBgColor: Colors.grey,
+                        getTooltipItem: (_a, _b, _c, _d) => null,
+                      ),
+                      touchCallback: (FlTouchEvent event, response) {
+                        if (response == null || response.spot == null) {
+                          setState(() {
+                            touchedGroupIndex = -1;
+                            showingBarGroups = List.of(rawBarGroups);
+                          });
+                          return;
+                        }
+
+                        touchedGroupIndex = response.spot!.touchedBarGroupIndex;
+
+                        setState(() {
+                          if (!event.isInterestedForInteractions) {
+                            touchedGroupIndex = -1;
+                            showingBarGroups = List.of(rawBarGroups);
                             return;
                           }
-
-                          touchedGroupIndex =
-                              response.spot!.touchedBarGroupIndex;
-
-                          setState(() {
-                            if (!event.isInterestedForInteractions) {
-                              touchedGroupIndex = -1;
-                              showingBarGroups = List.of(rawBarGroups);
-                              return;
+                          showingBarGroups = List.of(rawBarGroups);
+                          if (touchedGroupIndex != -1) {
+                            var sum = 0.0;
+                            for (var rod in showingBarGroups[touchedGroupIndex]
+                                .barRods) {
+                              sum += rod.y;
                             }
-                            showingBarGroups = List.of(rawBarGroups);
-                            if (touchedGroupIndex != -1) {
-                              var sum = 0.0;
-                              for (var rod
-                                  in showingBarGroups[touchedGroupIndex]
-                                      .barRods) {
-                                sum += rod.y;
-                              }
-                              final avg = sum /
-                                  showingBarGroups[touchedGroupIndex]
-                                      .barRods
-                                      .length;
-
-                              showingBarGroups[touchedGroupIndex] =
-                                  showingBarGroups[touchedGroupIndex].copyWith(
-                                barRods: showingBarGroups[touchedGroupIndex]
+                            final avg = sum /
+                                showingBarGroups[touchedGroupIndex]
                                     .barRods
-                                    .map((rod) {
-                                  return rod.copyWith(y: avg);
-                                }).toList(),
-                              );
-                            }
-                          });
-                        }),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      rightTitles: SideTitles(showTitles: false),
-                      topTitles: SideTitles(showTitles: false),
-                      bottomTitles: SideTitles(
-                        showTitles: true,
-                        getTextStyles: (context, value) => const TextStyle(
-                            color: Color(0xff7589a2),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14),
-                        margin: 20,
-                        getTitles: (double value) {
-                          switch (value.toInt()) {
-                            case 0:
-                              return 'Po';
-                            case 1:
-                              return 'Út';
-                            case 2:
-                              return 'St';
-                            case 3:
-                              return 'Čt';
-                            case 4:
-                              return 'Pá';
-                            case 5:
-                              return 'So';
-                            case 6:
-                              return 'Ne';
-                            default:
-                              return '';
+                                    .length;
+
+                            showingBarGroups[touchedGroupIndex] =
+                                showingBarGroups[touchedGroupIndex].copyWith(
+                              barRods: showingBarGroups[touchedGroupIndex]
+                                  .barRods
+                                  .map((rod) {
+                                return rod.copyWith(y: avg);
+                              }).toList(),
+                            );
                           }
-                        },
-                      ),
-                      leftTitles: SideTitles(
-                        showTitles: true,
-                        getTextStyles: (context, value) => const TextStyle(
-                            color: Color(0xff7589a2),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14),
-                        margin: 8,
-                        reservedSize: 35,
-                        interval: 1,
-                        getTitles: (value) {
-                          if (value == 0) {
-                            return '0';
-                          } else if (value == max ~/ 4) {
-                            return '${(max ~/ 4).toInt()}';
-                          } else if (value == max ~/ 2) {
-                            return '${(max ~/ 2).toInt()}';
-                          } else if (value == max ~/ 1.33) {
-                            return '${(max ~/ 1.33).toInt()}';
-                          } else if (value == max) {
-                            return '${max.toInt()}';
-                          } else {
+                        });
+                      }),
+                  titlesData: FlTitlesData(
+                    show: true,
+                    rightTitles: SideTitles(showTitles: false),
+                    topTitles: SideTitles(showTitles: false),
+                    bottomTitles: SideTitles(
+                      showTitles: true,
+                      getTextStyles: (context, value) => const TextStyle(
+                          color: Color(0xff7589a2),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14),
+                      margin: 20,
+                      getTitles: (double value) {
+                        switch (value.toInt()) {
+                          case 0:
+                            return 'Po';
+                          case 1:
+                            return 'Út';
+                          case 2:
+                            return 'St';
+                          case 3:
+                            return 'Čt';
+                          case 4:
+                            return 'Pá';
+                          case 5:
+                            return 'So';
+                          case 6:
+                            return 'Ne';
+                          default:
                             return '';
-                          }
-                        },
-                      ),
+                        }
+                      },
                     ),
-                    borderData: FlBorderData(
-                      show: false,
+                    leftTitles: SideTitles(
+                      showTitles: true,
+                      getTextStyles: (context, value) => const TextStyle(
+                          color: Color(0xff7589a2),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14),
+                      margin: 8,
+                      reservedSize: 35,
+                      interval: 1,
+                      getTitles: (value) {
+                        if (value == 0) {
+                          return '0';
+                        } else if (value == max ~/ 4) {
+                          return '${(max ~/ 4).toInt()}';
+                        } else if (value == max ~/ 2) {
+                          return '${(max ~/ 2).toInt()}';
+                        } else if (value == max ~/ 1.33) {
+                          return '${(max ~/ 1.33).toInt()}';
+                        } else if (value == max) {
+                          return '${max.toInt()}';
+                        } else {
+                          return '';
+                        }
+                      },
                     ),
-                    barGroups: showingBarGroups,
-                    gridData: FlGridData(show: true),
                   ),
+                  borderData: FlBorderData(
+                    show: false,
+                  ),
+                  barGroups: showingBarGroups,
+                  gridData: FlGridData(show: true),
                 ),
               ),
-              const SizedBox(
-                height: 12,
-              ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(
+            height: 12,
+          ),
+        ],
       ),
     );
   }

@@ -15,6 +15,8 @@ class Authenticate extends StatefulWidget {
 class _AuthenticateState extends State<Authenticate> {
   @override
   Widget build(BuildContext context) {
+    double deviceWidth = Responsive.deviceWidth(context);
+
     return Container(
       color: Colors.white,
       child: SafeArea(
@@ -22,8 +24,6 @@ class _AuthenticateState extends State<Authenticate> {
           body: SingleChildScrollView(
             child: Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   SizedBox(height: Responsive.height(4, context)),
                   Text(
@@ -37,7 +37,9 @@ class _AuthenticateState extends State<Authenticate> {
                   ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
                   SizedBox(height: Responsive.height(4, context)),
                   Container(
-                    width: Responsive.width(60, context),
+                    width: deviceWidth > kDeviceUpperWidthTreshold
+                        ? 400
+                        : Responsive.width(60, context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[

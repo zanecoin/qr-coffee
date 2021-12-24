@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/screens/order_screens/order_details.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/widgets/loading.dart';
@@ -100,7 +102,8 @@ class _QRScanScreenState extends State<QRScanScreen> {
           borderRadius: 10,
           borderWidth: 10,
           borderLength: 20,
-          cutOutSize: Responsive.width(80, context),
+          cutOutSize: min(
+              Responsive.width(80, context), Responsive.height(80, context)),
         ),
       );
 
@@ -120,7 +123,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
       if (order != null) {
         if (order.status == 'READY') {
           String status = 'COMPLETED';
-          DocumentReference _docRef = await DatabaseService().createOrder(
+          await DatabaseService().createPassiveOrder(
             status,
             order.items,
             order.price,
@@ -133,9 +136,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
             order.triggerNum,
           );
 
-          await DatabaseService().updateOrderId(_docRef.id, status);
-          await DatabaseService().deleteOrder(order.orderId);
-          order.orderId = _docRef.id;
+          await DatabaseService().deleteActiveOrder(order.orderId);
         }
 
         Navigator.pop(context);

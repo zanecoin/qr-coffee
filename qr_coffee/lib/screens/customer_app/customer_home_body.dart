@@ -1,17 +1,10 @@
-import 'dart:async';
-import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/customer_app/my_orders.dart';
 import 'package:qr_coffee/screens/customer_app/qr_tokens.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/create_order.dart';
-import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
-import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
-import 'package:multiple_stream_builder/multiple_stream_builder.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class CustomerHomeBody extends StatefulWidget {
@@ -54,8 +47,8 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
             child: ClipPath(
               clipper: MyClipper(),
               child: Container(
-                height: Responsive.height(36, context) /
-                    Responsive.height(0.16, context),
+                height: Responsive.height(40, context) /
+                    Responsive.height(0.18, context),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   boxShadow: [

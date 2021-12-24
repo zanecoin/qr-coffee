@@ -1,9 +1,18 @@
+import 'dart:math';
+
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 
+// 4' phone: 533x320
+// 5' phone: 683x411
+// 6' phone: 820x411
+// Tablet: 1224x900
+// Mi 9 SE: 737x360
+
 // VALUES
-double kDeviceHeightTreshold = 670;
-double kDeviceWidthTreshold = 340;
+double kDeviceLowerHeightTreshold = 670;
+double kDeviceLowerWidthTreshold = 340;
+double kDeviceUpperWidthTreshold = 600;
 
 // CLASS FOR VARIABLE HEIGHT AND WIDTH
 class Responsive {
@@ -24,7 +33,9 @@ class Responsive {
   }
 
   static int textTreshold(BuildContext context) {
-    return (Responsive.deviceWidth(context) / 15).floor();
+    double value =
+        min(Responsive.deviceWidth(context), Responsive.deviceHeight(context));
+    return (pow(value / 13, 0.95)).floor();
   }
 
   static int textTresholdShort(BuildContext context) {

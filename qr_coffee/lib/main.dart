@@ -21,7 +21,7 @@ import 'package:qr_coffee/service/auth.dart';
 void main() async {
   // INITIALIZATION
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  //await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final appDocumentDirectory =
       await pathProvider.getApplicationDocumentsDirectory();
 

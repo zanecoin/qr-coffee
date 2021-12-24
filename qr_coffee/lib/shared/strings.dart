@@ -33,7 +33,7 @@ class CzechStrings {
   static const String chooseBothDot =
       'Přidejte položky do objednávky a vyberte odběrové místo.';
   static const String paymentMethod = 'Jak chcete platit?';
-  static const String withCard = 'Kartou';
+  static const String withCard = 'Platební kartou';
   static const String withTokens = 'QR Tokeny';
   static const String insufficientTokenBalace = 'Nedostatek QR Tokenů!';
 
@@ -57,6 +57,7 @@ class CzechStrings {
   static const String pickUpIn = 'Vyzvednutí za';
   static const String pickUpBefore = 'Vyzvednutí před';
   static const String pickUp30 = 'Vyzvednutí před více než 30';
+  static const String loadMore = 'Načíst další';
 
   // AUTHORIZATION
   static const String registration1 = 'Registrace';

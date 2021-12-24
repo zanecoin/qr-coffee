@@ -1,8 +1,8 @@
 import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/place.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/order_screens/coffee_inventory.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/func_place_order.dart';
+import 'package:qr_coffee/screens/order_screens/create_order/order_menu.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
@@ -99,6 +99,8 @@ class _CreateOrderState extends State<CreateOrder>
   Widget build(BuildContext context) {
     // GET CURRENTLY LOGGED USER AND DATA STREAMS
     final user = Provider.of<User?>(context);
+    final double deviceWidth = Responsive.deviceWidth(context);
+
     return StreamBuilder3<List<Item>, List<Place>, UserData>(
       streams: Tuple3(
         DatabaseService().coffeeList,
@@ -113,7 +115,8 @@ class _CreateOrderState extends State<CreateOrder>
           List<Place> places = snapshots.item2.data!;
           UserData userData = snapshots.item3.data!;
           role = userData.role;
-          _currentPlace = userData.stand;
+          print(Responsive.deviceHeight(context));
+          print(Responsive.deviceWidth(context));
 
           return WillPopScope(
             onWillPop: () async => _onWillPop(),
@@ -148,8 +151,13 @@ class _CreateOrderState extends State<CreateOrder>
                 children: [
                   Expanded(
                       child: screenNum == 1
-                          ? _orderContent(items, databaseImages)
-                          : _orderDelivery(places)),
+                          ? OrderMenu(
+                              databaseImages: databaseImages,
+                              items: items,
+                              controller: controller,
+                              onItemTap: appendItem,
+                            )
+                          : _orderDelivery(places, deviceWidth, userData)),
                   Container(
                     padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
                     decoration: BoxDecoration(
@@ -267,19 +275,6 @@ class _CreateOrderState extends State<CreateOrder>
     });
   }
 
-  List<Item> _filter(List<Item> items, String choice) {
-    List<Item> result = [];
-    for (var item in items) {
-      if (item.type == 'drink' && choice == CzechStrings.drink) {
-        result.add(item);
-      }
-      if (item.type == 'food' && choice == CzechStrings.food) {
-        result.add(item);
-      }
-    }
-    return result;
-  }
-
   Widget _text(String string, double size, FontWeight fontWeight,
       {Color color = Colors.black}) {
     return Text(
@@ -315,53 +310,18 @@ class _CreateOrderState extends State<CreateOrder>
     );
   }
 
-  Widget _orderContent(List<Item> items, databaseImages) {
-    return TabBarView(
-      controller: controller,
-      children: choices
-          .map((choice) => _orderGrid(items, choice, databaseImages))
-          .toList(),
-    );
-  }
-
-  Widget _orderGrid(items, choice, databaseImages) {
-    return GridView(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      children: _filter(items, choice)
-          .map((item) => CoffeeKindTile(
-                item: item,
-                callback: appendItem,
-                imageUrl: chooseUrl(databaseImages, item.picture),
-              ))
-          .toList(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-      ),
-    );
-  }
-
-  Widget _orderGrid2(items, choice, databaseImages) {
-    items = _filter(items, choice);
-    return GridView.builder(
-        itemCount: items.length,
-        gridDelegate:
-            new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        itemBuilder: (BuildContext context, int index) {
-          return CoffeeKindTile(
-            item: items[index],
-            callback: appendItem,
-            imageUrl: chooseUrl(databaseImages, items[index].picture),
-          );
-        });
-  }
-
-  Widget _orderDelivery(List<Place> places) {
+  Widget _orderDelivery(
+    List<Place> places,
+    double deviceWidth,
+    UserData userData,
+  ) {
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(height: Responsive.height(2, context)),
           _text(CzechStrings.orderPlace, 16, FontWeight.normal),
+          SizedBox(height: 10),
           CustomPlaceDropdown(places, true, callbackDropdown, _currentPlace),
           Padding(
             padding: const EdgeInsets.all(15.0),
@@ -375,13 +335,19 @@ class _CreateOrderState extends State<CreateOrder>
           ),
           SizedBox(height: Responsive.height(1, context)),
           _text(CzechStrings.orderTime, 16, FontWeight.normal),
-          Slider.adaptive(
-            value: plusTime,
-            onChanged: (val) => setState(() => plusTime = val),
-            min: 5,
-            max: 30,
-            divisions: 25,
-            activeColor: Colors.black,
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 20),
+            width: deviceWidth > kDeviceUpperWidthTreshold
+                ? Responsive.width(60, context)
+                : null,
+            child: Slider.adaptive(
+              value: plusTime,
+              onChanged: (val) => setState(() => plusTime = val),
+              min: 5,
+              max: 30,
+              divisions: 25,
+              activeColor: Colors.black,
+            ),
           ),
           Center(
             child: Text(
@@ -425,7 +391,7 @@ class _CreateOrderState extends State<CreateOrder>
                     paymentMethod = 2;
                   });
                 },
-                child: Text(CzechStrings.withTokens),
+                child: Text('${CzechStrings.withTokens} (${userData.tokens})'),
                 style: TextButton.styleFrom(
                   backgroundColor:
                       paymentMethod == 2 ? Colors.black : Colors.white,

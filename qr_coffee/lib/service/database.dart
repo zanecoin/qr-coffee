@@ -78,11 +78,11 @@ class DatabaseService {
   final CollectionReference virtualOrderCollection =
       FirebaseFirestore.instance.collection('virtual_orders');
 
-  Future deleteOrder(String orderId) async {
+  Future deleteActiveOrder(String orderId) async {
     return await activeOrderCollection.doc(orderId).delete();
   }
 
-  Future createOrder(
+  Future createActiveOrder(
     String status,
     List items,
     int price,
@@ -94,33 +94,44 @@ class DatabaseService {
     String day,
     int triggerNum,
   ) async {
-    if (status == 'ACTIVE' || status == 'PENDING') {
-      return await activeOrderCollection.add({
-        'status': status,
-        'items': items,
-        'price': price,
-        'pickUpTime': pickUpTime,
-        'username': username,
-        'place': place,
-        'orderId': orderId,
-        'userId': userId,
-        'day': day,
-        'triggerNum': triggerNum,
-      });
-    } else {
-      return await passiveOrderCollection.add({
-        'status': status,
-        'items': items,
-        'price': price,
-        'pickUpTime': pickUpTime,
-        'username': username,
-        'place': place,
-        'orderId': orderId,
-        'userId': userId,
-        'day': day,
-        'triggerNum': triggerNum,
-      });
-    }
+    return await activeOrderCollection.add({
+      'status': status,
+      'items': items,
+      'price': price,
+      'pickUpTime': pickUpTime,
+      'username': username,
+      'place': place,
+      'orderId': orderId,
+      'userId': userId,
+      'day': day,
+      'triggerNum': triggerNum,
+    });
+  }
+
+  Future createPassiveOrder(
+    String status,
+    List items,
+    int price,
+    String pickUpTime,
+    String username,
+    String place,
+    String orderId,
+    String userId,
+    String day,
+    int triggerNum,
+  ) async {
+    return await passiveOrderCollection.doc(orderId).set({
+      'status': status,
+      'items': items,
+      'price': price,
+      'pickUpTime': pickUpTime,
+      'username': username,
+      'place': place,
+      'orderId': orderId,
+      'userId': userId,
+      'day': day,
+      'triggerNum': triggerNum,
+    });
   }
 
   Future createVirtualOrder(

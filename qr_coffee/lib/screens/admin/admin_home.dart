@@ -60,11 +60,8 @@ class _AdminHomeState extends State<AdminHome> {
                     SizedBox(height: Responsive.height(2, context)),
                     show
                         ? BarChartSample2(orders: passiveOrderList)
-                        : Container(
-                            height: 360,
-                            child: Center(
-                              child: Loading(),
-                            ),
+                        : Center(
+                            child: Loading(),
                           ),
                     CustomDivider(),
                     SizedBox(height: Responsive.height(2, context)),

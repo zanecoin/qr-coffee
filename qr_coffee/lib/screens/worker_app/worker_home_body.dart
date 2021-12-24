@@ -60,28 +60,15 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
               child: Container(
                 margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _orderFilter(),
+                    _filterDropDown(),
                     CustomDivider(),
-                    if (orderList.isNotEmpty)
-                      SizedBox(
-                        child: ListView.builder(
-                          itemBuilder: (context, index) => OrderTile(
-                            order: orderList[index],
-                            time: time,
-                            role: 'worker-on',
-                          ),
-                          itemCount: orderList.length,
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          physics: NeverScrollableScrollPhysics(),
-                        ),
-                      ),
+                    if (orderList.isNotEmpty) _orderList(orderList, time),
                     if (orderList.isEmpty)
-                      const Center(child: Text(CzechStrings.noOrders)),
-                    const SizedBox(height: 30),
+                      Center(child: Text(CzechStrings.noOrders)),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -154,7 +141,23 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     return result;
   }
 
-  Widget _orderFilter() {
+  Widget _orderList(List<Order> orderList, String time) {
+    return SizedBox(
+      child: ListView.builder(
+        itemBuilder: (context, index) => OrderTile(
+          order: orderList[index],
+          time: time,
+          role: 'worker-on',
+        ),
+        itemCount: orderList.length,
+        shrinkWrap: true,
+        scrollDirection: Axis.vertical,
+        physics: NeverScrollableScrollPhysics(),
+      ),
+    );
+  }
+
+  Widget _filterDropDown() {
     List types = [
       ['Všechny', allIcon(size: 25)],
       ['Vyřízené', thumbIcon(size: 25)],
@@ -163,11 +166,13 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
       ['Nevyzvednuté', questionIcon(size: 25)],
       ['Zrušené', errorIcon(size: 25)],
     ];
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      width: Responsive.deviceWidth(context) > kDeviceUpperWidthTreshold
+          ? 400
+          : null,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
-        width: Responsive.deviceWidth(context) < 500 ? null : 250,
         decoration: BoxDecoration(
             border: Border.all(width: 1, color: Colors.grey),
             borderRadius: BorderRadius.circular(10)),
