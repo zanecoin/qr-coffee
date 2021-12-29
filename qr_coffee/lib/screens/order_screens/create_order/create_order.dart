@@ -9,6 +9,7 @@ import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
 import 'package:qr_coffee/shared/widgets/custom_divider.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/widgets/custom_dropdown.dart';
+import 'package:qr_coffee/shared/widgets/custom_snackbar.dart';
 import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:community_material_icon/community_material_icon.dart';
@@ -115,8 +116,6 @@ class _CreateOrderState extends State<CreateOrder>
           List<Place> places = snapshots.item2.data!;
           UserData userData = snapshots.item3.data!;
           role = userData.role;
-          print(Responsive.deviceHeight(context));
-          print(Responsive.deviceWidth(context));
 
           return WillPopScope(
             onWillPop: () async => _onWillPop(),
@@ -323,13 +322,19 @@ class _CreateOrderState extends State<CreateOrder>
           _text(CzechStrings.orderPlace, 16, FontWeight.normal),
           SizedBox(height: 10),
           CustomPlaceDropdown(places, true, callbackDropdown, _currentPlace),
-          Padding(
+          Container(
             padding: const EdgeInsets.all(15.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Image.asset(
-                'assets/map.jpg',
-                fit: BoxFit.fill,
+            child: InkWell(
+              onTap: () {
+                customSnackbar(
+                    context: context, text: CzechStrings.notImplemented);
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Image.asset(
+                  'assets/map.jpg',
+                  fit: BoxFit.fill,
+                ),
               ),
             ),
           ),

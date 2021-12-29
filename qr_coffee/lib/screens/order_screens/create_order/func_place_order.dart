@@ -5,11 +5,11 @@ import 'package:qr_coffee/models/item.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
-import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
 import 'package:qr_coffee/service/database.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:intl/intl.dart';
+import 'package:qr_coffee/shared/widgets/custom_snackbar.dart';
 
 Future<int> createOrder(
   BuildContext context,
@@ -24,10 +24,10 @@ Future<int> createOrder(
   int price = getTotalPrice(items, _selectedItems);
 
   if (_selectedItems.isEmpty ||
-      _currentPlace == null ||
+      (_currentPlace == null && role != 'worker-on') ||
       (paymentMethod == 2 && price > userData.tokens && role != 'worker-on')) {
     // NOTIFY USER SOMETHING IS WRONG WITH ORDER PARAMETERS
-    String message;
+    String message = '';
 
     if (_selectedItems.isEmpty && _currentPlace != null) {
       message = CzechStrings.chooseItemsDot;
@@ -35,49 +35,67 @@ Future<int> createOrder(
       message = CzechStrings.choosePlaceDot;
     } else if (paymentMethod == 2 && price > userData.tokens) {
       message = CzechStrings.insufficientTokenBalace;
+    } else if (_selectedItems.isEmpty &&
+        _currentPlace == null &&
+        role == 'worker-on') {
+      message = CzechStrings.chooseItemsDot;
     } else {
       message = CzechStrings.chooseBothDot;
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: Duration(milliseconds: 2000),
-      ),
-    );
+    customSnackbar(context: context, text: message);
 
     return 0;
   } else {
     // CREATE ORDER PARAMETERS
     String status = 'COMPLETED';
-    String username = 'generated-order^^';
+    String username = 'generated-order';
+    String userId = 'generated-order^^';
+    String pickUpTime = getPickUpTime(0);
+    String place = userData.stand;
 
     if (role == 'customer' || role == 'worker-off') {
       status = paymentMethod == 1 ? 'PENDING' : 'ACTIVE';
       username = '${userData.name} ${userData.surname}';
+      pickUpTime = getPickUpTime(plusTime);
+      place = _currentPlace.toString();
+      userId = userData.uid;
     }
 
     List<String> stringList = getStringList(_selectedItems);
-    String pickUpTime = getPickUpTime(plusTime);
-    String place = _currentPlace.toString();
     String orderId = '';
-    String userId = userData.uid;
     String day = DateFormat('EEEE').format(DateTime.now());
     int triggerNum = 0;
 
-    // PLACE AN ACTIVE ORDER TO DATABASE
-    DocumentReference _docRef = await DatabaseService().createActiveOrder(
-      status,
-      stringList,
-      price,
-      pickUpTime,
-      username,
-      place,
-      orderId,
-      userId,
-      day,
-      triggerNum,
-    );
+    DocumentReference _docRef;
+    if (role == 'worker-on') {
+      // PLACE A PASSIVE ORDER TO DATABASE
+      _docRef = await DatabaseService().createPassiveOrder(
+        status,
+        stringList,
+        price,
+        pickUpTime,
+        username,
+        place,
+        orderId,
+        userId,
+        day,
+        triggerNum,
+      );
+    } else {
+      // PLACE AN ACTIVE ORDER TO DATABASE
+      _docRef = await DatabaseService().createActiveOrder(
+        status,
+        stringList,
+        price,
+        pickUpTime,
+        username,
+        place,
+        orderId,
+        userId,
+        day,
+        triggerNum,
+      );
+    }
 
     // UPDATE ORDER WITH ID
     await DatabaseService().updateOrderId(_docRef.id, status);
@@ -153,11 +171,9 @@ Future<int> createOrder(
           ),
         ),
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(CzechStrings.orderCreationSuccess),
-          duration: Duration(milliseconds: 2000),
-        ),
+      customSnackbar(
+        context: context,
+        text: CzechStrings.orderCreationSuccess,
       );
     }
 

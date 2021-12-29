@@ -58,6 +58,7 @@ class CoffeeKindTile extends StatelessWidget {
         borderRadius: BorderRadius.all(
           Radius.circular(30),
         ),
+        color: Colors.white,
         image: DecorationImage(
           colorFilter: new ColorFilter.mode(
             Colors.black.withOpacity(1),

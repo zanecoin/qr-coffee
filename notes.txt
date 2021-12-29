@@ -1,41 +1,34 @@
-Vlatnosti:
-- role: 'pracovník'/'zákazník'
-- přesný dynamický výpočet časů objednávek skrz celou aplikaci + zabarvení časových údajů podle hodnoty
-- pracovník může přepínat mezi pracovním a zákaznickým účtem, zákazník má pouze zákaznický účet
-- pracovník může v nastavení aktivovat a deaktivovat stanoviště, na kterém právě pracuje
-
-
 BRÁNA
-+ platební metody omezit na kartu
+- platební metody omezit na kartu
 + auto-complete
 - zabezpečení platební brány
+- platba jedním tlačítkem/google pay
 
-STATISTIKY
-+ vytíženost stánků, poměr úspěšných objednávek, odběr surovin
-
-OBJEDNÁVKY
+MINI PROJEKTY
++ před provedením důležitých akcí přidat alert dialog
 - zobrazovat pending objednávky?
-
-DATABÁZE A FUNKCE
 - počítání prodaných položek
 - sekundový trigger na checkování internet connection
-- zabezpečení databáze
 - no internet během prvotního loadingu
 - loading obrázků
+- kontrola generování virtual objednávek
+- trim jméno při registraci?
+- pending objednávky po platební bráně?
+- error checku platební brány
 
-KOSMETIKA
-- před provedením důležitých akcí přidat alert dialog
-- tmavý režim
-- upravit splash screen při landscape
-
-PROJEKTY
+GIGA PROJEKTY
++ statistiky
+- u položek nastavit možnost vyprodáno
+- zabezpečení databáze
 + responzivita: iphone
+- tmavý režim
 - pop-up při zadávání produktu (každá položka musí mít suroviny a pole featur)
-+ mapa zobrazující polohu stánků
+- mapa zobrazující polohu stánků
 - obrazovka s tutoriálem bezprostředně po registraci
 - přihlášení přes Google a Facebook
 - kompletní anonymní přehled polohy uživatelů
 - notifikace - prodlužování objednávek
+- kontrola všech možných error cases
 
 DO BUDOUCNA
 - vytvořit application ID

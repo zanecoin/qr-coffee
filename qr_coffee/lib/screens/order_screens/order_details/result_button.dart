@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/order.dart';
+import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
 import 'package:qr_coffee/service/database.dart';
 
 class ResultButton extends StatelessWidget {
   const ResultButton({
     Key? key,
+    required this.userData,
     required this.text,
     required this.icon,
     required this.color,
@@ -16,6 +18,7 @@ class ResultButton extends StatelessWidget {
     required this.role,
   }) : super(key: key);
 
+  final UserData userData;
   final String text;
   final IconData icon;
   final Color color;
@@ -70,6 +73,12 @@ class ResultButton extends StatelessWidget {
     );
 
     await DatabaseService().deleteActiveOrder(order.orderId);
+
+    // REFUND ORDER WITH QR TOKENS
+    if (status == 'ABORTED') {
+      await DatabaseService(uid: userData.uid)
+          .updateUserTokens(userData.tokens + order.price);
+    }
   }
 
   // MOVE ORDER BACK TO ACTIVE ORDERS

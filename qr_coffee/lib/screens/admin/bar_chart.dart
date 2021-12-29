@@ -6,19 +6,29 @@ import 'dart:math';
 import 'package:qr_coffee/shared/constants.dart';
 
 class BarChartSample2 extends StatefulWidget {
+  const BarChartSample2({
+    Key? key,
+    required this.orders,
+    required this.virtualMode,
+  }) : super(key: key);
+
   final List<Order> orders;
-  const BarChartSample2({Key? key, required this.orders}) : super(key: key);
+  final bool virtualMode;
 
   @override
-  State<StatefulWidget> createState() => BarChartSample2State(orders: orders);
+  State<StatefulWidget> createState() =>
+      BarChartSample2State(orders: orders, virtualMode: virtualMode);
 }
 
 class BarChartSample2State extends State<BarChartSample2> {
+  BarChartSample2State({
+    required this.orders,
+    required this.virtualMode,
+  });
+
   List<Order> orders;
+  final bool virtualMode;
 
-  BarChartSample2State({required this.orders});
-
-  final Color leftBarColor = Colors.green.shade300;
   final Color rightBarColor = Colors.red;
   final double width = 20;
 
@@ -33,7 +43,6 @@ class BarChartSample2State extends State<BarChartSample2> {
   @override
   void initState() {
     super.initState();
-
     final items = _orderSumList(orders);
 
     total_price = items[1];
@@ -43,12 +52,16 @@ class BarChartSample2State extends State<BarChartSample2> {
     showingBarGroups = rawBarGroups;
   }
 
+  _getColor() {
+    return virtualMode ? Colors.amber.shade300 : Colors.blue.shade300;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       height:
           min(Responsive.width(100, context), Responsive.height(100, context)),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -188,7 +201,7 @@ class BarChartSample2State extends State<BarChartSample2> {
     return BarChartGroupData(barsSpace: 0, x: x, barRods: [
       BarChartRodData(
         y: y,
-        colors: [leftBarColor],
+        colors: [_getColor()],
         width: width,
       ),
     ]);

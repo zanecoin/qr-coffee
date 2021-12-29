@@ -5,6 +5,10 @@ import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class Loading extends StatelessWidget {
+  Loading({this.color = Colors.blue});
+
+  final Color color;
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -12,7 +16,7 @@ class Loading extends StatelessWidget {
       child: Container(
         color: themeProvider.themeMode().toggleBackgroundColor,
         child: SpinKitSpinningLines(
-          color: themeProvider.isLightTheme ? Colors.blue : Colors.indigo,
+          color: color,
           size: 50.0,
         ),
       ),

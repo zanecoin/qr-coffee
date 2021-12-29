@@ -8,13 +8,11 @@ import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:qr_coffee/shared/widgets/custom_divider.dart';
 import 'package:qr_coffee/shared/functions.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 // SCREEN WITH ORDER SUMMARY -------------------------------------------------------------------------------------------
 class OrderDetails extends StatefulWidget {
@@ -108,7 +106,7 @@ class _OrderDetailsState extends State<OrderDetails> {
             return Scaffold(
               appBar: customAppBar(context,
                   title: Text(remainingTime, style: TextStyle(color: color))),
-              body: userData == null
+              body: userData == null && order.userId != 'generated-order^^'
                   ? Center(child: Text(CzechStrings.userNotFound))
                   : SingleChildScrollView(
                       child: Column(
@@ -118,17 +116,15 @@ class _OrderDetailsState extends State<OrderDetails> {
                           _resultInfo(order),
 
                           // QR CODE OR FANCY INFO CARD -----------------------
-                          if (role == 'customer' || role == 'worker-off')
-                            QrCard(order: order),
-                          if (role == 'worker-on')
-                            FancyInfoCard(order: order, userData: userData),
+                          if (role == 'customer') QrCard(order: order),
+                          if (role == 'worker-on') FancyInfoCard(order: order),
 
                           // ORDER HEADER INFO --------------------------------
                           _header(order, deviceWidth),
                           SizedBox(height: 10),
 
                           // ACTION BUTTONS -----------------------------------
-                          _resultButtons(order),
+                          if (userData != null) _resultButtons(order, userData),
                           SizedBox(height: 30),
                           if (_showAlert) Text('not ready'),
                         ],
@@ -206,11 +202,24 @@ class _OrderDetailsState extends State<OrderDetails> {
   Widget _header(Order order, double deviceWidth) {
     return Column(
       children: [
-        if (role == 'customer')
+        if (role == 'customer' && order.status != 'ABORTED')
           Text(
-            '${order.price.toString()} Kč',
+            '${order.price.toString()} ${CzechStrings.currency}',
             style: TextStyle(
                 fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+        if (role == 'customer' && order.status == 'ABORTED')
+          Column(
+            children: [
+              Text(
+                '${CzechStrings.returned} ${order.price.toString()} ${CzechStrings.currency} ${CzechStrings.inTokens}',
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+            ],
           ),
         if (role == 'customer')
           Text(
@@ -220,7 +229,7 @@ class _OrderDetailsState extends State<OrderDetails> {
               color: Colors.black,
             ),
           ),
-        if (role == 'customer' || role == 'worker-off')
+        if (role == 'customer')
           CustomDivider(
             indent: deviceWidth < kDeviceUpperWidthTreshold
                 ? 40
@@ -243,11 +252,12 @@ class _OrderDetailsState extends State<OrderDetails> {
     );
   }
 
-  Widget _resultButtons(Order order) {
+  Widget _resultButtons(Order order, UserData userData) {
     return Column(
       children: [
         if (order.status == 'ACTIVE' && role == 'worker-on' && mode == 'normal')
           ResultButton(
+            userData: userData,
             text: CzechStrings.ready,
             icon: Icons.done,
             color: Colors.green,
@@ -266,6 +276,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ResultButton(
+                    userData: userData,
                     text: CzechStrings.abandoned,
                     icon: Icons.clear,
                     color: Colors.red,
@@ -275,6 +286,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                     role: role,
                   ),
                   ResultButton(
+                    userData: userData,
                     text: CzechStrings.collected,
                     icon: Icons.done,
                     color: Colors.green,
@@ -320,6 +332,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ResultButton(
+                    userData: userData,
                     text: CzechStrings.cancelOrder,
                     icon: Icons.clear,
                     color: Colors.red,

@@ -28,6 +28,12 @@ class DatabaseService {
     });
   }
 
+  Future updateUserTokens(int tokens) async {
+    return await userCollection.doc(uid).update({
+      'tokens': tokens,
+    });
+  }
+
   // userData from snapshot
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
     return UserData(
@@ -120,18 +126,33 @@ class DatabaseService {
     String day,
     int triggerNum,
   ) async {
-    return await passiveOrderCollection.doc(orderId).set({
-      'status': status,
-      'items': items,
-      'price': price,
-      'pickUpTime': pickUpTime,
-      'username': username,
-      'place': place,
-      'orderId': orderId,
-      'userId': userId,
-      'day': day,
-      'triggerNum': triggerNum,
-    });
+    if (orderId == '') {
+      return await passiveOrderCollection.add({
+        'status': status,
+        'items': items,
+        'price': price,
+        'pickUpTime': pickUpTime,
+        'username': username,
+        'place': place,
+        'orderId': orderId,
+        'userId': userId,
+        'day': day,
+        'triggerNum': triggerNum,
+      });
+    } else {
+      return await passiveOrderCollection.doc(orderId).set({
+        'status': status,
+        'items': items,
+        'price': price,
+        'pickUpTime': pickUpTime,
+        'username': username,
+        'place': place,
+        'orderId': orderId,
+        'userId': userId,
+        'day': day,
+        'triggerNum': triggerNum,
+      });
+    }
   }
 
   Future createVirtualOrder(
@@ -144,6 +165,7 @@ class DatabaseService {
     String orderId,
     String userId,
     String day,
+    int triggerNum,
   ) async {
     return await virtualOrderCollection.add({
       'status': status,
@@ -155,6 +177,7 @@ class DatabaseService {
       'orderId': orderId,
       'userId': userId,
       'day': day,
+      'triggerNum': triggerNum,
     });
   }
 
@@ -233,7 +256,7 @@ class DatabaseService {
 
   // GET VIRTUAL ORDERS LIST STREAM
   Stream<List<Order>> get virtualOrderList {
-    return passiveOrderCollection.snapshots().map(_OrderListFromSnapshot);
+    return virtualOrderCollection.snapshots().map(_OrderListFromSnapshot);
   }
 
   // GET SPECIFIC ORDER FROM DATABASE

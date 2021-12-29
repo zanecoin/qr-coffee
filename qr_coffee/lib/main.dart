@@ -124,6 +124,8 @@ class Splash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Container(
       color: Colors.white,
       child: SafeArea(
@@ -142,12 +144,14 @@ class Splash extends StatelessWidget {
                     Text(
                       CzechStrings.app_name,
                       style: TextStyle(
-                          decoration: TextDecoration.none,
-                          color: Colors.black,
-                          fontSize: Responsive.width(12, context),
-                          fontFamily: 'Galada'),
+                        decoration: TextDecoration.none,
+                        color: Colors.black,
+                        fontSize: Responsive.width(12, context),
+                        fontFamily: 'Galada',
+                      ),
                     ),
-                    ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
+                    if (isPortrait)
+                      ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
                     Expanded(
                       flex: 1,
                       child: Column(
@@ -158,14 +162,15 @@ class Splash extends StatelessWidget {
                             size: Responsive.height(15, context),
                           ),
                           SizedBox(height: Responsive.height(8, context)),
-                          Text(
-                            CzechStrings.motto,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          if (isPortrait)
+                            Text(
+                              CzechStrings.motto,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),

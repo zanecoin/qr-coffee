@@ -10,6 +10,7 @@ import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
 import 'package:qr_coffee/shared/widgets/custom_divider.dart';
 import 'package:qr_coffee/shared/widgets/custom_dropdown.dart';
+import 'package:qr_coffee/shared/widgets/custom_snackbar.dart';
 import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
 import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
@@ -81,17 +82,22 @@ class _SettingsState extends State<Settings> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // GENERAL SETTINGS
-                      // Container(
-                      //   margin: EdgeInsets.symmetric(horizontal: 20),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: [
-                      //       Text(CzechStrings.darkmode,
-                      //           style: TextStyle(fontSize: 16)),
-                      //       animatedToggle(darkMode, callbackTheme),
-                      //     ],
-                      //   ),
-                      // ),
+                      Text(
+                        CzechStrings.settings,
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(CzechStrings.darkmode,
+                                style: TextStyle(fontSize: 16)),
+                            animatedToggle(darkMode, callbackTheme),
+                          ],
+                        ),
+                      ),
 
                       if (userData.role == 'worker-on' ||
                           userData.role == 'worker-off')
@@ -99,9 +105,6 @@ class _SettingsState extends State<Settings> {
                           margin: EdgeInsets.symmetric(horizontal: 20),
                           child: Column(
                             children: [
-                              Text(CzechStrings.settings,
-                                  style: TextStyle(fontSize: 20)),
-                              SizedBox(height: 10),
                               SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment:
@@ -280,7 +283,8 @@ class _SettingsState extends State<Settings> {
   }
 
   void callbackTheme() {
-    _toggleTheme();
+    customSnackbar(context: context, text: CzechStrings.notImplemented);
+    //_toggleTheme();
   }
 
   void callbackMode() {
@@ -330,11 +334,9 @@ class _SettingsState extends State<Settings> {
             userData.numOrders,
           );
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(CzechStrings.infoChangeSuccess),
-              duration: Duration(milliseconds: 1200),
-            ),
+          customSnackbar(
+            context: context,
+            text: CzechStrings.infoChangeSuccess,
           );
         }
       },
@@ -350,11 +352,9 @@ class _SettingsState extends State<Settings> {
 
     if ((_currentPlace == null || _currentPlace == '') &&
         userData.stand == '') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(CzechStrings.choosePlaceDot),
-          duration: Duration(milliseconds: 1200),
-        ),
+      customSnackbar(
+        context: context,
+        text: CzechStrings.choosePlaceDot,
       );
     } else {
       if (userData.stand == '') {

@@ -133,6 +133,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                     chooseUrl(databaseImages, 'pictures/qr_token_tile.JPG')),
             fit: BoxFit.cover,
           ),
+          color: Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.grey.shade600,

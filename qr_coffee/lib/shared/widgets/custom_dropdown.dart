@@ -3,7 +3,7 @@ import 'package:qr_coffee/models/place.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
-class CustomPlaceDropdown extends StatelessWidget {
+class CustomPlaceDropdown extends StatefulWidget {
   CustomPlaceDropdown(
     this.places,
     this.filter,
@@ -17,19 +17,31 @@ class CustomPlaceDropdown extends StatelessWidget {
   final String? savedPlace;
 
   @override
+  State<CustomPlaceDropdown> createState() => _CustomPlaceDropdownState();
+}
+
+class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
+  String? currentPlace;
+
+  @override
+  void initState() {
+    super.initState();
+    currentPlace = widget.savedPlace;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final double deviceWidth = Responsive.deviceWidth(context);
     List<Place> filteredPlaces = [];
-    String? currentPlace;
 
-    if (filter) {
-      for (var place in places) {
+    if (widget.filter) {
+      for (var place in widget.places) {
         if (place.active) {
           filteredPlaces.add(place);
         }
       }
     } else {
-      for (var place in places) {
+      for (var place in widget.places) {
         filteredPlaces.add(place);
       }
     }
@@ -61,8 +73,8 @@ class CustomPlaceDropdown extends StatelessWidget {
                         Icon(
                           Icons.place,
                           color: place.active
-                              ? (filter ? Colors.black : Colors.grey)
-                              : (filter ? Colors.grey : Colors.black),
+                              ? (widget.filter ? Colors.black : Colors.grey)
+                              : (widget.filter ? Colors.grey : Colors.black),
                         ),
                         Text(
                           place.address.length <
@@ -71,8 +83,8 @@ class CustomPlaceDropdown extends StatelessWidget {
                               : ' ${place.address.substring(0, Responsive.textTreshold(context))}...',
                           style: TextStyle(
                             color: place.active
-                                ? (filter ? Colors.black : Colors.grey)
-                                : (filter ? Colors.grey : Colors.black),
+                                ? (widget.filter ? Colors.black : Colors.grey)
+                                : (widget.filter ? Colors.grey : Colors.black),
                           ),
                         ),
                       ],
@@ -82,7 +94,7 @@ class CustomPlaceDropdown extends StatelessWidget {
                 }).toList(),
                 onChanged: (val) {
                   currentPlace = val.toString();
-                  callback(val);
+                  widget.callback(val);
                 },
               ),
             ),

@@ -8,11 +8,9 @@ class FancyInfoCard extends StatelessWidget {
   const FancyInfoCard({
     Key? key,
     required this.order,
-    required this.userData,
   }) : super(key: key);
 
   final Order order;
-  final UserData userData;
 
   @override
   Widget build(BuildContext context) {

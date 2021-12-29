@@ -7,6 +7,7 @@ import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_coffee/models/album.dart';
+import 'package:qr_coffee/shared/widgets/custom_snackbar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 String prodID = '4142611';
@@ -32,6 +33,7 @@ launchPaymentGateway(
   );
 
   String token = '';
+  print(response.statusCode);
   if (response.statusCode == 200) {
     print(jsonDecode(response.statusCode.toString()));
     print(jsonDecode(response.body).toString());
@@ -93,12 +95,7 @@ launchPaymentGateway(
 
   // LAUNCH WEBVIEW
   if (url == '') {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Redirect error.'),
-        duration: Duration(milliseconds: 2000),
-      ),
-    );
+    customSnackbar(context: context, text: 'Redirect error.');
   } else {
     Navigator.push(
       context,

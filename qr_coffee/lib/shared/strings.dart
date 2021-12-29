@@ -8,6 +8,7 @@ class CzechStrings {
   static const String currency = 'Kč';
   static const String scanQr = 'Naskenujte QR kód';
   static const String back = 'Zpět';
+  static const String notImplemented = 'Tato funkce ještě není implementována.';
 
   // CREATE ORDER SCREEN
   static const String orderTitle = 'TVORBA OBJEDNÁVKY';
@@ -52,6 +53,8 @@ class CzechStrings {
   static const String manualAnswer =
       'Klikněte pro manuální vyřízení objednávky';
   static const String orderCode = 'Kód objednávky';
+  static const String returned = 'Vráceno';
+  static const String inTokens = 'v QR Tokenech.';
 
   // ORDER TILE
   static const String pickUpIn = 'Vyzvednutí za';
@@ -114,4 +117,12 @@ class CzechStrings {
   static const String question = 'Opravdu?';
   static const String yes = 'Ano';
   static const String no = 'Ne';
+
+  // ADMIN
+  static const String generate1 = 'Generovat 1 objednávku';
+  static const String generate10 = 'Generovat 10 objednávek';
+  static const String generate100 = 'Generovat 100 objednávek';
+  static const String virtualMode = 'Virtualní režim';
+  static const String waitForIt =
+      'Počkejte prosím až se vygenerují objednávky.';
 }

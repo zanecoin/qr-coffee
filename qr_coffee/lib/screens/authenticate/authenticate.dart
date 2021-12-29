@@ -1,4 +1,5 @@
 import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_snackbar.dart';
 import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
@@ -130,7 +131,9 @@ class SocialButton extends StatelessWidget {
         label,
         style: TextStyle(color: Colors.white, fontSize: 13),
       ),
-      onPressed: () async {},
+      onPressed: () async {
+        customSnackbar(context: context, text: CzechStrings.notImplemented);
+      },
       style: customButtonStyle(color: color),
     );
   }
