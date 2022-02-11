@@ -1,5 +1,5 @@
 import 'package:community_material_icon/community_material_icon.dart';
-import 'package:qr_coffee/screens/sidebar/settings.dart';
+import 'package:qr_coffee/screens/app_customer/customer_settings.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 
@@ -12,10 +12,28 @@ Widget _settings(context) {
   return IconButton(
     onPressed: () => Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => Settings()),
+      new MaterialPageRoute(builder: (context) => CustomerSettings()),
     ),
     icon: Icon(CommunityMaterialIcons.cog_outline),
   );
+}
+
+Widget? _leading(int type, BuildContext context, Function? function) {
+  if (type == 1) {
+    return IconButton(
+        icon: Icon(Icons.arrow_back_ios, size: 22),
+        onPressed: () {
+          if (function == null) {
+            Navigator.pop(context);
+          } else {
+            function();
+          }
+        });
+  } else if (type == 2) {
+    return _settings(context);
+  } else {
+    return null;
+  }
 }
 
 PreferredSizeWidget customAppBar(
@@ -24,23 +42,14 @@ PreferredSizeWidget customAppBar(
   double elevation = 0,
   bottom = null,
   function = null,
-  backArrow = true,
+  int type = 1,
   actions = null,
+  bool centerTitle = true,
 }) {
   return AppBar(
-    leading: backArrow
-        ? IconButton(
-            icon: Icon(Icons.arrow_back_ios, size: 22),
-            onPressed: () {
-              if (function == null) {
-                Navigator.pop(context);
-              } else {
-                function();
-              }
-            })
-        : _settings(context),
+    leading: _leading(type, context, function),
     title: title,
-    centerTitle: true,
+    centerTitle: centerTitle,
     elevation: elevation,
     bottom: bottom,
     actions: actions,

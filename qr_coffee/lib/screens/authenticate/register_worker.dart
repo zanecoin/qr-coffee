@@ -1,5 +1,5 @@
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
-import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_button_style(depricated).dart';
 import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
 import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
@@ -40,13 +40,11 @@ class _RegisterWorkerState extends State<RegisterWorker> {
           children: <Widget>[
             Text(
               CzechStrings.app_name,
-              style: TextStyle(
-                  color: Colors.black, fontSize: 40, fontFamily: 'Galada'),
+              style: TextStyle(color: Colors.black, fontSize: 40, fontFamily: 'Galada'),
             ),
             ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
             Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: Responsive.width(15, context)),
+              padding: EdgeInsets.symmetric(horizontal: Responsive.width(15, context)),
               child: Form(
                 key: _key,
                 child: Column(
@@ -55,16 +53,14 @@ class _RegisterWorkerState extends State<RegisterWorker> {
                     SizedBox(height: Responsive.height(3, context)),
                     CustomTextField('Jméno', Icons.person_outline, callback),
                     CustomTextField('Příjmení', Icons.person, callback),
-                    CustomTextField(
-                        'E-mail', Icons.mail_outline_sharp, callback,
+                    CustomTextField('E-mail', Icons.mail_outline_sharp, callback,
                         validation: validateEmail),
                     CustomTextField('Heslo', Icons.vpn_key, callback,
                         obscure: true, validation: validatePassword),
                     SizedBox(height: Responsive.height(1, context)),
                     Container(
                       height: Responsive.height(7, context),
-                      margin: EdgeInsets.symmetric(
-                          horizontal: Responsive.width(10, context)),
+                      margin: EdgeInsets.symmetric(horizontal: Responsive.width(10, context)),
                       child: ElevatedButton(
                         child: loading
                             ? CircularProgressIndicator(
@@ -72,8 +68,7 @@ class _RegisterWorkerState extends State<RegisterWorker> {
                               )
                             : Text(
                                 'Registrovat se',
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.white),
+                                style: TextStyle(fontSize: 20, color: Colors.white),
                               ),
                         onPressed: () async {
                           setState(() {
@@ -84,15 +79,9 @@ class _RegisterWorkerState extends State<RegisterWorker> {
                           if (_key.currentState!.validate()) {
                             FocusManager.instance.primaryFocus!.unfocus();
                             _key.currentState!.save();
-                            formField.forEach(
-                                (label, value) => formValues.add(value));
-                            errorMessage =
-                                await _auth.registerWithEmailAndPassword(
-                                    formValues[0],
-                                    formValues[1],
-                                    formValues[2],
-                                    formValues[3],
-                                    'customer');
+                            formField.forEach((label, value) => formValues.add(value));
+                            errorMessage = await _auth.registerWithEmailAndPassword(formValues[0],
+                                formValues[1], formValues[2], formValues[3], 'customer');
                             if (errorMessage.length == 0) {
                               Navigator.pop(context);
                             } else {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:qr_coffee/models/place.dart';
+import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
@@ -11,46 +11,61 @@ class CustomPlaceDropdown extends StatefulWidget {
     this.savedPlace,
   );
 
-  final List<Place> places;
+  final List<Shop> places;
   final bool filter;
   final Function callback;
   final String? savedPlace;
 
   @override
-  State<CustomPlaceDropdown> createState() => _CustomPlaceDropdownState();
+  State<CustomPlaceDropdown> createState() => _CustomPlaceDropdownState(
+        places: places,
+        filter: filter,
+        callback: callback,
+        savedPlace: savedPlace,
+      );
 }
 
 class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
+  _CustomPlaceDropdownState({
+    required this.places,
+    required this.filter,
+    required this.callback,
+    required this.savedPlace,
+  });
+
+  final List<Shop> places;
+  final bool filter;
+  final Function callback;
+  final String? savedPlace;
+
   String? currentPlace;
 
   @override
   void initState() {
     super.initState();
-    currentPlace = widget.savedPlace;
+    currentPlace = savedPlace;
   }
 
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = Responsive.deviceWidth(context);
-    List<Place> filteredPlaces = [];
+    List<Shop> filteredPlaces = [];
 
-    if (widget.filter) {
-      for (var place in widget.places) {
+    if (filter) {
+      for (var place in places) {
         if (place.active) {
           filteredPlaces.add(place);
         }
       }
     } else {
-      for (var place in widget.places) {
+      for (var place in places) {
         filteredPlaces.add(place);
       }
     }
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
-      width: deviceWidth > kDeviceUpperWidthTreshold
-          ? Responsive.width(60, context)
-          : null,
+      width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60, context) : null,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
@@ -61,9 +76,7 @@ class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
             Expanded(
               child: DropdownButtonFormField(
                 hint: Text(
-                  filteredPlaces.length > 0
-                      ? CzechStrings.choosePlace
-                      : CzechStrings.noPlace,
+                  filteredPlaces.length > 0 ? CzechStrings.choosePlace : CzechStrings.noPlace,
                 ),
                 value: currentPlace,
                 items: filteredPlaces.map((place) {
@@ -73,18 +86,17 @@ class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
                         Icon(
                           Icons.place,
                           color: place.active
-                              ? (widget.filter ? Colors.black : Colors.grey)
-                              : (widget.filter ? Colors.grey : Colors.black),
+                              ? (filter ? Colors.black : Colors.grey)
+                              : (filter ? Colors.grey : Colors.black),
                         ),
                         Text(
-                          place.address.length <
-                                  Responsive.textTreshold(context)
+                          place.address.length < Responsive.textTreshold(context)
                               ? ' ${place.address}'
                               : ' ${place.address.substring(0, Responsive.textTreshold(context))}...',
                           style: TextStyle(
                             color: place.active
-                                ? (widget.filter ? Colors.black : Colors.grey)
-                                : (widget.filter ? Colors.grey : Colors.black),
+                                ? (filter ? Colors.black : Colors.grey)
+                                : (filter ? Colors.grey : Colors.black),
                           ),
                         ),
                       ],
@@ -94,7 +106,7 @@ class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
                 }).toList(),
                 onChanged: (val) {
                   currentPlace = val.toString();
-                  widget.callback(val);
+                  callback(val);
                 },
               ),
             ),

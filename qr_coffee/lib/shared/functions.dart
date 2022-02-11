@@ -1,5 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:qr_coffee/models/item.dart';
+import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -38,21 +38,21 @@ String timeFormatter(String time) {
   return '${time.substring(8, 10)}:${time.substring(10, 12)} • ${time.substring(6, 8)}.${time.substring(4, 6)}.${time.substring(0, 4)}';
 }
 
-int getTotalPrice(List<Item> items, selectedItems) {
-  // PARAMS: items = all items from database, selectedItems = all items selected by user
-  // RETURN: price = total order price
+int getTotalPrice(List<Product> items, selectedItems) {
+  // PARAMS: [items] - all items from database, [selectedItems] - all items selected by user
+  // RETURN: [price] - total order price
   int price = 0;
   for (var item in selectedItems) {
-    for (var coffee in items) {
-      if (coffee.name == item.name) price += coffee.price;
+    for (var product in items) {
+      if (product.name == item.name) price += product.price;
     }
   }
   return price;
 }
 
 List<String> getStringList(selectedItems) {
-  // PARAMS: selectedItems = all items selected by user
-  // RETURN: result = string list of items selected by user
+  // PARAMS: [selectedItems] - all items selected by user
+  // RETURN: [result] - string list of items selected by user
   List<String> result = [];
   for (var item in selectedItems) {
     result.add(item.name);
@@ -73,12 +73,11 @@ bool isNumeric(String str) {
 }
 
 String getPickUpTime(double plusTime) {
-  // PARAMS: plusTime = time that user wants to pick up his order (in minutes)
-  // RETURN: future time = present time + user time (in format yyyyMMddHHmmss)
+  // PARAMS: [plusTime] - time that user wants to pick up his order (in minutes)
+  // RETURN: [futureTime] - present time + user time (in format yyyyMMddHHmmss)
   String presentTime = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
   String futureTime = '';
-  String augumentMinutes =
-      (int.parse(presentTime.substring(10, 12)) + plusTime.toInt()).toString();
+  String augumentMinutes = (int.parse(presentTime.substring(10, 12)) + plusTime.toInt()).toString();
 
   if (int.parse(augumentMinutes) >= 60) {
     String hourUp = (int.parse(presentTime.substring(8, 10)) + 1).toString();
@@ -109,8 +108,8 @@ String getPickUpTime(double plusTime) {
 }
 
 List<dynamic> getRemainingTime(Order order, String time) {
-  // PARAMS: time = current time; order = current order
-  // RETURN: result = formatted time based on when user created the order; color = color of timestamp
+  /// PARAMS: [time] - current time; [order] - current order
+  /// RETURN: [result] - formatted time based on when user created the order, [color] - color of timestamp
   String result;
   Color color;
   int m1 = int.parse(order.pickUpTime.substring(10, 12)); // minutes
@@ -206,8 +205,8 @@ Future<void> getPlatformChannel() async {
   String output;
 
   try {
-    final List<Object?> result = await platform
-        .invokeMethod('flutterToNative', {"price": '1000', "name": 'John'});
+    final List<Object?> result =
+        await platform.invokeMethod('flutterToNative', {"price": '1000', "name": 'John'});
     output = 'Name: ${result[0]}, price: ${result[1]} Kč.';
   } on PlatformException catch (e) {
     output = "Failed to get data: '${e.message}'.";

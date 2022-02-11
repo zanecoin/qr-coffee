@@ -1,12 +1,11 @@
-import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
-import 'package:qr_coffee/shared/widgets/custom_snackbar.dart';
-import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/screens/authenticate/register.dart';
 import 'package:qr_coffee/screens/authenticate/sign_in.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:community_material_icon/community_material_icon.dart';
+import 'package:qr_coffee/shared/widgets/custom_button.dart';
+import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 class Authenticate extends StatefulWidget {
   @override
@@ -44,32 +43,32 @@ class _AuthenticateState extends State<Authenticate> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
-                        AuthButton(
+                        CustomOutlinedButton(
+                          function: pushRegister,
                           label: CzechStrings.registration1,
-                          screen: Register(),
                         ),
-                        SizedBox(height: 10),
-                        AuthButton(
+                        SizedBox(height: 5.0),
+                        CustomOutlinedButton(
+                          function: pushSignIn,
                           label: CzechStrings.login1,
-                          screen: SignIn(),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 10.0),
                         SocialButton(
                           label: CzechStrings.googleLogin,
                           icon: Icon(
                             CommunityMaterialIcons.google,
                             color: Colors.white,
                           ),
-                          color: Colors.red,
+                          color: Color(0xFFD04134),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 10.0),
                         SocialButton(
                           label: CzechStrings.fbLogin,
                           icon: Icon(
                             CommunityMaterialIcons.facebook,
                             color: Colors.white,
                           ),
-                          color: Colors.blue.shade700,
+                          color: Color(0xFF3F62A9),
                         ),
                         SizedBox(height: Responsive.height(4, context)),
                       ],
@@ -83,33 +82,13 @@ class _AuthenticateState extends State<Authenticate> {
       ),
     );
   }
-}
 
-class AuthButton extends StatelessWidget {
-  final String label;
-  final StatefulWidget? screen;
-  const AuthButton({
-    required this.label,
-    required this.screen,
-  });
+  pushRegister() {
+    Navigator.push(context, new MaterialPageRoute(builder: (context) => Register()));
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      child: Text(
-        label,
-        style: TextStyle(fontSize: 19, color: Colors.white),
-      ),
-      onPressed: () async {
-        if (screen != null) {
-          Navigator.push(
-            context,
-            new MaterialPageRoute(builder: (context) => screen!),
-          );
-        }
-      },
-      style: customButtonStyle(),
-    );
+  pushSignIn() {
+    Navigator.push(context, new MaterialPageRoute(builder: (context) => SignIn()));
   }
 }
 

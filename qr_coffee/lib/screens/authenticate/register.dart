@@ -1,5 +1,5 @@
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
-import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_button_style(depricated).dart';
 import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
 import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
@@ -53,9 +53,8 @@ class _RegisterState extends State<Register> {
               if (deviceHeight > kDeviceLowerHeightTreshold)
                 ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
               Container(
-                width: deviceWidth > kDeviceUpperWidthTreshold
-                    ? 400
-                    : Responsive.width(70, context),
+                width:
+                    deviceWidth > kDeviceUpperWidthTreshold ? 400 : Responsive.width(70, context),
                 child: Form(
                   key: _key,
                   child: Column(
@@ -94,8 +93,7 @@ class _RegisterState extends State<Register> {
                                 )
                               : Text(
                                   CzechStrings.registration2,
-                                  style: TextStyle(
-                                      fontSize: 19, color: Colors.white),
+                                  style: TextStyle(fontSize: 19, color: Colors.white),
                                 ),
                           onPressed: registration,
                           style: customButtonStyle(),
@@ -128,28 +126,34 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  // textFormField callback function
+  // TextFormField callback function.
   callback(varLabel, varValue) {
     formField[varLabel] = varValue;
   }
 
-  // register button function
+  // Register button function.
   registration() async {
     setState(() {
       loading = true;
       errorMessage = '';
       formValues = [];
     });
+    FocusManager.instance.primaryFocus!.unfocus();
+
     if (_key.currentState!.validate()) {
-      FocusManager.instance.primaryFocus!.unfocus();
       _key.currentState!.save();
       formField.forEach((label, value) => formValues.add(value.trim()));
 
+      name = formValues[0];
+      surname = formValues[1];
+      email = formValues[2];
+      password = formValues[3];
+
       errorMessage = await _auth.registerWithEmailAndPassword(
-        formValues[0],
-        formValues[1],
-        formValues[2],
-        formValues[3],
+        name,
+        surname,
+        email,
+        password,
         'customer',
       );
 

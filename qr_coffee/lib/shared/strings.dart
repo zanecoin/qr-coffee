@@ -10,6 +10,9 @@ class CzechStrings {
   static const String back = 'Zpět';
   static const String notImplemented = 'Tato funkce ještě není implementována.';
 
+  // PAYMENT GATEWAY
+  static const String paymentError = 'Nepoadařilo se otevřít platební bránu. Error: ';
+
   // CREATE ORDER SCREEN
   static const String orderTitle = 'TVORBA OBJEDNÁVKY';
   static const String drink = 'Nápoje';
@@ -31,8 +34,7 @@ class CzechStrings {
 
   static const String chooseItemsDot = 'Přidejte položky do objednávky.';
   static const String choosePlaceDot = 'Vyberte odběrové místo.';
-  static const String chooseBothDot =
-      'Přidejte položky do objednávky a vyberte odběrové místo.';
+  static const String chooseBothDot = 'Přidejte položky do objednávky a vyberte odběrové místo.';
   static const String paymentMethod = 'Jak chcete platit?';
   static const String withCard = 'Platební kartou';
   static const String withTokens = 'QR Tokeny';
@@ -50,8 +52,7 @@ class CzechStrings {
   static const String orderPending = 'Objednávka se zpracovává...';
   static const String orderReady = 'Objednávka připravena!';
   static const String orderNotFound = 'Objednávka nebyla nalezena';
-  static const String manualAnswer =
-      'Klikněte pro manuální vyřízení objednávky';
+  static const String manualAnswer = 'Klikněte pro manuální vyřízení objednávky';
   static const String orderCode = 'Kód objednávky';
   static const String returned = 'Vráceno';
   static const String inTokens = 'v QR Tokenech.';
@@ -79,6 +80,18 @@ class CzechStrings {
   static const String surname = 'Příjmení';
   static const String email = 'E-mail';
   static const String password = 'Heslo';
+  static const String phone = 'Telefonní číslo';
+
+  // VALIDATION
+  static const String enterName = 'Zadejte jméno.';
+  static const String enterEmail = 'Zadejte e-mail.';
+  static const String enterAddress = 'Zadejte adresu.';
+  static const String enterCity = 'Zadejte město.';
+  static const String enterPassword = 'Zadejte heslo.';
+  static const String enterPhone = 'Zadejte tel. číslo.';
+  static const String emailHasBadFormat = 'E-mailová adresa je v neplatném formátu.';
+  static const String passwordAtLeastEightChar = 'Heslo musí mít minimálně 8 znaků.';
+  static const String enterOpeningHours = 'Vyplňte prosím otevírací hodiny.';
 
   // HOME
   static const String workmode = 'Pracovní mód';
@@ -99,30 +112,49 @@ class CzechStrings {
   static const String myOrders = 'Moje objednávky';
   static const String myTokens = 'Moje QR-Tokeny';
 
-  // SIDEBAR
+  // SETTINGS
   static const String personal = 'Osobní údaje';
-  static const String updatePersonal = 'Upravit údaje';
+  static const String editInfo = 'Upravit údaje';
   static const String settings = 'Nastavení';
   static const String help = 'Nápověda';
   static const String contact = 'Kontakt';
   static const String logout = 'Odhlásit se';
+  static const String mode = 'Režim';
   static const String darkmode = 'Tmavý režim';
+  static const String lightmode = 'Světlý režim';
+  static const String adaptToDevice = 'Podle režimu zařízení';
   static const String activateStand = 'Aktivovat stanoviště';
-  static const String workMode = 'Pracovní režim';
   static const String stats = 'Statistika';
-  static const String infoChangeSuccess =
-      'Změna osobních údajů proběhla úspěšně!';
+  static const String infoChangeSuccess = 'Změna osobních údajů proběhla úspěšně!';
+  static const String role = 'Role';
+  static const String admin = 'Admin';
+  static const String worker = 'Pracovník';
+  static const String customer = 'Zákazník';
 
   // ALERT DIALOG
   static const String question = 'Opravdu?';
-  static const String yes = 'Ano';
-  static const String no = 'Ne';
+  static const String yes = 'ANO';
+  static const String no = 'NE';
 
   // ADMIN
   static const String generate1 = 'Generovat 1 objednávku';
   static const String generate10 = 'Generovat 10 objednávek';
   static const String generate100 = 'Generovat 100 objednávek';
   static const String virtualMode = 'Virtualní režim';
-  static const String waitForIt =
-      'Počkejte prosím až se vygenerují objednávky.';
+  static const String waitForIt = 'Počkejte prosím až se vygenerují objednávky.';
+  static const String active = 'Aktivní';
+  static const String inactive = 'Neaktivní';
+
+  // ADD SHOP
+  static const String addNewShop = 'Přidat novou provozovnu';
+  static const String address = 'Adresa';
+  static const String city = 'Město';
+  static const String openingHours = 'Otevírací doba';
+  static const String addShop = 'Přidat provozovnu';
+  static const String from = 'Od';
+  static const String to = 'Do';
+  static const String shopDetails = 'Detail provozovny';
+  static const String confirmChanges = 'Potvrdit změny';
+  static const String deleteShop = 'Odstranit provozovnu';
+  static const String shopNum = 'Počet provozoven';
 }

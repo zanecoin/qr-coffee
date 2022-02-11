@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:qr_coffee/models/item.dart';
+import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/screens/order_screens/coffee_inventory.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
@@ -15,7 +15,7 @@ class OrderMenu extends StatelessWidget {
   }) : super(key: key);
 
   final List<Map<String, dynamic>> databaseImages;
-  final List<Item> items;
+  final List<Product> items;
   final TabController controller;
   final Function onItemTap;
 
@@ -56,8 +56,8 @@ class OrderMenu extends StatelessWidget {
     );
   }
 
-  List<Item> _filter(List<Item> items, String choice) {
-    List<Item> result = [];
+  List<Product> _filter(List<Product> items, String choice) {
+    List<Product> result = [];
     for (var item in items) {
       if (item.type == 'drink' && choice == CzechStrings.drink) {
         result.add(item);

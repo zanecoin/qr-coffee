@@ -1,15 +1,15 @@
 import 'dart:math';
 
-import 'package:flutter/services.dart';
 import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details_customer.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details_worker.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
-// TILE WITH ORDER IN ORDER LIST
+// TILE WITH ORDER IN ORDER LIST ---------------------------------------------------------------------------------------
 class OrderTile extends StatelessWidget {
   final Order order;
   final String time;
@@ -29,7 +29,7 @@ class OrderTile extends StatelessWidget {
     Color color = Colors.black;
     double iconSize = Responsive.height(4, context);
 
-    // CZECH LANGUAGE FORMATTING
+    // Czech language formatting.
     if (order.items.length == 1) {
       coffeeLabel = order.items[0];
     } else if (order.items.length > 1 && order.items.length < 5) {
@@ -38,7 +38,7 @@ class OrderTile extends StatelessWidget {
       coffeeLabel = '${order.items.length} položek';
     }
 
-    // ICON CHOOSER
+    // Icon chooser.
     if (order.status == 'ACTIVE' || order.status == 'READY') {
       icon = waitingIcon(size: iconSize);
     } else if (order.status == 'ABANDONED') {
@@ -49,10 +49,9 @@ class OrderTile extends StatelessWidget {
       icon = checkIcon(size: iconSize, color: Colors.green.shade400);
     }
 
-    // INFORMATION HEADER FORMAT CHOOSER
+    // Information header format chooser.
     if (order.status == 'ACTIVE' || order.status == 'READY') {
-      List returnArray =
-          time == '' ? ['?', Colors.black] : getRemainingTime(order, time);
+      List returnArray = time == '' ? ['?', Colors.black] : getRemainingTime(order, time);
       remainingTime = returnArray[0];
       color = returnArray[1];
     } else if (order.status == 'PENDING') {
@@ -61,7 +60,7 @@ class OrderTile extends StatelessWidget {
       remainingTime = '${timeFormatter(order.pickUpTime)}';
     }
 
-    // THE WIDGET ITSELF
+    // The widget itself.
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       child: Card(
@@ -71,16 +70,21 @@ class OrderTile extends StatelessWidget {
         ),
         child: InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              new MaterialPageRoute(
-                builder: (context) => OrderDetails(
-                  order: order,
-                  role: role,
-                  mode: 'normal',
+            if (role == 'customer') {
+              Navigator.push(
+                context,
+                new MaterialPageRoute(
+                  builder: (context) => OrderDetailsCustomer(order: order, mode: 'normal'),
                 ),
-              ),
-            );
+              );
+            } else {
+              Navigator.push(
+                context,
+                new MaterialPageRoute(
+                  builder: (context) => OrderDetailsWorker(order: order, mode: 'normal'),
+                ),
+              );
+            }
           },
           child: Container(
             height: max(Responsive.height(15, context), 90),
@@ -109,9 +113,8 @@ class OrderTile extends StatelessWidget {
                         size: 'small',
                         color: Colors.white,
                       ),
-                      if (role == 'worker-on')
-                        Positioned(
-                            child: icon, top: Responsive.height(4.5, context)),
+                      if (role == 'worker')
+                        Positioned(child: icon, top: Responsive.height(4.5, context)),
                     ],
                   ),
                   SizedBox(width: Responsive.width(2, context)),
@@ -120,22 +123,20 @@ class OrderTile extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('$coffeeLabel',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('$coffeeLabel', style: TextStyle(fontWeight: FontWeight.bold)),
                         Text('${order.price} ${CzechStrings.currency}'),
                         Text(remainingTime, style: TextStyle(color: color)),
                         SizedBox(height: 5),
                         if (order.status == 'READY') _orderReady(),
                       ],
                     ),
-                  if (role == 'worker-on')
+                  if (role == 'worker')
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          order.username.length <
-                                  Responsive.textTresholdShort(context)
+                          order.username.length < Responsive.textTresholdShort(context)
                               ? '${order.username}'
                               : '${order.username.substring(0, Responsive.textTresholdShort(context))}...',
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -158,8 +159,7 @@ class OrderTile extends StatelessWidget {
   Widget _orderReady() => Container(
         padding: EdgeInsets.symmetric(horizontal: 7, vertical: 3),
         decoration: BoxDecoration(
-          color:
-              role == 'customer' ? Colors.green.shade100 : Colors.blue.shade100,
+          color: role == 'customer' ? Colors.green.shade100 : Colors.blue.shade100,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(CzechStrings.orderReady),

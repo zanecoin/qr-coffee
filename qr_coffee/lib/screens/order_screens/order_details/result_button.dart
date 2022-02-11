@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/order_screens/order_details/order_details.dart';
-import 'package:qr_coffee/service/database.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details_customer.dart';
+import 'package:qr_coffee/service/database_service/database_imports.dart';
 
 class ResultButton extends StatelessWidget {
   const ResultButton({
@@ -37,10 +36,7 @@ class ResultButton extends StatelessWidget {
             Icon(icon, size: 70, color: color),
             Text(
               text,
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
             ),
           ],
         ),
@@ -57,62 +53,97 @@ class ResultButton extends StatelessWidget {
     );
   }
 
-  // MOVE ORDER TO PASSIVE ORDERS
+  // Move order to passive orders.
   Future _moveOrderToPassive() async {
-    await DatabaseService().createPassiveOrder(
+    await CompanyOrderDatabase().createPassiveOrder(
       status,
       order.items,
       order.price,
       order.pickUpTime,
       order.username,
-      order.place,
+      order.shop,
+      order.company,
       order.orderId,
       order.userId,
+      order.shopId,
+      order.companyId,
       order.day,
       order.triggerNum,
     );
 
-    await DatabaseService().deleteActiveOrder(order.orderId);
+    await UserOrderDatabase(uid: order.userId).createPassiveOrder(
+      status,
+      order.items,
+      order.price,
+      order.pickUpTime,
+      order.username,
+      order.shop,
+      order.company,
+      order.orderId,
+      order.userId,
+      order.shopId,
+      order.companyId,
+      order.day,
+      order.triggerNum,
+    );
+
+    await CompanyOrderDatabase().deleteActiveOrder(order.orderId);
+    await UserOrderDatabase(uid: order.userId).deleteActiveOrder(order.orderId);
 
     // REFUND ORDER WITH QR TOKENS
     if (status == 'ABORTED') {
-      await DatabaseService(uid: userData.uid)
-          .updateUserTokens(userData.tokens + order.price);
+      await UserDatabase(uid: userData.uid).updateUserTokens(userData.tokens + order.price);
     }
   }
 
-  // MOVE ORDER BACK TO ACTIVE ORDERS
+  // Move order back to active orders.
   Future _repeatOrder() async {
-    DocumentReference _docRef = await DatabaseService().createActiveOrder(
+    await CompanyOrderDatabase().createActiveOrder(
       status,
       order.items,
       order.price,
       order.pickUpTime,
       order.username,
-      order.place,
+      order.shop,
+      order.company,
       '',
       order.userId,
+      order.shopId,
+      order.companyId,
       order.day,
       order.triggerNum,
     );
 
-    await DatabaseService().updateOrderId(_docRef.id, status);
-    order.orderId = _docRef.id;
+    await UserOrderDatabase(uid: order.userId).createActiveOrder(
+      status,
+      order.items,
+      order.price,
+      order.pickUpTime,
+      order.username,
+      order.shop,
+      order.company,
+      '',
+      order.userId,
+      order.shopId,
+      order.companyId,
+      order.day,
+      order.triggerNum,
+    );
 
     Navigator.pushReplacement(
       previousContext,
       new MaterialPageRoute(
-        builder: (context) => OrderDetails(
+        builder: (context) => OrderDetailsCustomer(
           order: order,
-          role: role,
           mode: 'normal',
         ),
       ),
     );
   }
 
-  // UPDATE ORDER FROM 'READY' TO 'ACTIVE'
+  // UPDATE ORDER FROM 'ACTIVE' TO 'READY'
   Future _updateOrderStatus() async {
-    await DatabaseService().updateOrderStatus(order.orderId, status);
+    await CompanyOrderDatabase().updateOrderStatus(order.orderId, status);
+    await UserOrderDatabase(uid: order.userId).updateOrderStatus(order.orderId, status);
   }
 }

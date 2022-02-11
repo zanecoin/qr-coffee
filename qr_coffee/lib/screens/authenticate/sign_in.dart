@@ -1,5 +1,5 @@
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
-import 'package:qr_coffee/shared/widgets/custom_button_style.dart';
+import 'package:qr_coffee/shared/widgets/custom_button_style(depricated).dart';
 import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
 import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
@@ -8,10 +8,6 @@ import 'package:qr_coffee/service/auth.dart';
 import 'package:qr_coffee/shared/constants.dart';
 
 class SignIn extends StatefulWidget {
-  //switch between register and sign in
-  final Function? toggleView;
-  SignIn({this.toggleView});
-
   @override
   _SignInState createState() => _SignInState();
 }
@@ -23,12 +19,11 @@ class _SignInState extends State<SignIn> {
   bool loading = false;
   List formValues = [];
 
-  //user info variables
   String email = '';
   String password = '';
   String errorMessage = '';
 
-  // sign in screen
+  // Sign in screen.
   @override
   Widget build(BuildContext context) {
     double deviceWidth = Responsive.deviceWidth(context);
@@ -50,9 +45,8 @@ class _SignInState extends State<SignIn> {
               ),
               ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
               Container(
-                width: deviceWidth > kDeviceUpperWidthTreshold
-                    ? 400
-                    : Responsive.width(70, context),
+                width:
+                    deviceWidth > kDeviceUpperWidthTreshold ? 400 : Responsive.width(70, context),
                 child: Form(
                   key: _key,
                   child: Column(
@@ -117,28 +111,30 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  // textFormField callback function
+  // TextFormField callback function.
   callback(varLabel, varValue) {
     formField[varLabel] = varValue;
   }
 
-  // sign in button function
+  // Sign in button function.
   signIn() async {
     setState(() {
       loading = true;
       errorMessage = '';
       formValues = [];
     });
+    FocusManager.instance.primaryFocus!.unfocus();
 
     if (_key.currentState!.validate()) {
-      FocusManager.instance.primaryFocus!.unfocus();
       _key.currentState!.save();
       formField.forEach((label, value) => formValues.add(value.trim()));
 
-      errorMessage = await _auth.signInWithEmailAndPassword(
-        formValues[0],
-        formValues[1],
-      );
+      email = formValues[0];
+      password = formValues[1];
+      print(email);
+      print(password);
+
+      errorMessage = await _auth.signInWithEmailAndPassword(email, password);
 
       if (errorMessage.length == 0) {
         Navigator.pop(context);

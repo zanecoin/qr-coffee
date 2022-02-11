@@ -33,8 +33,7 @@ class Responsive {
   }
 
   static int textTreshold(BuildContext context) {
-    double value =
-        min(Responsive.deviceWidth(context), Responsive.deviceHeight(context));
+    double value = min(Responsive.deviceWidth(context), Responsive.deviceHeight(context));
     return (pow(value / 13, 0.95)).floor();
   }
 
@@ -80,3 +79,33 @@ Widget thumbIcon({double size = icon_size}) => Icon(
       color: Colors.black,
       size: size,
     );
+
+List<String> kHours = [
+  '00',
+  '01',
+  '02',
+  '03',
+  '04',
+  '05',
+  '06',
+  '07',
+  '08',
+  '09',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '15',
+  '16',
+  '17',
+  '18',
+  '19',
+  '20',
+  '21',
+  '22',
+  '23',
+  '24'
+];
+
+List<String> kMinutes = ['00', '30'];

@@ -1,3 +1,19 @@
+ÚKOLY K BP:
+- podívat se jak se dělají sw projekty
+- podívat se na sw bakalářku
+- generování dokumentace flutter
+- oficial coding style flutter
+- naučit se pořádně s githubem
+- kriticka cesta
+
+FORMAT:
+- komentáře psát jako věty
+- nepoužívat =?: ve widgetech
+- používat =>
+- pro double použit 1.0
+- používat listview.builder
+- používat const kde to jde
+
 BRÁNA
 - platební metody omezit na kartu
 + auto-complete
@@ -5,8 +21,8 @@ BRÁNA
 - platba jedním tlačítkem/google pay
 
 MINI PROJEKTY
-+ před provedením důležitých akcí přidat alert dialog
-- zobrazovat pending objednávky?
+- před provedením důležitých akcí přidat alert dialog
+- zobrazovat pending objednávky? Jak s nimi vynaložit v databázi?
 - počítání prodaných položek
 - sekundový trigger na checkování internet connection
 - no internet během prvotního loadingu
@@ -14,7 +30,13 @@ MINI PROJEKTY
 - kontrola generování virtual objednávek
 - trim jméno při registraci?
 - pending objednávky po platební bráně?
-- error checku platební brány
+- error check u platební brány
+- přidat pro usera registerDate, status
++ práce s companies
+- updatovac9 tla49tko v nastaven9
+- počítání provozoven
+- třídění objednávek podle ID ochodu a ne podle adresy
+- tlačítka
 
 GIGA PROJEKTY
 + statistiky

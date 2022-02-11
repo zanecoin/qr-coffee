@@ -15,8 +15,9 @@ class UserData {
   final String email;
   final String role;
   final int tokens;
-  final String stand;
+  final String shop;
   final int numOrders;
+  final String company;
 
   UserData({
     required this.uid,
@@ -25,7 +26,8 @@ class UserData {
     required this.email,
     required this.role,
     required this.tokens,
-    required this.stand,
+    required this.shop,
     required this.numOrders,
+    required this.company,
   });
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
@@ -15,13 +14,11 @@ class FancyInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = Responsive.deviceWidth(context);
-    final bool largeDevice =
-        deviceWidth > kDeviceUpperWidthTreshold ? true : false;
+    final bool largeDevice = deviceWidth > kDeviceUpperWidthTreshold ? true : false;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      width: deviceWidth > kDeviceUpperWidthTreshold
-          ? Responsive.width(50, context)
-          : null,
+      width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(50, context) : null,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(
@@ -47,8 +44,8 @@ class FancyInfoCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
                     image: DecorationImage(
-                      colorFilter: new ColorFilter.mode(
-                          Colors.black.withOpacity(0.2), BlendMode.dstATop),
+                      colorFilter:
+                          new ColorFilter.mode(Colors.black.withOpacity(0.2), BlendMode.dstATop),
                       image: AssetImage('assets/cafe.jpg'),
                       fit: BoxFit.cover,
                     ),
@@ -67,8 +64,7 @@ class FancyInfoCard extends StatelessWidget {
                       ? (order.username.length < 400 ~/ 17
                           ? '${order.username}'
                           : '${order.username.substring(0, 400 ~/ 17)}...')
-                      : (order.username.length <
-                              Responsive.textTresholdShort(context)
+                      : (order.username.length < Responsive.textTresholdShort(context)
                           ? '${order.username}'
                           : '${order.username.substring(0, Responsive.textTresholdShort(context))}...'),
                   style: TextStyle(
@@ -79,10 +75,7 @@ class FancyInfoCard extends StatelessWidget {
                 ),
                 Text(
                   '${order.price.toString()} Kč',
-                  style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 20),
                 Text(

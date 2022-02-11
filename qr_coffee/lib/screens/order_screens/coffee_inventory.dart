@@ -1,4 +1,4 @@
-import 'package:qr_coffee/models/item.dart';
+import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ class CoffeeKindTile extends StatelessWidget {
     required this.largeDevice,
   });
 
-  final Item item;
+  final Product item;
   final Function onItemTap;
   final String imageUrl;
   final bool largeDevice;
@@ -139,7 +139,7 @@ class CoffeeKindTile extends StatelessWidget {
 
 class CoffeeKindScreen extends StatefulWidget {
   // GET USER DATA FORM PREVIOUS HOMESCREEN TO GET INIT VALUE FOR CARD SELECTION
-  final Item coffee;
+  final Product coffee;
   CoffeeKindScreen({Key? key, required this.coffee}) : super(key: key);
 
   @override
@@ -148,7 +148,7 @@ class CoffeeKindScreen extends StatefulWidget {
 }
 
 class _CoffeeKindScreenState extends State<CoffeeKindScreen> {
-  final Item coffee;
+  final Product coffee;
   _CoffeeKindScreenState({required this.coffee});
 
   @override
@@ -181,7 +181,7 @@ class _CoffeeKindScreenState extends State<CoffeeKindScreen> {
   }
 }
 
-Widget _fancyInfoCard(Item coffee) {
+Widget _fancyInfoCard(Product coffee) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
     child: Card(

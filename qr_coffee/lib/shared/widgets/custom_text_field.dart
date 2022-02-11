@@ -1,5 +1,6 @@
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_coffee/shared/strings.dart';
 
 class CustomTextField extends StatelessWidget {
   CustomTextField(
@@ -8,7 +9,7 @@ class CustomTextField extends StatelessWidget {
     this.callback, {
     this.initVal = '',
     this.obscure = false,
-    this.validation = validateText,
+    this.validation = validateName,
   });
 
   final String label;
@@ -54,27 +55,37 @@ String? noValidation(String? formText) {
   return null;
 }
 
-String? validateText(String? formText) {
-  if (formText!.isEmpty) return 'Zadejte jméno.';
+String? validateName(String? formText) {
+  if (formText!.isEmpty) return CzechStrings.enterName;
+  return null;
+}
 
+String? validatePhone(String? formText) {
+  if (formText!.isEmpty) return CzechStrings.enterPhone;
+  return null;
+}
+
+String? validateAddress(String? formText) {
+  if (formText!.isEmpty) return CzechStrings.enterAddress;
+  return null;
+}
+
+String? validateCity(String? formText) {
+  if (formText!.isEmpty) return CzechStrings.enterCity;
   return null;
 }
 
 String? validateEmail(String? formEmail) {
-  if (formEmail!.isEmpty) return 'Zadejte e-mail.';
+  if (formEmail!.isEmpty) return CzechStrings.enterEmail;
 
   String pattern = r'\w+@\w+\.\w+';
   RegExp regex = RegExp(pattern);
-  if (!regex.hasMatch(formEmail))
-    return 'E-mailová adresa je v neplatném formátu.';
-
+  if (!regex.hasMatch(formEmail)) return CzechStrings.emailHasBadFormat;
   return null;
 }
 
 String? validatePassword(String? formPassword) {
-  if (formPassword!.isEmpty) return 'Zadejte heslo.';
-
-  if (formPassword.length < 8) return 'Heslo musí mít minimálně 8 znaků.';
-
+  if (formPassword!.isEmpty) return CzechStrings.enterPassword;
+  if (formPassword.length < 8) return CzechStrings.passwordAtLeastEightChar;
   return null;
 }
