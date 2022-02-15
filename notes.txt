@@ -37,6 +37,7 @@ MINI PROJEKTY
 - počítání provozoven
 - třídění objednávek podle ID ochodu a ne podle adresy
 - tlačítka
+- zalamování textu u detailu objednávky
 
 GIGA PROJEKTY
 + statistiky
