@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/functions.dart';
 
 class CustomTextBanner extends StatelessWidget {
   const CustomTextBanner({
     Key? key,
-    required this.deviceWidth,
     required this.title,
-    required this.icon,
+    this.showIcon = true,
+    this.icon = Icons.person,
   }) : super(key: key);
 
-  final double deviceWidth;
   final String title;
+  final bool showIcon;
   final IconData icon;
 
   @override
   Widget build(BuildContext context) {
+    final double deviceWidth = Responsive.deviceWidth(context);
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 30.0),
       width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
@@ -27,12 +30,10 @@ class CustomTextBanner extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.black, size: 25.0),
+            if (showIcon) Icon(icon, color: Colors.black, size: 25.0),
             SizedBox(width: 5.0),
             Text(
-              title.length < Responsive.textTreshold(context)
-                  ? ' ${title}'
-                  : ' ${title.substring(0, Responsive.textTreshold(context))}...',
+              cutTextIfNeccessary(title, Responsive.textTreshold(context)),
               style: TextStyle(
                 fontWeight: FontWeight.normal,
                 color: Colors.black,

@@ -1,6 +1,7 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/user.dart';
+import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
@@ -20,7 +21,6 @@ class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
 
   final _key = GlobalKey<FormState>();
   Map<String, String> formField = Map<String, String>();
-  List formValues = [];
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +39,10 @@ class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
                   _customerForm(),
                   SizedBox(height: 10),
                   CustomOutlinedIconButton(
-                    function: () {},
+                    function: _updateValues,
                     icon: CommunityMaterialIcons.file_edit_outline,
-                    label: CzechStrings.editInfo,
+                    label: AppStringValues.editInfo,
+                    iconColor: Colors.blue,
                   ),
                 ],
               ),
@@ -56,22 +57,22 @@ class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
     formField[varLabel] = varValue;
   }
 
-  _updateValues() {
-    setState(() {
-      formValues = [];
-    });
+  _updateValues() async {
+    FocusManager.instance.primaryFocus!.unfocus();
 
     if (_key.currentState!.validate()) {
-      FocusManager.instance.primaryFocus!.unfocus();
       _key.currentState!.save();
-      formField.forEach((label, value) => formValues.add(value.trim()));
-      FocusManager.instance.primaryFocus!.unfocus();
-      // await UserDatabase(uid: user.uid).updateName(
-      //   formValues[0] ?? userData!.name,
-      //   formValues[1] ?? userData!.surname,
-      // );
 
-      customSnackbar(context: context, text: CzechStrings.infoChangeSuccess);
+      String name = (formField[AppStringValues.name] ?? userData.name);
+      String surname = (formField[AppStringValues.surname] ?? userData.surname);
+
+      try {
+        await UserDatabase(uid: userData.uid).updateName(name, surname);
+        Navigator.pop(context);
+        customSnackbar(context: context, text: AppStringValues.infoChangeSuccess);
+      } catch (e) {
+        customSnackbar(context: context, text: e.toString());
+      }
     }
   }
 
@@ -79,14 +80,14 @@ class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
     return Column(
       children: [
         CustomTextField(
-          CzechStrings.name,
+          AppStringValues.name,
           Icons.person_outline,
           _callbackForm,
           initVal: userData.name,
           validation: validateName,
         ),
         CustomTextField(
-          CzechStrings.surname,
+          AppStringValues.surname,
           Icons.person,
           _callbackForm,
           initVal: userData.surname,

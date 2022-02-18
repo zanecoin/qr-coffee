@@ -10,7 +10,7 @@ import 'package:qr_coffee/service/database_service/user_database.dart';
 import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:provider/provider.dart';
 
-// CHECKS INTERNET CONNECTION AND DECIDES BEETWEEN WORKER AND CUSTOMER SCREEN
+// Checks internet connection and decides beetween admin worker and customer screen.
 class Wrapper extends StatefulWidget {
   const Wrapper({Key? key, required this.databaseImages}) : super(key: key);
 
@@ -41,9 +41,7 @@ class _WrapperState extends State<Wrapper> {
   Widget build(BuildContext context) {
     final user = Provider.of<User?>(context);
 
-    if (isInternet || !isInternet) {
-      // TODO
-      // Return either Home or Auth widget.
+    if (isInternet) {
       if (user == null || user.uid == '') {
         return Authenticate();
       } else {
@@ -61,7 +59,7 @@ class _WrapperState extends State<Wrapper> {
                 return CustomerHome(databaseImages: widget.databaseImages);
               }
             } else {
-              return Container(color: Colors.white);
+              return Loading();
             }
           },
         );

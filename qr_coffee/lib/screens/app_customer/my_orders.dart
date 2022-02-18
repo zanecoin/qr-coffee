@@ -41,14 +41,10 @@ class _MyOrdersState extends State<MyOrders> {
         Stream.periodic(const Duration(seconds: 1)),
       ),
       builder: (context, snapshots) {
-        if (snapshots.item1.hasData &&
-            snapshots.item2.hasData &&
-            snapshots.item3.hasData) {
+        if (snapshots.item1.hasData && snapshots.item2.hasData && snapshots.item3.hasData) {
           UserData userData = snapshots.item1.data!;
-          List<Order> activeOrderList =
-              _getActiveOrdersForUser(snapshots.item2.data!, userData);
-          List<Order> passiveOrderList =
-              _getPassiveOrdersForUser(snapshots.item3.data!, userData);
+          List<Order> activeOrderList = _getActiveOrdersForUser(snapshots.item2.data!, userData);
+          List<Order> passiveOrderList = _getPassiveOrdersForUser(snapshots.item3.data!, userData);
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
           activeOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
           passiveOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
@@ -75,14 +71,13 @@ class _MyOrdersState extends State<MyOrders> {
                         children: [
                           SizedBox(width: 15),
                           Icon(Icons.check_circle, color: Colors.green),
-                          _text(CzechStrings.activeOrders),
+                          _text(AppStringValues.activeOrders),
                         ],
                       ),
                       if (activeOrderList.length == 0)
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          child: Text(CzechStrings.noOrders),
+                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                          child: Text(AppStringValues.noOrders),
                         ),
                       if (activeOrderList.length > 0)
                         SizedBox(
@@ -104,14 +99,13 @@ class _MyOrdersState extends State<MyOrders> {
                         children: [
                           SizedBox(width: 15),
                           Icon(Icons.restore, color: Colors.blue),
-                          _text(CzechStrings.orderHistory),
+                          _text(AppStringValues.orderHistory),
                         ],
                       ),
                       if (passiveOrderList.length == 0)
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          child: Text(CzechStrings.noOrders),
+                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                          child: Text(AppStringValues.noOrders),
                         ),
                       if (passiveOrderList.length > 0)
                         Column(
@@ -132,15 +126,13 @@ class _MyOrdersState extends State<MyOrders> {
                             if (_itemCount < passiveOrderList.length)
                               TextButton(
                                 onPressed: () {
-                                  int addOn = min(
-                                      5, passiveOrderList.length - _itemCount);
-                                  print(addOn);
+                                  int addOn = min(5, passiveOrderList.length - _itemCount);
                                   setState(() {
                                     _itemCount += addOn;
                                     addButtonPressed = true;
                                   });
                                 },
-                                child: Text(CzechStrings.loadMore),
+                                child: Text(AppStringValues.loadMore),
                                 style: TextButton.styleFrom(
                                   backgroundColor: Colors.grey.shade100,
                                   primary: Colors.grey.shade700,
@@ -163,19 +155,17 @@ class _MyOrdersState extends State<MyOrders> {
     );
   }
 
-  List<Order> _getActiveOrdersForUser(
-      List<Order> orderList, UserData userData) {
+  List<Order> _getActiveOrdersForUser(List<Order> orderList, UserData userData) {
     List<Order> result = [];
     for (var item in orderList) {
-      if (item.userId == userData.uid && item.status != 'PENDING') {
+      if (item.userId == userData.uid) {
         result.add(item);
       }
     }
     return result;
   }
 
-  List<Order> _getPassiveOrdersForUser(
-      List<Order> orderList, UserData userData) {
+  List<Order> _getPassiveOrdersForUser(List<Order> orderList, UserData userData) {
     List<Order> result = [];
     for (var item in orderList) {
       if (item.userId == userData.uid) {

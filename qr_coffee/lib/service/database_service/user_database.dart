@@ -8,14 +8,14 @@ class UserDatabase {
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
 
   Future updateUserData(String name, String surname, String email, String role, int tokens,
-      String shop, int numOrders, String company) async {
+      bool switching, int numOrders, String company) async {
     return await userCollection.doc(uid).set({
       'name': name,
       'surname': surname,
       'email': email,
       'role': role,
       'tokens': tokens,
-      'shop': shop,
+      'switching': switching,
       'numOrders': numOrders,
       'company': company,
     });
@@ -54,7 +54,7 @@ class UserDatabase {
       email: (snapshot.data() as dynamic)['email'],
       role: (snapshot.data() as dynamic)['role'],
       tokens: (snapshot.data() as dynamic)['tokens'],
-      shop: (snapshot.data() as dynamic)['shop'],
+      switching: (snapshot.data() as dynamic)['switching'],
       numOrders: (snapshot.data() as dynamic)['numOrders'],
       company: (snapshot.data() as dynamic)['company'],
     );
@@ -69,19 +69,19 @@ class UserDatabase {
         email: (doc.data() as dynamic)['email'],
         role: (doc.data() as dynamic)['role'],
         tokens: (doc.data() as dynamic)['tokens'],
-        shop: (doc.data() as dynamic)['shop'],
+        switching: (doc.data() as dynamic)['switching'],
         numOrders: (doc.data() as dynamic)['numOrders'],
         company: (doc.data() as dynamic)['company'],
       );
     }).toList();
   }
 
-  // GET USER DOCUMENT STREAM
+  // Get user document stream.
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
 
-  // GET USER LIST STREAM
+  // Get user list stream.
   Stream<List<UserData>> get userDataList {
     return userCollection.snapshots().map(_userDataListFromSnapshot);
   }

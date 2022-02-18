@@ -59,15 +59,14 @@ class BarChartSample2State extends State<BarChartSample2> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height:
-          min(Responsive.width(100, context), Responsive.height(100, context)),
+      height: min(Responsive.width(100, context), Responsive.height(100, context)),
       padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Celkový příjem: ${total_price} Kč\n'
+            'Čistý zisk: ${total_price} Kč\n'
             'Počet objednávek: ${orders.length}',
             style: TextStyle(fontSize: 22),
           ),
@@ -102,20 +101,14 @@ class BarChartSample2State extends State<BarChartSample2> {
                           showingBarGroups = List.of(rawBarGroups);
                           if (touchedGroupIndex != -1) {
                             var sum = 0.0;
-                            for (var rod in showingBarGroups[touchedGroupIndex]
-                                .barRods) {
+                            for (var rod in showingBarGroups[touchedGroupIndex].barRods) {
                               sum += rod.y;
                             }
-                            final avg = sum /
-                                showingBarGroups[touchedGroupIndex]
-                                    .barRods
-                                    .length;
+                            final avg = sum / showingBarGroups[touchedGroupIndex].barRods.length;
 
                             showingBarGroups[touchedGroupIndex] =
                                 showingBarGroups[touchedGroupIndex].copyWith(
-                              barRods: showingBarGroups[touchedGroupIndex]
-                                  .barRods
-                                  .map((rod) {
+                              barRods: showingBarGroups[touchedGroupIndex].barRods.map((rod) {
                                 return rod.copyWith(y: avg);
                               }).toList(),
                             );
@@ -129,9 +122,7 @@ class BarChartSample2State extends State<BarChartSample2> {
                     bottomTitles: SideTitles(
                       showTitles: true,
                       getTextStyles: (context, value) => const TextStyle(
-                          color: Color(0xff7589a2),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14),
+                          color: Color(0xff7589a2), fontWeight: FontWeight.bold, fontSize: 14),
                       margin: 20,
                       getTitles: (double value) {
                         switch (value.toInt()) {
@@ -157,9 +148,7 @@ class BarChartSample2State extends State<BarChartSample2> {
                     leftTitles: SideTitles(
                       showTitles: true,
                       getTextStyles: (context, value) => const TextStyle(
-                          color: Color(0xff7589a2),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14),
+                          color: Color(0xff7589a2), fontWeight: FontWeight.bold, fontSize: 14),
                       margin: 8,
                       reservedSize: 35,
                       interval: 1,

@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/app_company/app_admin/bar_chart.dart';
+import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/bar_chart.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:flutter/material.dart';
@@ -30,96 +31,101 @@ class _StatsState extends State<Stats> {
 
   @override
   Widget build(BuildContext context) {
-    // GET CURRENTLY LOGGED USER AND DATA STREAMS
     final user = Provider.of<User?>(context);
-    return StreamBuilder5<List<Order>, List<Order>, List<Product>, List<Shop>, UserData>(
-      streams: Tuple5(
-        CompanyOrderDatabase().passiveOrderList,
-        CompanyOrderDatabase().virtualOrderList,
-        ProductDatabase().products,
-        ShopDatabase().shopList,
-        UserDatabase(uid: user!.uid).userData,
-      ),
-      builder: (context, snapshots) {
-        if (snapshots.item1.hasData &&
-            snapshots.item2.hasData &&
-            snapshots.item3.hasData &&
-            snapshots.item4.hasData &&
-            snapshots.item5.hasData) {
-          List<Order> passiveOrderList = snapshots.item1.data!;
-          List<Order> virtualOrderList = snapshots.item2.data!;
-          List<Product> items = snapshots.item3.data!;
-          List<Shop> places = snapshots.item4.data!;
-          UserData userData = snapshots.item5.data!;
+    final company = Provider.of<Company>(context);
+    if (company.uid != '') {
+      return StreamBuilder5<List<Order>, List<Order>, List<Product>, List<Shop>, UserData>(
+        streams: Tuple5(
+          CompanyOrderDatabase().passiveOrderList,
+          CompanyOrderDatabase().virtualOrderList,
+          ProductDatabase(uid: company.uid).products,
+          ShopDatabase(companyId: company.uid).shopList,
+          UserDatabase(uid: user!.uid).userData,
+        ),
+        builder: (context, snapshots) {
+          if (snapshots.item1.hasData &&
+              snapshots.item2.hasData &&
+              snapshots.item3.hasData &&
+              snapshots.item4.hasData &&
+              snapshots.item5.hasData) {
+            List<Order> passiveOrderList = snapshots.item1.data!;
+            List<Order> virtualOrderList = snapshots.item2.data!;
+            List<Product> items = snapshots.item3.data!;
+            List<Shop> places = snapshots.item4.data!;
+            UserData userData = snapshots.item5.data!;
 
-          return Scaffold(
-            appBar: customAppBar(
-              context,
-              title: Text(
-                CzechStrings.app_name,
-                style: TextStyle(fontFamily: 'Galada', fontSize: 30),
+            return Scaffold(
+              appBar: customAppBar(
+                context,
+                title: Text(
+                  AppStringValues.app_name,
+                  style: TextStyle(fontFamily: 'Galada', fontSize: 30),
+                ),
+                type: 3,
               ),
-              type: 3,
-            ),
-            body: SingleChildScrollView(
-              child: Container(
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(CzechStrings.virtualMode, style: TextStyle(fontSize: 16)),
-                          animatedToggle(virtualMode, callbackVirtual),
-                        ],
+              body: SingleChildScrollView(
+                child: Container(
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(AppStringValues.virtualMode, style: TextStyle(fontSize: 16)),
+                            animatedToggle(virtualMode, callbackVirtual),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: Responsive.height(2, context)),
-                    CustomDivider(indent: 20),
-                    if (virtualMode)
-                      Column(
-                        children: [
-                          SizedBox(height: Responsive.height(2, context)),
-                          _genButton(context, items, places, 1, CzechStrings.generate1),
-                          SizedBox(height: Responsive.height(1, context)),
-                          _genButton(context, items, places, 10, CzechStrings.generate10),
-                          SizedBox(height: Responsive.height(1, context)),
-                          _genButton(context, items, places, 100, CzechStrings.generate100),
-                          SizedBox(height: Responsive.height(2, context)),
-                          CustomDivider(indent: 20),
-                          SizedBox(height: Responsive.height(2, context)),
-                        ],
-                      ),
-                    show
-                        ? BarChartSample2(
-                            virtualMode: virtualMode,
-                            orders: virtualMode ? virtualOrderList : passiveOrderList)
-                        : Container(
-                            height: min(
-                                Responsive.width(100, context), Responsive.height(100, context)),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(progress),
-                                SizedBox(height: 20),
-                                Loading(
-                                  color: virtualMode ? Colors.amber.shade300 : Colors.blue.shade300,
-                                ),
-                              ],
+                      SizedBox(height: Responsive.height(2, context)),
+                      CustomDivider(indent: 20),
+                      if (virtualMode)
+                        Column(
+                          children: [
+                            SizedBox(height: Responsive.height(2, context)),
+                            _genButton(context, items, places, 1, AppStringValues.generate1),
+                            SizedBox(height: Responsive.height(1, context)),
+                            _genButton(context, items, places, 10, AppStringValues.generate10),
+                            SizedBox(height: Responsive.height(1, context)),
+                            _genButton(context, items, places, 100, AppStringValues.generate100),
+                            SizedBox(height: Responsive.height(2, context)),
+                            CustomDivider(indent: 20),
+                            SizedBox(height: Responsive.height(2, context)),
+                          ],
+                        ),
+                      show
+                          ? BarChartSample2(
+                              virtualMode: virtualMode,
+                              orders: virtualMode ? virtualOrderList : passiveOrderList)
+                          : Container(
+                              height: min(
+                                  Responsive.width(100, context), Responsive.height(100, context)),
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(progress),
+                                  SizedBox(height: 20),
+                                  Loading(
+                                    color:
+                                        virtualMode ? Colors.amber.shade300 : Colors.blue.shade300,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        } else {
-          return Loading();
-        }
-      },
-    );
+            );
+          } else {
+            return Loading();
+          }
+        },
+      );
+    } else {
+      return Loading();
+    }
   }
 
   void callbackVirtual() {
@@ -134,13 +140,7 @@ class _StatsState extends State<Stats> {
     });
   }
 
-  Widget _genButton(
-    context,
-    List<Product> items,
-    List<Shop> places,
-    int iterations,
-    String title,
-  ) {
+  Widget _genButton(context, List<Product> items, List<Shop> places, int iterations, String title) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Responsive.width(0, context)),
       child: ElevatedButton.icon(
@@ -207,25 +207,28 @@ class _StatsState extends State<Stats> {
       List<Product> selectedItems = [];
       selectedItems.add(items[random(1, 10)]);
       if (random(1, 101) % 5 == 0) {
-        // 20% chance for for ordering 2nd item
+        // 20% chance for for ordering 2nd item.
         selectedItems.add(items[random(1, 10)]);
       }
       if (random(1, 101) % 20 == 0) {
-        // 5% chance for for ordering 3rd item
+        // 5% chance for for ordering 3rd item.
         selectedItems.add(items[random(1, 10)]);
       }
       if (random(1, 101) % 50 == 0) {
-        // 2% chance for for ordering 4th item
+        // 2% chance for for ordering 4th item.
         selectedItems.add(items[random(1, 10)]);
       }
 
       List<String> stringList = getStringList(selectedItems);
       int price = getTotalPrice(items, selectedItems);
       String username = names[random(0, 40)];
-      String place = places[random(0, 2)].address;
-      String orderId = '';
+      String shop = 'Ulice 666';
+      String orderId = 'ID';
       String userId = 'ID';
+      String shopId = 'ID';
+      String companyId = 'ID';
       int triggerNum = 0;
+      String company = 'QR Coffee';
 
       // print('\n#################ORDER#################');
       // print('state: $state');
@@ -235,16 +238,19 @@ class _StatsState extends State<Stats> {
       // print('username: $username');
       // print('place: $place');
 
-      // place virtual order to database
+      // Place virtual order to database.
       DocumentReference _docRef = await CompanyOrderDatabase().createVirtualOrder(
         status,
         stringList,
         price,
         pickUpTime,
         username,
-        place,
+        shop,
+        company,
         orderId,
         userId,
+        shopId,
+        companyId,
         day,
         triggerNum,
       );

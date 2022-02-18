@@ -31,21 +31,32 @@ app.post("/", async (req, res) => {
 
     console.log(status);
     console.log(extOrderId);
-    const order = await admin.firestore().collection("active_orders").doc(extOrderId);
+    const ids = extOrderId.split('_');
+    const orderId = ids[0];
+    const copmanyId = ids[1];
+    const userId = ids[2];
 
-    order.get().then((doc) => {
-        if (doc.exists) {
-            if (status == 'COMPLETED') {
-                status = 'ACTIVE';
+    const userOrder = await admin.firestore().collection("users").doc(userId).collection("active_orders").doc(orderId);
+    const companyOrder = await admin.firestore().collection("companies").doc(copmanyId).collection("active_orders").doc(orderId);
+
+    updateStatus(userOrder);
+    updateStatus(companyOrder);
+
+    function updateStatus(order) {
+        order.get().then((doc) => {
+            if (doc.exists) {
+                if (status == 'COMPLETED') {
+                    status = 'ACTIVE';
+                }
+                order.update({ 'status': status })
+                    .catch(err => {
+                        console.log("Document does not exist.", err);
+                    })
             }
-            order.update({ 'status': status })
-                .catch(err => {
-                    console.log("Document does not exist.", err);
-                })
-        }
-    }).catch(err => {
-        console.log("Internal server error.", err);
-    });
+        }).catch(err => {
+            console.log("Internal server error.", err);
+        });
+    }
 
     res.status(200).send();
 });

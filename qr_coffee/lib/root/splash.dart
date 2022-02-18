@@ -13,7 +13,7 @@ import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/auth.dart';
 
-// ENSURES THE THEMEPROVIDER IS SET BEFORE THE APP STARTS
+// Ensures the themeprovider is set before the app starts.
 class AppStart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class AppStart extends StatelessWidget {
   }
 }
 
-// THIS WIDGET IS THE ROOT OF THE APPLICATION
+// This widget is the root of the application.
 class MyApp extends StatefulWidget with WidgetsBindingObserver {
   final ThemeProvider themeProvider;
   const MyApp({Key? key, required this.themeProvider}) : super(key: key);
@@ -36,20 +36,18 @@ class MyApp extends StatefulWidget with WidgetsBindingObserver {
 
 class _MyAppState extends State<MyApp> {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
   @override
   Widget build(BuildContext context) {
+    // Initialize flutterfire.
     return FutureBuilder(
-      // INITIALIZE FLUTTERFIRE
       future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          customSnackbar(
-            context: context,
-            text: 'Firebase error',
-          );
+          customSnackbar(context: context, text: 'Firebase error');
         }
 
-        // ONCE COMPLETE, SHOW YOUR APPLICATION
+        // Once complete, show the application.
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
@@ -59,7 +57,7 @@ class _MyAppState extends State<MyApp> {
               ),
             ],
             child: MaterialApp(
-              title: CzechStrings.app_name,
+              title: AppStringValues.app_name,
               debugShowCheckedModeBanner: false,
               home: SplashScreen(),
               theme: widget.themeProvider.themeData(),
@@ -73,7 +71,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-// LOADING SCREEN OF THE APP
+// Loading screen of the app.
 class SplashScreen extends StatefulWidget {
   SplashScreen({Key? key}) : super(key: key);
   @override
@@ -85,8 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: loadImages('pictures/'),
-      builder:
-          (context, AsyncSnapshot<List<Map<String, dynamic>>> picSnapshot) {
+      builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> picSnapshot) {
         if (picSnapshot.connectionState == ConnectionState.done) {
           return Wrapper(databaseImages: picSnapshot.data!);
         } else {
@@ -110,26 +107,22 @@ class Splash extends StatelessWidget {
         child: Scaffold(
           body: Stack(
             children: <Widget>[
-              Container(
-                color: Colors.white,
-              ),
+              Container(color: Colors.white),
               Container(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(height: Responsive.height(6, context)),
+                    SizedBox(height: Responsive.height(6.0, context)),
                     Text(
-                      CzechStrings.app_name,
+                      AppStringValues.app_name,
                       style: TextStyle(
-                        decoration: TextDecoration.none,
                         color: Colors.black,
-                        fontSize: Responsive.width(12, context),
+                        fontSize: Responsive.width(12.0, context),
                         fontFamily: 'Galada',
                       ),
                     ),
-                    if (isPortrait)
-                      ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
+                    if (isPortrait) ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
                     Expanded(
                       flex: 1,
                       child: Column(
@@ -137,18 +130,16 @@ class Splash extends StatelessWidget {
                         children: <Widget>[
                           SpinKitSpinningLines(
                             color: Colors.blue,
-                            size: Responsive.height(15, context),
+                            size: Responsive.height(15.0, context),
                           ),
-                          SizedBox(height: Responsive.height(8, context)),
+                          SizedBox(height: Responsive.height(8.0, context)),
                           if (isPortrait)
-                            Text(
-                              CzechStrings.motto,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Text(AppStringValues.motto,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                )),
                         ],
                       ),
                     ),

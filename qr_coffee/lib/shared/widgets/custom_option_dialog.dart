@@ -1,4 +1,3 @@
-import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 
 Future<dynamic> customOptionDialog(BuildContext context, Function function, List<String> options) {

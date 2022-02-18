@@ -55,7 +55,7 @@ class OrderTile extends StatelessWidget {
       remainingTime = returnArray[0];
       color = returnArray[1];
     } else if (order.status == 'PENDING') {
-      remainingTime = CzechStrings.orderPending;
+      remainingTime = AppStringValues.orderPending;
     } else {
       remainingTime = '${timeFormatter(order.pickUpTime)}';
     }
@@ -124,7 +124,7 @@ class OrderTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('$coffeeLabel', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('${order.price} ${CzechStrings.currency}'),
+                        Text('${order.price} ${AppStringValues.currency}'),
                         Text(remainingTime, style: TextStyle(color: color)),
                         SizedBox(height: 5),
                         if (order.status == 'READY') _orderReady(),
@@ -136,9 +136,8 @@ class OrderTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          order.username.length < Responsive.textTresholdShort(context)
-                              ? '${order.username}'
-                              : '${order.username.substring(0, Responsive.textTresholdShort(context))}...',
+                          cutTextIfNeccessary(
+                              order.username, Responsive.textTresholdShort(context)),
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text('${coffeeLabel}'),
@@ -162,6 +161,6 @@ class OrderTile extends StatelessWidget {
           color: role == 'customer' ? Colors.green.shade100 : Colors.blue.shade100,
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Text(CzechStrings.orderReady),
+        child: Text(AppStringValues.orderReady),
       );
 }

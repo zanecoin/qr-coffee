@@ -4,7 +4,6 @@ import 'package:qr_coffee/screens/authenticate/register.dart';
 import 'package:qr_coffee/screens/authenticate/sign_in.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:community_material_icon/community_material_icon.dart';
-import 'package:qr_coffee/shared/widgets/custom_button.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 class Authenticate extends StatefulWidget {
@@ -25,36 +24,36 @@ class _AuthenticateState extends State<Authenticate> {
             child: Center(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: Responsive.height(4, context)),
+                  SizedBox(height: Responsive.height(4.0, context)),
                   Text(
-                    CzechStrings.app_name,
+                    AppStringValues.app_name,
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: Responsive.width(12, context), //60
+                      fontSize: Responsive.width(12.0, context), //60
                       fontFamily: 'Galada',
                     ),
                   ),
                   ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
-                  SizedBox(height: Responsive.height(4, context)),
+                  SizedBox(height: Responsive.height(4.0, context)),
                   Container(
                     width: deviceWidth > kDeviceUpperWidthTreshold
                         ? 400
-                        : Responsive.width(60, context),
+                        : Responsive.width(60.0, context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         CustomOutlinedButton(
-                          function: pushRegister,
-                          label: CzechStrings.registration1,
+                          function: _pushRegister,
+                          label: AppStringValues.registration1,
                         ),
                         SizedBox(height: 5.0),
                         CustomOutlinedButton(
-                          function: pushSignIn,
-                          label: CzechStrings.login1,
+                          function: _pushSignIn,
+                          label: AppStringValues.login1,
                         ),
                         SizedBox(height: 10.0),
                         SocialButton(
-                          label: CzechStrings.googleLogin,
+                          label: AppStringValues.googleLogin,
                           icon: Icon(
                             CommunityMaterialIcons.google,
                             color: Colors.white,
@@ -63,14 +62,14 @@ class _AuthenticateState extends State<Authenticate> {
                         ),
                         SizedBox(height: 10.0),
                         SocialButton(
-                          label: CzechStrings.fbLogin,
+                          label: AppStringValues.fbLogin,
                           icon: Icon(
                             CommunityMaterialIcons.facebook,
                             color: Colors.white,
                           ),
                           color: Color(0xFF3F62A9),
                         ),
-                        SizedBox(height: Responsive.height(4, context)),
+                        SizedBox(height: Responsive.height(4.0, context)),
                       ],
                     ),
                   ),
@@ -83,11 +82,11 @@ class _AuthenticateState extends State<Authenticate> {
     );
   }
 
-  pushRegister() {
+  _pushRegister() {
     Navigator.push(context, new MaterialPageRoute(builder: (context) => Register()));
   }
 
-  pushSignIn() {
+  _pushSignIn() {
     Navigator.push(context, new MaterialPageRoute(builder: (context) => SignIn()));
   }
 }
@@ -108,10 +107,10 @@ class SocialButton extends StatelessWidget {
       icon: icon,
       label: Text(
         label,
-        style: TextStyle(color: Colors.white, fontSize: 13),
+        style: TextStyle(color: Colors.white, fontSize: 13.0),
       ),
       onPressed: () async {
-        customSnackbar(context: context, text: CzechStrings.notImplemented);
+        customSnackbar(context: context, text: AppStringValues.notImplemented);
       },
       style: customButtonStyle(color: color),
     );

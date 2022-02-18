@@ -4,7 +4,7 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 
 const default_title = Text(
-  CzechStrings.app_name,
+  AppStringValues.app_name,
   style: TextStyle(color: Colors.black, fontSize: 30, fontFamily: 'Galada'),
 );
 

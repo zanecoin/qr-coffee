@@ -56,36 +56,36 @@ String? noValidation(String? formText) {
 }
 
 String? validateName(String? formText) {
-  if (formText!.isEmpty) return CzechStrings.enterName;
+  if (formText!.isEmpty) return AppStringValues.enterName;
   return null;
 }
 
 String? validatePhone(String? formText) {
-  if (formText!.isEmpty) return CzechStrings.enterPhone;
+  if (formText!.isEmpty) return AppStringValues.enterPhone;
   return null;
 }
 
 String? validateAddress(String? formText) {
-  if (formText!.isEmpty) return CzechStrings.enterAddress;
+  if (formText!.isEmpty) return AppStringValues.enterAddress;
   return null;
 }
 
 String? validateCity(String? formText) {
-  if (formText!.isEmpty) return CzechStrings.enterCity;
+  if (formText!.isEmpty) return AppStringValues.enterCity;
   return null;
 }
 
 String? validateEmail(String? formEmail) {
-  if (formEmail!.isEmpty) return CzechStrings.enterEmail;
+  if (formEmail!.isEmpty) return AppStringValues.enterEmail;
 
   String pattern = r'\w+@\w+\.\w+';
   RegExp regex = RegExp(pattern);
-  if (!regex.hasMatch(formEmail)) return CzechStrings.emailHasBadFormat;
+  if (!regex.hasMatch(formEmail)) return AppStringValues.emailHasBadFormat;
   return null;
 }
 
 String? validatePassword(String? formPassword) {
-  if (formPassword!.isEmpty) return CzechStrings.enterPassword;
-  if (formPassword.length < 8) return CzechStrings.passwordAtLeastEightChar;
+  if (formPassword!.isEmpty) return AppStringValues.enterPassword;
+  if (formPassword.length < 8) return AppStringValues.passwordAtLeastEightChar;
   return null;
 }

@@ -23,7 +23,6 @@ class _CompanySettingsState extends State<CompanySettings> {
 
   @override
   Widget build(BuildContext context) {
-    // INITIALIZATION
     final user = Provider.of<User?>(context);
     final double deviceWidth = Responsive.deviceWidth(context);
 
@@ -43,7 +42,7 @@ class _CompanySettingsState extends State<CompanySettings> {
                   return Scaffold(
                     appBar: customAppBar(
                       context,
-                      title: Text(CzechStrings.app_name,
+                      title: Text(AppStringValues.app_name,
                           style: TextStyle(fontFamily: 'Galada', fontSize: 30)),
                       type: 3,
                     ),
@@ -65,29 +64,31 @@ class _CompanySettingsState extends State<CompanySettings> {
                               CustomOutlinedIconButton(
                                 function: _auth.userSignOut,
                                 icon: Icons.exit_to_app,
-                                label: CzechStrings.logout,
+                                label: AppStringValues.logout,
+                                iconColor: Colors.blue,
                               ),
                               SizedBox(height: 10.0),
                               CustomDivider(indent: 30.0),
                               SizedBox(height: 5.0),
+                              if (userData.switching)
+                                CustomOptionButton(
+                                  title: AppStringValues.role,
+                                  current: _extractUserRole(userData.role),
+                                  function: _updateUserRole,
+                                  options: [
+                                    AppStringValues.admin,
+                                    AppStringValues.worker,
+                                    AppStringValues.customer,
+                                  ],
+                                ),
                               CustomOptionButton(
-                                title: CzechStrings.role,
-                                current: _extractUserRole(userData.role),
-                                function: _updateUserRole,
-                                options: [
-                                  CzechStrings.admin,
-                                  CzechStrings.worker,
-                                  CzechStrings.customer,
-                                ],
-                              ),
-                              CustomOptionButton(
-                                title: CzechStrings.mode,
-                                current: CzechStrings.lightmode,
+                                title: AppStringValues.mode,
+                                current: AppStringValues.lightmode,
                                 function: _callbackTheme,
                                 options: [
-                                  CzechStrings.lightmode,
-                                  CzechStrings.darkmode,
-                                  CzechStrings.adaptToDevice,
+                                  AppStringValues.lightmode,
+                                  AppStringValues.darkmode,
+                                  AppStringValues.adaptToDevice,
                                 ],
                               ),
                               SizedBox(height: 5.0),
@@ -114,7 +115,7 @@ class _CompanySettingsState extends State<CompanySettings> {
   }
 
   void _callbackTheme(String result) {
-    customSnackbar(context: context, text: CzechStrings.notImplemented);
+    customSnackbar(context: context, text: AppStringValues.notImplemented);
   }
 
   void _openEditing() {
@@ -125,20 +126,20 @@ class _CompanySettingsState extends State<CompanySettings> {
   String _extractUserRole(String role) {
     String result = '';
     if (role == 'admin') {
-      result = CzechStrings.admin;
+      result = AppStringValues.admin;
     } else if (role == 'worker') {
-      result = CzechStrings.worker;
+      result = AppStringValues.worker;
     } else {
-      result = CzechStrings.customer;
+      result = AppStringValues.customer;
     }
     return result;
   }
 
   _updateUserRole(String result) {
     String role = '';
-    if (result == CzechStrings.admin) {
+    if (result == AppStringValues.admin) {
       role = 'admin';
-    } else if (result == CzechStrings.worker) {
+    } else if (result == AppStringValues.worker) {
       role = 'worker';
     } else {
       role = 'customer';
@@ -153,30 +154,28 @@ class _CompanySettingsState extends State<CompanySettings> {
     return Column(
       children: [
         Text('ID: ${company.uid}', style: TextStyle(color: Colors.grey)),
-        SizedBox(height: 10.0),
+        SizedBox(height: 20.0),
         CustomTextBanner(
-          deviceWidth: deviceWidth,
           title: company.email,
           icon: Icons.email_outlined,
         ),
         SizedBox(height: 10.0),
         CustomTextBanner(
-            deviceWidth: deviceWidth,
             title: '${company.phone.substring(4, 7)} '
                 '${company.phone.substring(7, 10)} '
                 '${company.phone.substring(10)}',
             icon: Icons.phone_iphone_outlined),
         SizedBox(height: 10.0),
         CustomTextBanner(
-          deviceWidth: deviceWidth,
-          title: '${CzechStrings.shopNum}: ',
+          title: '${AppStringValues.shopNum}: ${company.numShops}',
           icon: Icons.store,
         ),
         SizedBox(height: 15.0),
         CustomOutlinedIconButton(
           function: _openEditing,
           icon: CommunityMaterialIcons.file_edit_outline,
-          label: CzechStrings.editInfo,
+          label: AppStringValues.editInfo,
+          iconColor: Colors.blue,
         ),
       ],
     );

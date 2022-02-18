@@ -1,11 +1,14 @@
+import 'package:qr_coffee/screens/app_customer/customer_shop_map.dart';
 import 'package:qr_coffee/screens/app_customer/my_orders.dart';
 import 'package:qr_coffee/screens/app_customer/qr_tokens.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/create_order_screen.dart';
+import 'package:qr_coffee/screens/order_screens/create_order/shop_selection.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 class CustomerHomeBody extends StatefulWidget {
   const CustomerHomeBody({
@@ -27,12 +30,12 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
     super.initState();
 
     if (int.parse(time) >= 10 && int.parse(time) < 18) {
-      welcome = CzechStrings.goodday;
+      welcome = AppStringValues.goodday;
     } else if ((int.parse(time) >= 0 && int.parse(time) < 3) ||
         (int.parse(time) >= 18 && int.parse(time) <= 24)) {
-      welcome = CzechStrings.goodevening;
+      welcome = AppStringValues.goodevening;
     } else if (int.parse(time) >= 3 && int.parse(time) < 10) {
-      welcome = CzechStrings.goodmorning;
+      welcome = AppStringValues.goodmorning;
     }
   }
 
@@ -67,7 +70,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            CzechStrings.app_name,
+                            AppStringValues.app_name,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 50,
@@ -105,6 +108,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                     ],
                   ),
                 ),
+                //CustomOutlinedButton(function: _pushMap, label: 'Mapa')
               ],
             ),
           ),
@@ -112,6 +116,10 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
         ],
       ),
     );
+  }
+
+  _pushMap() {
+    Navigator.push(context, new MaterialPageRoute(builder: (context) => CustomerShopMap()));
   }
 
   Widget _squareButton(int type, List<Map<String, dynamic>> databaseImages) {
@@ -159,7 +167,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                     color: Colors.white,
                   ),
                   child: Text(
-                    type == 1 ? CzechStrings.myOrders : CzechStrings.myTokens,
+                    type == 1 ? AppStringValues.myOrders : AppStringValues.myTokens,
                     style: TextStyle(
                       fontWeight: FontWeight.normal,
                       color: Colors.black,
@@ -207,7 +215,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
           Navigator.push(
             context,
             new MaterialPageRoute(
-              builder: (context) => CreateOrderScreen(databaseImages: databaseImages),
+              builder: (context) => ShopSelection(databaseImages: databaseImages),
             ),
           );
         },
@@ -225,7 +233,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                 child: Row(
                   children: [
                     Text(
-                      CzechStrings.createOrder,
+                      AppStringValues.createOrder,
                       style: TextStyle(
                         fontWeight: FontWeight.normal,
                         color: Colors.black,

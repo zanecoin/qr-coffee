@@ -22,7 +22,7 @@ class _OnWillPopTemplateState extends State<OnWillPopTemplate> {
   }
 
   _showSnackbar() {
-    customSnackbar(context: context, text: CzechStrings.waitForIt);
+    customSnackbar(context: context, text: AppStringValues.waitForIt);
   }
 
   @override
@@ -30,7 +30,7 @@ class _OnWillPopTemplateState extends State<OnWillPopTemplate> {
     return Scaffold(
       appBar: customAppBar(
         context,
-        title: Text(CzechStrings.stats),
+        title: Text(AppStringValues.stats),
         function: show ? null : _showSnackbar,
       ),
       body: WillPopScope(

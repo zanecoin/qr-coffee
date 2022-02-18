@@ -21,32 +21,26 @@ BRÁNA
 - platba jedním tlačítkem/google pay
 
 MINI PROJEKTY
-- před provedením důležitých akcí přidat alert dialog
 - zobrazovat pending objednávky? Jak s nimi vynaložit v databázi?
+- pending objednávky po platební bráně?
 - počítání prodaných položek
 - sekundový trigger na checkování internet connection
 - no internet během prvotního loadingu
 - loading obrázků
-- kontrola generování virtual objednávek
-- trim jméno při registraci?
-- pending objednávky po platební bráně?
 - error check u platební brány
 - přidat pro usera registerDate, status
-+ práce s companies
-- updatovac9 tla49tko v nastaven9
-- počítání provozoven
-- třídění objednávek podle ID ochodu a ne podle adresy
-- tlačítka
-- zalamování textu u detailu objednávky
++ práce s companies, jejich ids
+- přidat try/catch k operacím s databází
+- admin home - stringy
+- vytvořit pro pracovníka časový filtr na objednávky
 
 GIGA PROJEKTY
-+ statistiky
+- statistiky
 - u položek nastavit možnost vyprodáno
 - zabezpečení databáze
-+ responzivita: iphone
 - tmavý režim
 - pop-up při zadávání produktu (každá položka musí mít suroviny a pole featur)
-- mapa zobrazující polohu stánků
++ mapa zobrazující polohu stánků
 - obrazovka s tutoriálem bezprostředně po registraci
 - přihlášení přes Google a Facebook
 - kompletní anonymní přehled polohy uživatelů

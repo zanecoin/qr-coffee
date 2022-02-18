@@ -95,7 +95,7 @@
 //               appBar: customAppBar(context, title: Text('')),
 //               body: Center(
 //                 child: Text(
-//                   CzechStrings.orderNotFound,
+//                   AppStringValues.orderNotFound,
 //                 ),
 //               ),
 //             );
@@ -121,7 +121,7 @@
 //               appBar: customAppBar(context,
 //                   title: Text(remainingTime, style: TextStyle(color: color))),
 //               body: userData == null && order.userId != 'generated-order^^'
-//                   ? Center(child: Text(CzechStrings.userNotFound))
+//                   ? Center(child: Text(AppStringValues.userNotFound))
 //                   : SingleChildScrollView(
 //                       child: Column(
 //                         children: [
@@ -168,31 +168,31 @@
 //       children: [
 //         if (order.status == 'COMPLETED')
 //           ResultWindow(
-//             text: CzechStrings.orderCollected,
+//             text: AppStringValues.orderCollected,
 //             color: Colors.green.shade100,
 //             icon: checkIcon(color: Colors.green.shade400),
 //           ),
 //         if (order.status == 'ABANDONED')
 //           ResultWindow(
-//             text: CzechStrings.orderAbandoned,
+//             text: AppStringValues.orderAbandoned,
 //             color: Colors.orange.shade100,
 //             icon: questionIcon(),
 //           ),
 //         if (order.status == 'ABORTED')
 //           ResultWindow(
-//             text: CzechStrings.orderCancelled,
+//             text: AppStringValues.orderCancelled,
 //             color: Colors.red.shade100,
 //             icon: errorIcon(),
 //           ),
 //         if (order.status == 'PENDING')
 //           ResultWindow(
-//             text: CzechStrings.orderPending,
+//             text: AppStringValues.orderPending,
 //             color: Colors.blue.shade100,
 //             icon: waitingIcon(),
 //           ),
 //         if (order.status == 'READY')
 //           ResultWindow(
-//             text: CzechStrings.orderReady,
+//             text: AppStringValues.orderReady,
 //             color: role == 'customer'
 //                 ? Colors.green.shade100
 //                 : Colors.blue.shade100,
@@ -205,7 +205,7 @@
 //         if (mode == 'after-creation')
 //           if (order.status == 'ACTIVE')
 //             ResultWindow(
-//               text: CzechStrings.orderRecieved,
+//               text: AppStringValues.orderRecieved,
 //               color: Colors.blue.shade100,
 //               icon: checkIcon(color: Colors.blue.shade400),
 //             ),
@@ -218,7 +218,7 @@
 //       children: [
 //         if (role == 'customer' && order.status != 'ABORTED')
 //           Text(
-//             '${order.price.toString()} ${CzechStrings.currency}',
+//             '${order.price.toString()} ${AppStringValues.currency}',
 //             style: TextStyle(
 //                 fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold),
 //           ),
@@ -226,7 +226,7 @@
 //           Column(
 //             children: [
 //               Text(
-//                 '${CzechStrings.returned} ${order.price.toString()} ${CzechStrings.currency} ${CzechStrings.inTokens}',
+//                 '${AppStringValues.returned} ${order.price.toString()} ${AppStringValues.currency} ${AppStringValues.inTokens}',
 //                 style: TextStyle(
 //                     fontSize: 20,
 //                     color: Colors.black,
@@ -272,7 +272,7 @@
 //         if (order.status == 'ACTIVE' && role == 'worker' && mode == 'normal')
 //           ResultButton(
 //             userData: userData,
-//             text: CzechStrings.ready,
+//             text: AppStringValues.ready,
 //             icon: Icons.done,
 //             color: Colors.green,
 //             order: order,
@@ -291,7 +291,7 @@
 //                 children: [
 //                   ResultButton(
 //                     userData: userData,
-//                     text: CzechStrings.abandoned,
+//                     text: AppStringValues.abandoned,
 //                     icon: Icons.clear,
 //                     color: Colors.red,
 //                     order: order,
@@ -301,7 +301,7 @@
 //                   ),
 //                   ResultButton(
 //                     userData: userData,
-//                     text: CzechStrings.collected,
+//                     text: AppStringValues.collected,
 //                     icon: Icons.done,
 //                     color: Colors.green,
 //                     order: order,
@@ -325,7 +325,7 @@
 //                     _showButtons = true;
 //                   });
 //                 },
-//                 child: Text(CzechStrings.manualAnswer),
+//                 child: Text(AppStringValues.manualAnswer),
 //                 style: TextButton.styleFrom(
 //                   backgroundColor: Colors.grey.shade100,
 //                   primary: Colors.grey.shade700,
@@ -347,7 +347,7 @@
 //                 children: [
 //                   ResultButton(
 //                     userData: userData,
-//                     text: CzechStrings.cancelOrder,
+//                     text: AppStringValues.cancelOrder,
 //                     icon: Icons.clear,
 //                     color: Colors.red,
 //                     order: order,

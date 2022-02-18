@@ -1,65 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
 class CustomPlaceDropdown extends StatefulWidget {
   CustomPlaceDropdown(
-    this.places,
+    this.shops,
     this.filter,
     this.callback,
-    this.savedPlace,
+    this.savedShop,
   );
 
-  final List<Shop> places;
+  final List<Shop> shops;
   final bool filter;
   final Function callback;
-  final String? savedPlace;
+  final String? savedShop;
 
   @override
   State<CustomPlaceDropdown> createState() => _CustomPlaceDropdownState(
-        places: places,
+        shops: shops,
         filter: filter,
         callback: callback,
-        savedPlace: savedPlace,
+        savedShop: savedShop,
       );
 }
 
 class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
   _CustomPlaceDropdownState({
-    required this.places,
+    required this.shops,
     required this.filter,
     required this.callback,
-    required this.savedPlace,
+    required this.savedShop,
   });
 
-  final List<Shop> places;
+  final List<Shop> shops;
   final bool filter;
   final Function callback;
-  final String? savedPlace;
+  final String? savedShop;
 
-  String? currentPlace;
+  String? _currentShop;
 
   @override
   void initState() {
     super.initState();
-    currentPlace = savedPlace;
+    _currentShop = savedShop;
   }
 
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = Responsive.deviceWidth(context);
-    List<Shop> filteredPlaces = [];
+    List<Shop> filteredShops = [];
 
     if (filter) {
-      for (var place in places) {
-        if (place.active) {
-          filteredPlaces.add(place);
+      for (var shop in shops) {
+        if (shop.active) {
+          filteredShops.add(shop);
         }
       }
     } else {
-      for (var place in places) {
-        filteredPlaces.add(place);
+      for (var shop in shops) {
+        filteredShops.add(shop);
       }
     }
 
@@ -76,10 +77,10 @@ class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
             Expanded(
               child: DropdownButtonFormField(
                 hint: Text(
-                  filteredPlaces.length > 0 ? CzechStrings.choosePlace : CzechStrings.noPlace,
+                  filteredShops.length > 0 ? AppStringValues.choosePlace : AppStringValues.noPlace,
                 ),
-                value: currentPlace,
-                items: filteredPlaces.map((place) {
+                value: _currentShop,
+                items: filteredShops.map((place) {
                   return DropdownMenuItem(
                     child: Row(
                       children: [
@@ -90,9 +91,7 @@ class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
                               : (filter ? Colors.grey : Colors.black),
                         ),
                         Text(
-                          place.address.length < Responsive.textTreshold(context)
-                              ? ' ${place.address}'
-                              : ' ${place.address.substring(0, Responsive.textTreshold(context))}...',
+                          cutTextIfNeccessary(place.address, Responsive.textTreshold(context)),
                           style: TextStyle(
                             color: place.active
                                 ? (filter ? Colors.black : Colors.grey)
@@ -105,8 +104,8 @@ class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
                   );
                 }).toList(),
                 onChanged: (val) {
-                  currentPlace = val.toString();
-                  callback(val);
+                  _currentShop = val.toString();
+                  callback(_getShopObject(val.toString(), filteredShops));
                 },
               ),
             ),
@@ -114,5 +113,17 @@ class _CustomPlaceDropdownState extends State<CustomPlaceDropdown> {
         ),
       ),
     );
+  }
+
+  Shop? _getShopObject(String address, List<Shop> shops) {
+    Shop? shop;
+
+    for (var item in shops) {
+      if (item.address == address) {
+        shop = item;
+      }
+    }
+
+    return shop;
   }
 }

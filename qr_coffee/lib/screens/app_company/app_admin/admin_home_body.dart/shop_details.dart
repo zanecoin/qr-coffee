@@ -1,7 +1,12 @@
+import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/shop.dart';
+import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/shop_update_form.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
@@ -11,141 +16,93 @@ class AdminShopDetails extends StatefulWidget {
   final Shop shop;
 
   @override
-  _AdminShopDetailsState createState() => _AdminShopDetailsState(shop: shop);
+  _AdminShopDetailsState createState() => _AdminShopDetailsState();
 }
 
 class _AdminShopDetailsState extends State<AdminShopDetails> {
-  _AdminShopDetailsState({required this.shop});
-
-  final Shop shop;
-
-  final GlobalKey<FormState> _key = GlobalKey<FormState>();
-  Map<String, String> formField = Map<String, String>();
-  bool loading = false;
-  String errorMessage = '';
-
-  String address = '';
-  String city = '';
-  String openingHours = '';
+  late Shop shop;
+  late Company company;
 
   @override
   Widget build(BuildContext context) {
     double deviceWidth = Responsive.deviceWidth(context);
+    company = Provider.of<Company>(context);
 
-    return Scaffold(
-      appBar: customAppBar(context, title: Text(CzechStrings.shopDetails)),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            width: deviceWidth > kDeviceUpperWidthTreshold ? 400 : Responsive.width(80, context),
-            child: Form(
-              key: _key,
-              child: Column(
-                children: [
-                  SizedBox(height: Responsive.height(3, context)),
-                  CustomCircleAvatar(icon: Icons.store),
-                  SizedBox(height: Responsive.height(3, context)),
-                  CustomTextField(
-                    CzechStrings.address,
-                    Icons.gps_fixed,
-                    callback,
-                    validation: validateAddress,
-                    initVal: shop.address,
-                  ),
-                  CustomTextField(
-                    CzechStrings.city,
-                    Icons.location_city,
-                    callback,
-                    validation: validateCity,
-                    initVal: shop.city,
-                  ),
-                  SizedBox(height: Responsive.height(2, context)),
-                  Text(CzechStrings.openingHours, style: TextStyle(fontSize: 16)),
-                  SizedBox(height: Responsive.height(1, context)),
-                  Container(
-                    child: Text(shop.openingHours, style: TextStyle(fontSize: 16)),
-                    color: Colors.grey.shade200,
-                    padding: EdgeInsets.all(10),
-                  ),
-                  SizedBox(height: Responsive.height(1, context)),
-                  Text(
-                    errorMessage,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  Container(
-                    width: Responsive.width(60, context),
-                    child: ElevatedButton(
-                      child: loading
-                          ? CircularProgressIndicator(
-                              color: Colors.white,
-                            )
-                          : Text(
-                              CzechStrings.confirmChanges,
-                              style: TextStyle(fontSize: 18, color: Colors.white),
-                            ),
-                      onPressed: updateShop,
-                      style: customButtonStyle(),
+    if (company.uid != '') {
+      return StreamBuilder<Shop>(
+        stream: ShopDatabase(companyId: company.uid, shopId: widget.shop.uid).shop,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            shop = snapshot.data!;
+
+            return Scaffold(
+              appBar: customAppBar(context, title: Text(AppStringValues.shopDetails)),
+              body: SingleChildScrollView(
+                child: Center(
+                  child: Container(
+                    width: deviceWidth > kDeviceUpperWidthTreshold
+                        ? 400
+                        : Responsive.width(80, context),
+                    child: Column(
+                      children: [
+                        SizedBox(height: Responsive.height(3, context)),
+                        CustomCircleAvatar(icon: Icons.store),
+                        SizedBox(height: Responsive.height(3, context)),
+                        Text(
+                          cutTextIfNeccessary(shop.address, Responsive.textTresholdShort(context)),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0),
+                        ),
+                        Text('${shop.city}', style: TextStyle(color: Colors.grey)),
+                        SizedBox(height: Responsive.height(2, context)),
+                        Text(AppStringValues.openingHours, style: TextStyle(fontSize: 16)),
+                        SizedBox(height: Responsive.height(1, context)),
+                        CustomTextBanner(title: shop.openingHours, showIcon: false),
+                        SizedBox(height: Responsive.height(10, context)),
+                        CustomOutlinedIconButton(
+                          function: _openEditing,
+                          icon: CommunityMaterialIcons.file_edit_outline,
+                          label: AppStringValues.editInfo,
+                          iconColor: Colors.blue,
+                        ),
+                        SizedBox(height: Responsive.height(1, context)),
+                        CustomOutlinedIconButton(
+                          function: _showDialog,
+                          icon: CommunityMaterialIcons.skull_crossbones,
+                          label: AppStringValues.deleteShop,
+                          iconColor: Colors.red,
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: Responsive.height(5, context)),
-                  CustomDivider(indent: 0),
-                  Container(
-                    width: Responsive.width(60, context),
-                    child: ElevatedButton(
-                      child: loading
-                          ? CircularProgressIndicator(
-                              color: Colors.white,
-                            )
-                          : Text(
-                              CzechStrings.deleteShop,
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                      onPressed: () {
-                        customAlertDialog(context, deleteShop);
-                      },
-                      style: customButtonStyle(color: Colors.red.shade500),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // TextFormField callback function.
-  callback(varLabel, varValue) {
-    formField[varLabel] = varValue;
-  }
-
-  deleteShop() {
-    ShopDatabase().deleteShop(shop.uid);
-  }
-
-  updateShop() async {
-    setState(() {
-      loading = true;
-      errorMessage = '';
-    });
-
-    FocusManager.instance.primaryFocus!.unfocus();
-
-    if (_key.currentState!.validate()) {
-      _key.currentState!.save();
-
-      address = (formField[CzechStrings.address] ?? '').trim();
-      city = (formField[CzechStrings.city] ?? '').trim();
-
-      ShopDatabase().updateShopData(
-          shop.uid, address, shop.coordinates, shop.active, city, shop.openingHours);
+            );
+          } else {
+            return Loading();
+          }
+        },
+      );
     } else {
-      setState(() => loading = false);
+      return Loading();
+    }
+  }
+
+  void _openEditing() {
+    Navigator.push(context,
+        new MaterialPageRoute(builder: (context) => ShopUpdateForm(shop: shop, company: company)));
+  }
+
+  _showDialog() {
+    customAlertDialog(context, _deleteShop);
+  }
+
+  _deleteShop() {
+    try {
+      ShopDatabase(companyId: company.uid).deleteShop(shop.uid);
+      CompanyDatabase(uid: company.uid).updateCompanyShopNum(company.numShops - 1);
+      customSnackbar(context: context, text: AppStringValues.shopDeletionSuccess);
+    } catch (e) {
+      customSnackbar(context: context, text: e.toString());
     }
   }
 }

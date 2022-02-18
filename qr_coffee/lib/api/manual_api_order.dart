@@ -48,7 +48,7 @@ launchPaymentGateway(BuildContext context, int price, List<Product> items, Order
   } else {
     customSnackbar(
       context: context,
-      text: '${CzechStrings.paymentError} ${response.statusCode}',
+      text: '${AppStringValues.paymentError} ${response.statusCode}',
     );
     return null;
   }
@@ -67,7 +67,7 @@ launchPaymentGateway(BuildContext context, int price, List<Product> items, Order
   } else {
     customSnackbar(
       context: context,
-      text: '${CzechStrings.paymentError} ${response.statusCode}',
+      text: '${AppStringValues.paymentError} ${response.statusCode}',
     );
     return null;
   }
@@ -87,7 +87,7 @@ launchPaymentGateway(BuildContext context, int price, List<Product> items, Order
       'description': 'QR Coffee',
       'currencyCode': 'PLN',
       'totalAmount': '${price * 100}',
-      'extOrderId': '${order.orderId}',
+      'extOrderId': '${order.orderId}_${order.companyId}_${order.userId}',
       'products': [
         {'name': 'Wireless mouse', 'unitPrice': '15000', 'quantity': '1'},
         {'name': 'HDMI cable', 'unitPrice': '6000', 'quantity': '1'}
@@ -111,7 +111,7 @@ launchPaymentGateway(BuildContext context, int price, List<Product> items, Order
   } else {
     customSnackbar(
       context: context,
-      text: '${CzechStrings.paymentError} ${response.statusCode}',
+      text: '${AppStringValues.paymentError} ${response.statusCode}',
     );
     return null;
   }
@@ -165,15 +165,15 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                   if (newUrl == continueUrl) {
                     Navigator.pop(context);
                     Navigator.pop(context);
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
                       new MaterialPageRoute(
-                        builder: (context) => OrderDetailsCustomer(
-                          order: order,
-                          mode: 'after-creation',
-                        ),
+                        builder: (context) =>
+                            OrderDetailsCustomer(order: order, mode: 'after-creation'),
                       ),
                     );
+                    customSnackbar(context: context, text: AppStringValues.orderCreationSuccess);
                   }
                 },
                 onProgress: (progress) => setState(() => this.progress = progress / 100),

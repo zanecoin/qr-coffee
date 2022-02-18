@@ -15,7 +15,7 @@ class UserData {
   final String email;
   final String role;
   final int tokens;
-  final String shop;
+  final bool switching;
   final int numOrders;
   final String company;
 
@@ -26,7 +26,7 @@ class UserData {
     required this.email,
     required this.role,
     required this.tokens,
-    required this.shop,
+    required this.switching,
     required this.numOrders,
     required this.company,
   });

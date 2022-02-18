@@ -17,14 +17,14 @@ class AuthService {
 
   // Register with email & password.
   Future registerWithEmailAndPassword(
-      String name, String surname, String email, String password, String role) async {
+      String name, String surname, String email, String password) async {
     try {
       auth.UserCredential credential =
           await _auth.createUserWithEmailAndPassword(email: email, password: password);
 
       // Create a new document for the user with the uid.
       await UserDatabase(uid: credential.user!.uid)
-          .updateUserData(name, surname, email, role, 0, '', 0, '');
+          .updateUserData(name, surname, email, 'customer', 0, false, 0, '');
       return '';
     } on auth.FirebaseAuthException catch (error) {
       return error.message;

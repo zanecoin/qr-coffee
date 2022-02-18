@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-//const Color textColor = Color(0xCC0F57B3);
 const Color textColor = Colors.black;
 
 class CustomOutlinedIconButton extends StatelessWidget {
@@ -11,27 +10,29 @@ class CustomOutlinedIconButton extends StatelessWidget {
     required this.label,
     this.bgColor = Colors.white,
     this.iconColor = textColor,
+    this.outlineColor = textColor,
     this.elevation = 5.0,
   }) : super(key: key);
 
   final Function function;
   final IconData icon;
   final String label;
-  final Color bgColor;
   final double elevation;
+  final Color bgColor;
   final Color iconColor;
+  final Color outlineColor;
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: () => function(),
       icon: Icon(icon, color: iconColor),
-      label: Text(label, style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+      label: Text(label, style: TextStyle(color: outlineColor, fontWeight: FontWeight.bold)),
       style: OutlinedButton.styleFrom(
         minimumSize: Size(0.0, 45.0),
-        side: BorderSide(color: textColor, width: 1.5),
+        side: BorderSide(color: outlineColor, width: 1.5),
         backgroundColor: bgColor,
-        shadowColor: textColor,
+        shadowColor: outlineColor,
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
         elevation: elevation,
         shape: RoundedRectangleBorder(

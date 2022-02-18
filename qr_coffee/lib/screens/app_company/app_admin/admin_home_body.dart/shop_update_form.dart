@@ -1,35 +1,38 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
+import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
-class CompanyUpdateForm extends StatefulWidget {
-  const CompanyUpdateForm({Key? key, required this.company}) : super(key: key);
+class ShopUpdateForm extends StatefulWidget {
+  const ShopUpdateForm({Key? key, required this.shop, required this.company}) : super(key: key);
 
+  final Shop shop;
   final Company company;
 
   @override
-  _CompanyUpdateFormState createState() => _CompanyUpdateFormState(company: company);
+  _ShopUpdateFormState createState() => _ShopUpdateFormState(shop: shop);
 }
 
-class _CompanyUpdateFormState extends State<CompanyUpdateForm> {
-  _CompanyUpdateFormState({required this.company});
-  final Company company;
+class _ShopUpdateFormState extends State<ShopUpdateForm> {
+  _ShopUpdateFormState({required this.shop});
+  final Shop shop;
 
-  final _key = GlobalKey<FormState>();
+  final GlobalKey<FormState> _key = GlobalKey<FormState>();
   Map<String, String> formField = Map<String, String>();
-  List formValues = [];
-
-  String name = '';
-  String email = '';
-  String phone = '';
+  bool loading = false;
+  String errorMessage = '';
+  late Company company;
 
   @override
   Widget build(BuildContext context) {
+    company = widget.company;
     final double deviceWidth = Responsive.deviceWidth(context);
+
     return Scaffold(
       appBar: customAppBar(context, title: Text(''), type: 1),
       body: SingleChildScrollView(
@@ -41,10 +44,10 @@ class _CompanyUpdateFormState extends State<CompanyUpdateForm> {
               key: _key,
               child: Column(
                 children: <Widget>[
-                  _companyForm(),
+                  _addressForm(),
                   SizedBox(height: 10),
                   CustomOutlinedIconButton(
-                    function: _updateValues,
+                    function: _updateShop,
                     icon: CommunityMaterialIcons.file_edit_outline,
                     label: AppStringValues.editInfo,
                     iconColor: Colors.blue,
@@ -58,13 +61,14 @@ class _CompanyUpdateFormState extends State<CompanyUpdateForm> {
     );
   }
 
-  void _callbackForm(varLabel, varValue) {
+  void _formCallback(varLabel, varValue) {
     formField[varLabel] = varValue;
   }
 
-  _updateValues() async {
+  _updateShop() async {
     setState(() {
-      formValues = [];
+      loading = true;
+      errorMessage = '';
     });
 
     FocusManager.instance.primaryFocus!.unfocus();
@@ -72,43 +76,39 @@ class _CompanyUpdateFormState extends State<CompanyUpdateForm> {
     if (_key.currentState!.validate()) {
       _key.currentState!.save();
 
-      name = (formField[AppStringValues.name] ?? company.name).trim();
-      email = (formField[AppStringValues.email] ?? company.email).trim();
-      phone = '+420${(formField[AppStringValues.phone] ?? company.phone).trim()}';
+      String address = (formField[AppStringValues.address] ?? shop.address).trim();
+      String city = (formField[AppStringValues.city] ?? shop.city).trim();
+      String openingHours = '';
 
       try {
-        await CompanyDatabase(uid: company.uid).updateCompanyData(name, phone, email);
+        ShopDatabase(companyId: company.uid).updateShopData(shop.uid, address, shop.coordinates,
+            shop.active, city, shop.openingHours, shop.company);
         Navigator.pop(context);
-        customSnackbar(context: context, text: AppStringValues.companyInfoChangeSuccess);
+        customSnackbar(context: context, text: AppStringValues.shopInfoChangeSuccess);
       } catch (e) {
         customSnackbar(context: context, text: e.toString());
       }
+    } else {
+      setState(() => loading = false);
     }
   }
 
-  Widget _companyForm() {
+  Widget _addressForm() {
     return Column(
       children: [
         CustomTextField(
-          AppStringValues.name,
-          Icons.store,
-          _callbackForm,
-          initVal: company.name,
-          validation: validateName,
+          AppStringValues.address,
+          Icons.place,
+          _formCallback,
+          validation: validateAddress,
+          initVal: shop.address,
         ),
         CustomTextField(
-          AppStringValues.email,
-          Icons.email_outlined,
-          _callbackForm,
-          initVal: company.email,
-          validation: validateEmail,
-        ),
-        CustomTextField(
-          AppStringValues.phone,
-          Icons.phone_android_outlined,
-          _callbackForm,
-          initVal: company.phone.substring(4),
-          validation: validatePhone,
+          AppStringValues.city,
+          Icons.location_city,
+          _formCallback,
+          validation: validateCity,
+          initVal: shop.city,
         ),
       ],
     );

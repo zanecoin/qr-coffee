@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
 class FancyInfoCard extends StatelessWidget {
@@ -61,12 +62,9 @@ class FancyInfoCard extends StatelessWidget {
                 SizedBox(height: 20),
                 Text(
                   largeDevice
-                      ? (order.username.length < 400 ~/ 17
-                          ? '${order.username}'
-                          : '${order.username.substring(0, 400 ~/ 17)}...')
-                      : (order.username.length < Responsive.textTresholdShort(context)
-                          ? '${order.username}'
-                          : '${order.username.substring(0, Responsive.textTresholdShort(context))}...'),
+                      ? (cutTextIfNeccessary(order.username, 400 ~/ 17))
+                      : (cutTextIfNeccessary(
+                          order.username, Responsive.textTresholdShort(context))),
                   style: TextStyle(
                     fontSize: 23,
                     color: Colors.black,
@@ -79,7 +77,7 @@ class FancyInfoCard extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  '${CzechStrings.orderCode}: ${order.orderId.substring(0, 6).toUpperCase()}',
+                  '${AppStringValues.orderCode}: ${order.orderId.substring(0, 6).toUpperCase()}',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black,

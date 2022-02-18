@@ -44,7 +44,7 @@ class _CustomTimeDropdownState extends State<CustomTimeDropdown> {
       //margin: EdgeInsets.symmetric(horizontal: 20),
       //width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(10, context) : null,
       height: 50,
-      width: 100,
+      width: 110,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(

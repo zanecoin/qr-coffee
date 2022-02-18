@@ -1,17 +1,10 @@
-import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
-import 'package:qr_coffee/shared/widgets/custom_button_style(depricated).dart';
-import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
-import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/auth.dart';
 import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 class Register extends StatefulWidget {
-  //switch between register and sign in
-  final Function? toggleView;
-  Register({this.toggleView});
-
   @override
   _RegisterState createState() => _RegisterState();
 }
@@ -23,11 +16,6 @@ class _RegisterState extends State<Register> {
   List formValues = [];
   bool loading = false;
 
-  //user info variables
-  String name = '';
-  String surname = '';
-  String email = '';
-  String password = '';
   String errorMessage = '';
 
   @override
@@ -37,84 +25,68 @@ class _RegisterState extends State<Register> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: customAppBar(context, title: Text(''), elevation: 0),
+      appBar: customAppBar(context, title: Text('')),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
             children: <Widget>[
               Text(
-                CzechStrings.app_name,
+                AppStringValues.app_name,
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: Responsive.width(12, context),
+                  fontSize: Responsive.width(12.0, context),
                   fontFamily: 'Galada',
                 ),
               ),
               if (deviceHeight > kDeviceLowerHeightTreshold)
                 ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
               Container(
-                width:
-                    deviceWidth > kDeviceUpperWidthTreshold ? 400 : Responsive.width(70, context),
+                width: deviceWidth > kDeviceUpperWidthTreshold
+                    ? 400.0
+                    : Responsive.width(70.0, context),
                 child: Form(
                   key: _key,
                   child: Column(
                     children: [
-                      SizedBox(height: Responsive.height(3, context)),
+                      SizedBox(height: Responsive.height(3.0, context)),
                       CustomTextField(
-                        CzechStrings.name,
+                        AppStringValues.name,
                         Icons.person_outline,
-                        callback,
+                        _formCallback,
                       ),
                       CustomTextField(
-                        CzechStrings.surname,
+                        AppStringValues.surname,
                         Icons.person,
-                        callback,
+                        _formCallback,
                       ),
                       CustomTextField(
-                        CzechStrings.email,
+                        AppStringValues.email,
                         Icons.mail_outline_sharp,
-                        callback,
+                        _formCallback,
                         validation: validateEmail,
                       ),
                       CustomTextField(
-                        CzechStrings.password,
+                        AppStringValues.password,
                         Icons.vpn_key,
-                        callback,
+                        _formCallback,
                         obscure: true,
                         validation: validatePassword,
                       ),
-                      SizedBox(height: Responsive.height(1, context)),
-                      Container(
-                        width: Responsive.width(60, context),
-                        child: ElevatedButton(
-                          child: loading
-                              ? CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : Text(
-                                  CzechStrings.registration2,
-                                  style: TextStyle(fontSize: 19, color: Colors.white),
-                                ),
-                          onPressed: registration,
-                          style: customButtonStyle(),
-                        ),
+                      SizedBox(height: Responsive.height(1.0, context)),
+                      CustomOutlinedButton(
+                        function: _registerFunc,
+                        label: AppStringValues.registration2,
                       ),
-                      SizedBox(height: Responsive.height(2, context)),
+                      SizedBox(height: Responsive.height(2.0, context)),
                       Text(
                         errorMessage,
                         style: TextStyle(
                           color: Colors.red,
-                          fontSize: 14,
+                          fontSize: 14.0,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      // TextButton(
-                      //   onPressed: () {},
-                      //   child: Text(
-                      //     CzechStrings.workerIdQuestion,
-                      //     textAlign: TextAlign.center,
-                      //   ),
-                      // ),
+                      if (loading) Loading(delay: false)
                     ],
                   ),
                 ),
@@ -126,13 +98,12 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  // TextFormField callback function.
-  callback(varLabel, varValue) {
+  _formCallback(varLabel, varValue) {
     formField[varLabel] = varValue;
   }
 
   // Register button function.
-  registration() async {
+  _registerFunc() async {
     setState(() {
       loading = true;
       errorMessage = '';
@@ -144,18 +115,12 @@ class _RegisterState extends State<Register> {
       _key.currentState!.save();
       formField.forEach((label, value) => formValues.add(value.trim()));
 
-      name = formValues[0];
-      surname = formValues[1];
-      email = formValues[2];
-      password = formValues[3];
+      String name = formValues[0];
+      String surname = formValues[1];
+      String email = formValues[2];
+      String password = formValues[3];
 
-      errorMessage = await _auth.registerWithEmailAndPassword(
-        name,
-        surname,
-        email,
-        password,
-        'customer',
-      );
+      errorMessage = await _auth.registerWithEmailAndPassword(name, surname, email, password);
 
       if (errorMessage.length == 0) {
         Navigator.pop(context);

@@ -2,7 +2,7 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 
 Future<dynamic> customAlertDialog(BuildContext context, Function function,
-    {String title = CzechStrings.question}) {
+    {String title = AppStringValues.question}) {
   return showDialog(
     context: context,
     barrierDismissible: true,
@@ -47,7 +47,7 @@ Future<dynamic> customAlertDialog(BuildContext context, Function function,
                       primary: Colors.black,
                       backgroundColor: Colors.grey.shade200,
                     ),
-                    child: Text(CzechStrings.yes, style: TextStyle(fontSize: 14)),
+                    child: Text(AppStringValues.yes, style: TextStyle(fontSize: 14)),
                     onPressed: () {
                       function();
                       Navigator.pop(context);
@@ -60,7 +60,7 @@ Future<dynamic> customAlertDialog(BuildContext context, Function function,
                       primary: Colors.black,
                       backgroundColor: Colors.grey.shade200,
                     ),
-                    child: Text(CzechStrings.no, style: TextStyle(fontSize: 14)),
+                    child: Text(AppStringValues.no, style: TextStyle(fontSize: 14)),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],

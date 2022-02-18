@@ -1,8 +1,11 @@
+import 'package:community_material_icon/community_material_icon.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/fancy_info_card.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/functions.dart';
-import 'package:qr_coffee/screens/order_screens/order_details/result_button.dart';
-import 'package:qr_coffee/screens/order_screens/order_details/widgets.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/qr_scan_screen.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/result_function.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/result_window_qr.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
@@ -29,14 +32,14 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
 
   final Order staticOrder;
   final String mode;
-
-  bool _showAlert = false;
   bool _static = false;
 
   @override
   void initState() {
     super.initState();
-    if (staticOrder.status != 'ACTIVE' && staticOrder.status != 'READY') {
+    if (staticOrder.status != 'ACTIVE' &&
+        staticOrder.status != 'READY' &&
+        staticOrder.status != 'PENDING') {
       _static = true;
     }
   }
@@ -62,19 +65,20 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
           Color color = Colors.black;
           final double deviceWidth = Responsive.deviceWidth(context);
 
+          // If Mode 'qr' is here, back arrow needs to do double pop(context).
+          _doublePop() {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          }
+
           if (order == null) {
             return Scaffold(
               appBar: customAppBar(context, title: Text('')),
               body: Center(
-                child: Text(CzechStrings.orderNotFound),
+                child: Text(AppStringValues.orderNotFound),
               ),
             );
           } else {
-            // Show alert if user tries to claim order which is not ready.
-            if (order.triggerNum == 1) {
-              _showAlert = true;
-            }
-
             // Header format chooser.
             if (order.status == 'ACTIVE' || order.status == 'READY') {
               List returnArray = time == '' ? ['?', Colors.black] : getRemainingTime(order, time);
@@ -86,10 +90,14 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
             }
 
             return Scaffold(
-              appBar:
-                  customAppBar(context, title: Text(remainingTime, style: TextStyle(color: color))),
+              appBar: customAppBar(
+                context,
+                title: Text(remainingTime, style: TextStyle(color: color, fontSize: 18)),
+                type: 1,
+                function: mode == 'qr' ? _doublePop : null,
+              ),
               body: userData == null && order.userId != 'generated-order^^'
-                  ? Center(child: Text(CzechStrings.userNotFound))
+                  ? Center(child: Text(AppStringValues.userNotFound))
                   : SingleChildScrollView(
                       child: Column(
                         children: [
@@ -100,18 +108,17 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
                             mode: mode,
                             role: userData!.role,
                           ),
+                          if (order.status == 'ABORTED') _returnInfo(order),
 
                           // QR CODE OR FANCY INFO CARD -----------------------
-                          QrCard(order: order),
+                          FancyInfoCard(order: order),
 
                           // ORDER HEADER INFO --------------------------------
                           _header(order, deviceWidth),
-                          SizedBox(height: 10),
 
                           // ACTION BUTTONS -----------------------------------
                           _resultButtons(order, userData),
                           SizedBox(height: 30),
-                          if (_showAlert) Text('not ready'),
                         ],
                       ),
                     ),
@@ -124,73 +131,103 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
     );
   }
 
+  Widget _returnInfo(Order order) {
+    return Column(
+      children: [
+        SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.info, color: Colors.blue),
+            SizedBox(width: 5),
+            Text(
+              '${AppStringValues.returned} ${order.price.toString()} ${AppStringValues.currency} ${AppStringValues.inTokens}',
+              style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _header(Order order, double deviceWidth) {
     return Column(
       children: [
-        if (order.status != 'ABORTED')
-          Text(
-            '${order.price.toString()} ${CzechStrings.currency}',
-            style: TextStyle(
-              fontSize: 30,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.place),
+            Text(
+              order.shop.length < Responsive.textTreshold(context)
+                  ? '${order.shop}'
+                  : '${order.shop.substring(0, Responsive.textTreshold(context))}...',
+              style: TextStyle(fontSize: 20, color: Colors.black),
             ),
-          ),
-        if (order.status == 'ABORTED')
-          Column(
-            children: [
-              Text(
-                '${CzechStrings.returned} ${order.price.toString()} ${CzechStrings.currency} ${CzechStrings.inTokens}',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 20),
-            ],
-          ),
-        Text(
-          order.shop,
-          style: TextStyle(fontSize: 20, color: Colors.black),
+          ],
         ),
-        CustomDivider(
-          indent: deviceWidth < kDeviceUpperWidthTreshold ? 40 : Responsive.width(30, context),
-        ),
+        CustomDividerWithText(text: AppStringValues.items),
         SizedBox(
           child: ListView.builder(
-            itemBuilder: (context, index) =>
-                Center(child: Text(order.items[index], style: TextStyle(fontSize: 20))),
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
+              child: CustomTextBanner(title: order.items[index], showIcon: false),
+            ),
             itemCount: order.items.length,
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
             physics: NeverScrollableScrollPhysics(),
           ),
         ),
+        if (order.status == 'ACTIVE' || order.status == 'READY')
+          CustomDividerWithText(text: AppStringValues.actions),
       ],
     );
   }
 
   Widget _resultButtons(Order order, UserData userData) {
+    _abortOrder() {
+      moveOrderToPassive(order, 'ABORTED', userData);
+    }
+
+    _triggerAlert() {
+      customAlertDialog(context, _abortOrder);
+    }
+
+    _triggerQrScan() {
+      Navigator.push(
+          context, new MaterialPageRoute(builder: (context) => QRScanScreen(order: order)));
+    }
+
+    _triggerInfoSnackBar() {
+      customSnackbar(context: context, text: AppStringValues.waitForReady);
+    }
+
     return Column(
       children: [
-        if ((order.status == 'ACTIVE' || order.status == 'READY') && mode == 'normal')
+        if ((order.status == 'ACTIVE' || order.status == 'READY'))
           Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ResultButton(
-                    userData: userData,
-                    text: CzechStrings.cancelOrder,
-                    icon: Icons.clear,
-                    color: Colors.red,
-                    order: order,
-                    status: 'ABORTED',
-                    previousContext: context,
-                    role: userData.role,
-                  ),
-                ],
+              if (order.status == 'READY')
+                CustomOutlinedIconButton(
+                  function: _triggerQrScan,
+                  icon: Icons.qr_code_2_outlined,
+                  label: AppStringValues.pickUpOrder,
+                  iconColor: Colors.green,
+                ),
+              if (order.status == 'ACTIVE')
+                CustomOutlinedIconButton(
+                  function: _triggerInfoSnackBar,
+                  icon: Icons.qr_code_2_outlined,
+                  label: AppStringValues.pickUpOrder,
+                  iconColor: Colors.grey,
+                  outlineColor: Colors.grey,
+                ),
+              SizedBox(height: 5.0),
+              CustomOutlinedIconButton(
+                function: _triggerAlert,
+                icon: CommunityMaterialIcons.skull_crossbones,
+                label: AppStringValues.cancelOrder,
+                iconColor: Colors.red,
               ),
             ],
           ),

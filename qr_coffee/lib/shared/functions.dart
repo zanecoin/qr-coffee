@@ -6,6 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
+String cutTextIfNeccessary(String text, int treshold) {
+  return text.length < treshold ? text : '${text.substring(0, treshold)}...';
+}
+
 Future<List<Map<String, dynamic>>> loadImages(String folder) async {
   List<Map<String, dynamic>> files = [];
 
@@ -122,17 +126,17 @@ List<dynamic> getRemainingTime(Order order, String time) {
     result = (m1 - m2 + 60 * (h1 - h2)).toString();
 
     if (int.parse(result) > 2) {
-      result = '${CzechStrings.pickUpIn} $result min';
+      result = '${AppStringValues.pickUpIn} $result min';
       color = Colors.green.shade800;
     } else if (int.parse(result) <= 2 && int.parse(result) > -1) {
-      result = '${CzechStrings.pickUpIn} $result min';
+      result = '${AppStringValues.pickUpIn} $result min';
       color = Colors.yellow.shade800;
     } else {
-      result = '${CzechStrings.pickUpBefore} ${-int.parse(result)} min';
+      result = '${AppStringValues.pickUpBefore} ${-int.parse(result)} min';
       color = Colors.red.shade700;
     }
   } else {
-    result = '${CzechStrings.pickUp30} min';
+    result = '${AppStringValues.pickUp30} min';
     color = Colors.black;
   }
 

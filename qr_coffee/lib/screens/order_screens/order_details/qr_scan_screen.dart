@@ -3,14 +3,16 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/screens/order_screens/order_details/order_details_worker.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/order_details_customer.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
 class QRScanScreen extends StatefulWidget {
-  const QRScanScreen({Key? key}) : super(key: key);
+  const QRScanScreen({Key? key, required this.order}) : super(key: key);
+
+  final Order order;
 
   @override
   _QRScanScreenState createState() => _QRScanScreenState();
@@ -19,7 +21,7 @@ class QRScanScreen extends StatefulWidget {
 class _QRScanScreenState extends State<QRScanScreen> {
   final qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
-  String barcode = CzechStrings.scanQr;
+  String barcode = AppStringValues.scanQr;
   List<Order> activeOrders = [];
 
   @override
@@ -59,7 +61,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
                   top: Responsive.height(8, context),
                   left: Responsive.width(4, context),
                   child: TextButton.icon(
-                    label: Text(CzechStrings.back),
+                    label: Text(AppStringValues.back),
                     icon: Icon(Icons.arrow_back_ios, size: 22),
                     onPressed: () {
                       Navigator.pop(context);
@@ -105,16 +107,9 @@ class _QRScanScreenState extends State<QRScanScreen> {
     setState(() => this.controller = controller);
 
     controller.scannedDataStream.listen((barcode) async {
-      Order? order;
+      Order order = widget.order;
 
-      for (var ord in activeOrders) {
-        if (ord.orderId == barcode.code) {
-          order = ord;
-          break;
-        }
-      }
-
-      if (order != null) {
+      if (barcode.code == 'QR Coffee') {
         if (order.status == 'READY') {
           String status = 'COMPLETED';
           await CompanyOrderDatabase().createPassiveOrder(
@@ -153,14 +148,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
           await UserOrderDatabase(uid: order.userId).deleteActiveOrder(order.orderId);
         }
 
+        if (!mounted) return;
         Navigator.pop(context);
+
+        // Mode 'qr' is here to pass the info that back arrow needs to do double pop(context).
         Navigator.push(
           context,
           new MaterialPageRoute(
-            builder: (context) => OrderDetailsWorker(
-              order: order!,
-              mode: 'normal',
-            ),
+            builder: (context) => OrderDetailsCustomer(order: order, mode: 'qr'),
           ),
         );
 
@@ -172,7 +167,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
           print('trigger: 0');
         }
       } else {
-        setState(() => this.barcode = CzechStrings.orderNotFound);
+        setState(() => this.barcode = AppStringValues.wrongQr);
       }
     });
   }

@@ -20,7 +20,6 @@ class _CustomerSettingsState extends State<CustomerSettings> {
 
   @override
   Widget build(BuildContext context) {
-    // INITIALIZATION
     final user = Provider.of<User?>(context);
 
     if (user != null) {
@@ -31,11 +30,7 @@ class _CustomerSettingsState extends State<CustomerSettings> {
             userData = snapshot1.data!;
 
             return Scaffold(
-              appBar: customAppBar(
-                context,
-                title: Text(CzechStrings.settings),
-                type: 1,
-              ),
+              appBar: customAppBar(context, title: Text(AppStringValues.settings), type: 1),
               body: SingleChildScrollView(
                 child: Center(
                   child: Container(
@@ -53,35 +48,38 @@ class _CustomerSettingsState extends State<CustomerSettings> {
                         CustomOutlinedIconButton(
                           function: _openEditing,
                           icon: CommunityMaterialIcons.account_edit_outline,
-                          label: CzechStrings.editInfo,
+                          label: AppStringValues.editInfo,
+                          iconColor: Colors.blue,
                         ),
                         SizedBox(height: 10.0),
                         CustomOutlinedIconButton(
                           function: _auth.userSignOut,
                           icon: Icons.exit_to_app,
-                          label: CzechStrings.logout,
+                          label: AppStringValues.logout,
+                          iconColor: Colors.blue,
                         ),
                         SizedBox(height: 10.0),
                         CustomDivider(indent: 30.0),
                         SizedBox(height: 5.0),
+                        if (userData.switching)
+                          CustomOptionButton(
+                            title: AppStringValues.role,
+                            current: _extractUserRole(userData.role),
+                            function: _updateUserRole,
+                            options: [
+                              AppStringValues.admin,
+                              AppStringValues.worker,
+                              AppStringValues.customer,
+                            ],
+                          ),
                         CustomOptionButton(
-                          title: CzechStrings.role,
-                          current: _extractUserRole(userData.role),
-                          function: _updateUserRole,
-                          options: [
-                            CzechStrings.admin,
-                            CzechStrings.worker,
-                            CzechStrings.customer,
-                          ],
-                        ),
-                        CustomOptionButton(
-                          title: CzechStrings.mode,
-                          current: CzechStrings.lightmode,
+                          title: AppStringValues.mode,
+                          current: AppStringValues.lightmode,
                           function: _callbackTheme,
                           options: [
-                            CzechStrings.lightmode,
-                            CzechStrings.darkmode,
-                            CzechStrings.adaptToDevice,
+                            AppStringValues.lightmode,
+                            AppStringValues.darkmode,
+                            AppStringValues.adaptToDevice,
                           ],
                         ),
                         SizedBox(height: 5.0),
@@ -103,7 +101,7 @@ class _CustomerSettingsState extends State<CustomerSettings> {
   }
 
   void _callbackTheme(String result) {
-    customSnackbar(context: context, text: CzechStrings.notImplemented);
+    customSnackbar(context: context, text: AppStringValues.notImplemented);
   }
 
   void _openEditing() {
@@ -114,20 +112,21 @@ class _CustomerSettingsState extends State<CustomerSettings> {
   String _extractUserRole(String role) {
     String result = '';
     if (role == 'admin') {
-      result = CzechStrings.admin;
+      result = AppStringValues.admin;
     } else if (role == 'worker') {
-      result = CzechStrings.worker;
+      result = AppStringValues.worker;
     } else {
-      result = CzechStrings.customer;
+      result = AppStringValues.customer;
     }
     return result;
   }
 
   _updateUserRole(String result) {
+    Navigator.of(context).pop();
     String role = '';
-    if (result == CzechStrings.admin) {
+    if (result == AppStringValues.admin) {
       role = 'admin';
-    } else if (result == CzechStrings.worker) {
+    } else if (result == AppStringValues.worker) {
       role = 'worker';
     } else {
       role = 'customer';

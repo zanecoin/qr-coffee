@@ -7,38 +7,31 @@ class CompanyOrderDatabase {
   final String? uid;
   CompanyOrderDatabase({this.uid});
 
-  final CollectionReference activeOrderCollection = FirebaseFirestore.instance
-      .collection('companies')
-      .doc(_tempId)
-      .collection('active_orders');
-  final CollectionReference passiveOrderCollection = FirebaseFirestore.instance
-      .collection('companies')
-      .doc(_tempId)
-      .collection('passive_orders');
-  final CollectionReference virtualOrderCollection = FirebaseFirestore.instance
-      .collection('companies')
-      .doc(_tempId)
-      .collection('virtual_orders');
+  final CollectionReference activeOrderCollection =
+      FirebaseFirestore.instance.collection('companies').doc(_tempId).collection('active_orders');
+  final CollectionReference passiveOrderCollection =
+      FirebaseFirestore.instance.collection('companies').doc(_tempId).collection('passive_orders');
+  final CollectionReference virtualOrderCollection =
+      FirebaseFirestore.instance.collection('companies').doc(_tempId).collection('virtual_orders');
 
   Future deleteActiveOrder(String orderId) async {
     return await activeOrderCollection.doc(orderId).delete();
   }
 
   Future createActiveOrder(
-    String status,
-    List items,
-    int price,
-    String pickUpTime,
-    String username,
-    String shop,
-    String company,
-    String orderId,
-    String userId,
-    String shopId,
-    String companyId,
-    String day,
-    int triggerNum,
-  ) async {
+      String status,
+      List items,
+      int price,
+      String pickUpTime,
+      String username,
+      String shop,
+      String company,
+      String orderId,
+      String userId,
+      String shopId,
+      String companyId,
+      String day,
+      int triggerNum) async {
     DocumentReference _docRef = await activeOrderCollection.add({
       'status': status,
       'items': items,
@@ -116,9 +109,12 @@ class CompanyOrderDatabase {
     int price,
     String pickUpTime,
     String username,
-    String place,
+    String shop,
+    String company,
     String orderId,
     String userId,
+    String shopId,
+    String companyId,
     String day,
     int triggerNum,
   ) async {
@@ -128,15 +124,18 @@ class CompanyOrderDatabase {
       'price': price,
       'pickUpTime': pickUpTime,
       'username': username,
-      'place': place,
+      'shop': shop,
+      'company': company,
       'orderId': orderId,
       'userId': userId,
+      'shopId': shopId,
+      'companyId': companyId,
       'day': day,
       'triggerNum': triggerNum,
     });
   }
 
-  // SET ID FOR NEW VIRTUAL ORDER
+  // Set id for new virtual order.
   Future updateVirtualOrderId(
     String orderId,
   ) async {
@@ -145,7 +144,7 @@ class CompanyOrderDatabase {
     });
   }
 
-  // SET ID FOR NEW ORDER
+  // Set id for new order
   Future updateOrderId(
     String orderId,
     String status,
@@ -161,7 +160,7 @@ class CompanyOrderDatabase {
     }
   }
 
-  // UPDATE ORDER STATUS FROM 'ACTIVE' TO 'READY'
+  // Update order status from 'active' to 'ready'.
   Future updateOrderStatus(
     String orderId,
     String status,
@@ -171,7 +170,7 @@ class CompanyOrderDatabase {
     });
   }
 
-  // CHANGE ORDER 'TRIGGER FLAG' TO TRIGGER DIFFERENT EVENTS
+  // Change order 'trigger flag' to trigger different events.
   Future triggerOrder(
     String orderId,
     int triggerNum,
@@ -181,7 +180,7 @@ class CompanyOrderDatabase {
     });
   }
 
-  // GET ORDER LIST FROM DATABASE
+  // Get order list from database.
   List<Order> _OrderListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Order(
@@ -202,7 +201,7 @@ class CompanyOrderDatabase {
     }).toList();
   }
 
-  // GET SPECIFIC ORDER FROM DATABASE
+  // Get specific order from database.
   Order _OrderFromSnapshot(DocumentSnapshot snapshot) {
     return Order(
       status: (snapshot.data() as dynamic)['status'],
@@ -221,22 +220,22 @@ class CompanyOrderDatabase {
     );
   }
 
-  // GET ACTIVE ORDERS LIST STREAM
+  // Get active orders list stream.
   Stream<List<Order>> get activeOrderList {
     return activeOrderCollection.snapshots().map(_OrderListFromSnapshot);
   }
 
-  // GET PASSIVE ORDERS LIST STREAM
+  // Get passive orders list stream.
   Stream<List<Order>> get passiveOrderList {
     return passiveOrderCollection.snapshots().map(_OrderListFromSnapshot);
   }
 
-  // GET VIRTUAL ORDERS LIST STREAM
+  // Get virtual orders list stream.
   Stream<List<Order>> get virtualOrderList {
     return virtualOrderCollection.snapshots().map(_OrderListFromSnapshot);
   }
 
-  // GET SPECIFIC ORDER DOCUMENT STREAM
+  // Get specific active order stream.
   Stream<Order> get order {
     return activeOrderCollection.doc(uid).snapshots().map(_OrderFromSnapshot);
   }

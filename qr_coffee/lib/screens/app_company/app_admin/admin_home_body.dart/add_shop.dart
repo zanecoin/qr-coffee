@@ -1,14 +1,16 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/custom_button.dart';
-import 'package:qr_coffee/shared/widgets/custom_time_dropdown.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 class AddShop extends StatefulWidget {
-  const AddShop({Key? key}) : super(key: key);
+  const AddShop({Key? key, required this.company}) : super(key: key);
+
+  final Company company;
 
   @override
   _AddShopState createState() => _AddShopState();
@@ -19,17 +21,15 @@ class _AddShopState extends State<AddShop> {
   Map<String, String> formField = Map<String, String>();
   bool loading = false;
   String errorMessage = '';
-
-  String address = '';
-  String city = '';
-  String openingHours = '';
+  late Company company;
 
   @override
   Widget build(BuildContext context) {
     double deviceWidth = Responsive.deviceWidth(context);
+    company = widget.company;
 
     return Scaffold(
-      appBar: customAppBar(context, title: Text(CzechStrings.addNewShop)),
+      appBar: customAppBar(context, title: Text(AppStringValues.addNewShop)),
       body: SingleChildScrollView(
         child: Center(
           child: Container(
@@ -39,46 +39,13 @@ class _AddShopState extends State<AddShop> {
               child: Column(
                 children: [
                   SizedBox(height: Responsive.height(3, context)),
-                  CustomTextField(
-                    CzechStrings.address,
-                    Icons.gps_fixed,
-                    callback,
-                    validation: validateAddress,
-                  ),
-                  CustomTextField(
-                    CzechStrings.city,
-                    Icons.location_city,
-                    callback,
-                    validation: validateCity,
-                  ),
+                  _addressForm(),
                   SizedBox(height: Responsive.height(2, context)),
-                  Text(CzechStrings.openingHours, style: TextStyle(fontSize: 16)),
+                  Text(
+                      '${AppStringValues.openingHours} (${AppStringValues.from}/${AppStringValues.to})',
+                      style: TextStyle(fontSize: 16)),
                   SizedBox(height: Responsive.height(1, context)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(CzechStrings.from, style: TextStyle(fontSize: 16)),
-                      SizedBox(width: Responsive.width(3, context)),
-                      CustomTimeDropdown(values: kHours, callback: callback, label: '1'),
-                      SizedBox(width: Responsive.width(5, context)),
-                      CustomTimeDropdown(values: kMinutes, callback: callback, label: '2'),
-                      SizedBox(width: Responsive.width(3, context)),
-                      Text('    ', style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-                  SizedBox(height: Responsive.height(2, context)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(CzechStrings.to, style: TextStyle(fontSize: 16)),
-                      SizedBox(width: Responsive.width(3, context)),
-                      CustomTimeDropdown(values: kHours, callback: callback, label: '3'),
-                      SizedBox(width: Responsive.width(5, context)),
-                      CustomTimeDropdown(values: kMinutes, callback: callback, label: '4'),
-                      SizedBox(width: Responsive.width(3, context)),
-                      Text('    ', style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
+                  _openingHoursTile(),
                   SizedBox(height: Responsive.height(1, context)),
                   Text(
                     errorMessage,
@@ -89,9 +56,9 @@ class _AddShopState extends State<AddShop> {
                     textAlign: TextAlign.center,
                   ),
                   CustomOutlinedIconButton(
-                    function: addShop,
-                    icon: CommunityMaterialIcons.upload_outline,
-                    label: CzechStrings.addShop,
+                    function: _addShopFunc,
+                    icon: CommunityMaterialIcons.store,
+                    label: AppStringValues.addShop,
                     iconColor: Colors.green,
                   ),
                 ],
@@ -103,12 +70,11 @@ class _AddShopState extends State<AddShop> {
     );
   }
 
-  // TextFormField callback function.
-  callback(varLabel, varValue) {
+  _formCallback(varLabel, varValue) {
     formField[varLabel] = varValue;
   }
 
-  addShop() async {
+  _addShopFunc() async {
     setState(() {
       loading = true;
       errorMessage = '';
@@ -119,30 +85,63 @@ class _AddShopState extends State<AddShop> {
     if (_key.currentState!.validate()) {
       _key.currentState!.save();
 
-      if (_hoursFilled(formField)) {
-        address = (formField[CzechStrings.address] ?? '').trim();
-        city = (formField[CzechStrings.city] ?? '').trim();
-        openingHours = '${formField['1']}:${formField['2']}-${formField['3']}:${formField['4']}';
+      if (_hoursAreFilled()) {
+        String address = (formField[AppStringValues.address] ?? '').trim();
+        String city = (formField[AppStringValues.city] ?? '').trim();
+        String openingHours = '${formField['1']}-${formField['2']}';
 
-        ShopDatabase().addShop(address, city, openingHours);
-        Navigator.pop(context);
+        try {
+          ShopDatabase(companyId: company.uid).addShop(address, city, openingHours, company.name);
+          CompanyDatabase(uid: company.uid).updateCompanyShopNum(company.numShops + 1);
+          Navigator.pop(context);
+          customSnackbar(context: context, text: AppStringValues.shopCreationSuccess);
+        } catch (e) {
+          customSnackbar(context: context, text: e.toString());
+        }
       } else {
         setState(() => loading = false);
-        errorMessage = CzechStrings.enterOpeningHours;
+        errorMessage = AppStringValues.enterOpeningHours;
       }
     } else {
       setState(() => loading = false);
     }
   }
-}
 
-_hoursFilled(Map<String, String> formField) {
-  if (formField['1'] != null &&
-      formField['2'] != null &&
-      formField['3'] != null &&
-      formField['4'] != null) {
-    return true;
-  } else {
-    return false;
+  _hoursAreFilled() {
+    if (formField['1'] != null && formField['2'] != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Widget _addressForm() {
+    return Column(
+      children: [
+        CustomTextField(
+          AppStringValues.address,
+          Icons.place,
+          _formCallback,
+          validation: validateAddress,
+        ),
+        CustomTextField(
+          AppStringValues.city,
+          Icons.location_city,
+          _formCallback,
+          validation: validateCity,
+        ),
+      ],
+    );
+  }
+
+  Widget _openingHoursTile() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CustomTimeDropdown(values: kHours, callback: _formCallback, label: '1'),
+        SizedBox(width: Responsive.width(1, context)),
+        CustomTimeDropdown(values: kHours, callback: _formCallback, label: '2'),
+      ],
+    );
   }
 }

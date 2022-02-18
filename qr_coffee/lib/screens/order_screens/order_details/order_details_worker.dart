@@ -3,7 +3,7 @@ import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/fancy_info_card.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/functions.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/result_button.dart';
-import 'package:qr_coffee/screens/order_screens/order_details/widgets.dart';
+import 'package:qr_coffee/screens/order_screens/order_details/result_window_qr.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
@@ -68,7 +68,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
             return Scaffold(
               appBar: customAppBar(context, title: Text('')),
               body: Center(
-                child: Text(CzechStrings.orderNotFound),
+                child: Text(AppStringValues.orderNotFound),
               ),
             );
           } else {
@@ -88,10 +88,15 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
             }
 
             return Scaffold(
-              appBar:
-                  customAppBar(context, title: Text(remainingTime, style: TextStyle(color: color))),
+              appBar: customAppBar(
+                context,
+                title: Text(
+                  remainingTime,
+                  style: TextStyle(color: color, fontSize: 18),
+                ),
+              ),
               body: userData == null && order.userId != 'generated-order^^'
-                  ? Center(child: Text(CzechStrings.userNotFound))
+                  ? Center(child: Text(AppStringValues.userNotFound))
                   : SingleChildScrollView(
                       child: Column(
                         children: [
@@ -100,7 +105,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                           ResultWindowChooser(
                             order: order,
                             mode: mode,
-                            role: userData!.role,
+                            role: 'worker',
                           ),
 
                           // QR CODE OR FANCY INFO CARD -----------------------
@@ -111,7 +116,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                           SizedBox(height: 10),
 
                           // ACTION BUTTONS -----------------------------------
-                          _resultButtons(order, userData),
+                          if (userData != null) _resultButtons(order, userData),
                           SizedBox(height: 30),
                           if (_showAlert) Text('not ready'),
                         ],
@@ -129,16 +134,21 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
   Widget _header(Order order, double deviceWidth) {
     return Column(
       children: [
+        CustomDividerWithText(text: AppStringValues.items),
         SizedBox(
           child: ListView.builder(
-            itemBuilder: (context, index) =>
-                Center(child: Text(order.items[index], style: TextStyle(fontSize: 20))),
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
+              child: CustomTextBanner(title: order.items[index], showIcon: false),
+            ),
             itemCount: order.items.length,
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
             physics: NeverScrollableScrollPhysics(),
           ),
         ),
+        if (order.status == 'ACTIVE' || order.status == 'READY')
+          CustomDividerWithText(text: AppStringValues.actions),
       ],
     );
   }
@@ -149,13 +159,12 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
         if (order.status == 'ACTIVE' && mode == 'normal')
           ResultButton(
             userData: userData,
-            text: CzechStrings.ready,
+            text: AppStringValues.ready,
             icon: Icons.done,
             color: Colors.green,
             order: order,
             status: 'READY',
             previousContext: context,
-            role: userData.role,
           ),
         if (order.status == 'READY' && mode == 'normal' && _showButtons)
           Column(
@@ -165,23 +174,21 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                 children: [
                   ResultButton(
                     userData: userData,
-                    text: CzechStrings.abandoned,
+                    text: AppStringValues.abandoned,
                     icon: Icons.clear,
                     color: Colors.red,
                     order: order,
                     status: 'ABANDONED',
                     previousContext: context,
-                    role: userData.role,
                   ),
                   ResultButton(
                     userData: userData,
-                    text: CzechStrings.collected,
+                    text: AppStringValues.collected,
                     icon: Icons.done,
                     color: Colors.green,
                     order: order,
                     status: 'COMPLETED',
                     previousContext: context,
-                    role: userData.role,
                   ),
                 ],
               ),
@@ -194,7 +201,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                 onPressed: () {
                   setState(() => _showButtons = true);
                 },
-                child: Text(CzechStrings.manualAnswer),
+                child: Text(AppStringValues.manualAnswer),
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.grey.shade100,
                   primary: Colors.grey.shade700,
