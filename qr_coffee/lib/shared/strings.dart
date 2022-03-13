@@ -125,6 +125,8 @@ class AppStringValues {
   static const String personal = 'Osobní údaje';
   static const String editInfo = 'Upravit údaje';
   static const String settings = 'Nastavení';
+  static const String shops = 'Provozovny';
+  static const String products = 'Produkty';
   static const String help = 'Nápověda';
   static const String contact = 'Kontakt';
   static const String logout = 'Odhlásit se';

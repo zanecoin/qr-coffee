@@ -28,9 +28,9 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
     double deviceWidth = Responsive.deviceWidth(context);
     company = Provider.of<Company>(context);
 
-    if (company.uid != '') {
+    if (company.companyID != '') {
       return StreamBuilder<Shop>(
-        stream: ShopDatabase(companyId: company.uid, shopId: widget.shop.uid).shop,
+        stream: ShopDatabase(companyID: company.companyID, shopID: widget.shop.shopID).shop,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             shop = snapshot.data!;
@@ -98,8 +98,8 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
 
   _deleteShop() {
     try {
-      ShopDatabase(companyId: company.uid).deleteShop(shop.uid);
-      CompanyDatabase(uid: company.uid).updateCompanyShopNum(company.numShops - 1);
+      ShopDatabase(companyID: company.companyID).deleteShop(shop.shopID);
+      CompanyDatabase(companyID: company.companyID).updateCompanyShopNum(company.numShops - 1);
       customSnackbar(context: context, text: AppStringValues.shopDeletionSuccess);
     } catch (e) {
       customSnackbar(context: context, text: e.toString());

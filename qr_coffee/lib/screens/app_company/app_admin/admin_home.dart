@@ -1,10 +1,11 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_coffee/models/admin.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/app_company/company_products.dart';
-import 'package:qr_coffee/screens/app_company/company_settings.dart';
-import 'package:qr_coffee/screens/app_company/company_shops.dart';
+import 'package:qr_coffee/screens/app_company/common/company_products.dart';
+import 'package:qr_coffee/screens/settings/admin_settings.dart';
+import 'package:qr_coffee/screens/app_company/common/company_shops.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/stats.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
@@ -25,24 +26,33 @@ class _AdminHomeState extends State<AdminHome> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
-      CompanySettings(),
+      AdminSettings(),
       CompanyShops(databaseImages: widget.databaseImages),
       CompanyProducts(databaseImages: widget.databaseImages),
       Stats(),
     ];
 
-    final user = Provider.of<User?>(context);
+    final userFromAuth = Provider.of<UserFromAuth?>(context);
 
     return Scaffold(
-      body: StreamBuilder<UserData>(
-        stream: UserDatabase(uid: user!.uid).userData,
+      body: StreamBuilder<Admin>(
+        stream: AdminDatabase(userID: userFromAuth!.userID).admin,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            UserData userData = snapshot.data!;
-            return StreamProvider<Company>(
-              create: (context) => CompanyDatabase(uid: userData.company).company,
-              initialData: Company.initialData(),
-              catchError: (_, __) => Company.initialData(),
+            Admin admin = snapshot.data!;
+            return MultiProvider(
+              providers: [
+                StreamProvider<Company>(
+                  create: (context) => CompanyDatabase(companyID: admin.companyID).company,
+                  initialData: Company.initialData(),
+                  catchError: (_, __) => Company.initialData(),
+                ),
+                StreamProvider<Admin>(
+                  create: (context) => AdminDatabase(userID: userFromAuth.userID).admin,
+                  initialData: Admin.initialData(),
+                  catchError: (_, __) => Admin.initialData(),
+                ),
+              ],
               child: IndexedStack(index: _currentIndex, children: screens),
             );
           } else {

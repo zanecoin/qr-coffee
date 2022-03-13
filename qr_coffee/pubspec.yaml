@@ -52,13 +52,12 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: assets/cafe.jpg
+  image_path: assets/icon.png
 
 flutter:
   uses-material-design: true
   assets:
     - assets/cafe.jpg
-    - assets/cafe_blue.png
     - assets/map.jpg
     - assets/blank.png
   fonts:

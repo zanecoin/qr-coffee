@@ -1,5 +1,6 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_coffee/models/customer.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
@@ -7,17 +8,17 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 class CustomerUpdateForm extends StatefulWidget {
-  const CustomerUpdateForm({Key? key, required this.userData}) : super(key: key);
+  const CustomerUpdateForm({Key? key, required this.customer}) : super(key: key);
 
-  final UserData userData;
+  final Customer customer;
 
   @override
-  _CustomerUpdateFormState createState() => _CustomerUpdateFormState(userData: userData);
+  _CustomerUpdateFormState createState() => _CustomerUpdateFormState(customer: customer);
 }
 
 class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
-  _CustomerUpdateFormState({required this.userData});
-  final UserData userData;
+  _CustomerUpdateFormState({required this.customer});
+  final Customer customer;
 
   final _key = GlobalKey<FormState>();
   Map<String, String> formField = Map<String, String>();
@@ -63,11 +64,11 @@ class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
     if (_key.currentState!.validate()) {
       _key.currentState!.save();
 
-      String name = (formField[AppStringValues.name] ?? userData.name);
-      String surname = (formField[AppStringValues.surname] ?? userData.surname);
+      String name = (formField[AppStringValues.name] ?? customer.name);
+      String surname = (formField[AppStringValues.surname] ?? customer.surname);
 
       try {
-        await UserDatabase(uid: userData.uid).updateName(name, surname);
+        customer.updateName(name, surname);
         Navigator.pop(context);
         customSnackbar(context: context, text: AppStringValues.infoChangeSuccess);
       } catch (e) {
@@ -83,14 +84,14 @@ class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
           AppStringValues.name,
           Icons.person_outline,
           _callbackForm,
-          initVal: userData.name,
+          initVal: customer.name,
           validation: validateName,
         ),
         CustomTextField(
           AppStringValues.surname,
           Icons.person,
           _callbackForm,
-          initVal: userData.surname,
+          initVal: customer.surname,
           validation: validateName,
         ),
       ],

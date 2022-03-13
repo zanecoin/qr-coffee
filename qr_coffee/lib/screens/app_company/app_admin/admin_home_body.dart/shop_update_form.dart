@@ -81,8 +81,8 @@ class _ShopUpdateFormState extends State<ShopUpdateForm> {
       String openingHours = '';
 
       try {
-        ShopDatabase(companyId: company.uid).updateShopData(shop.uid, address, shop.coordinates,
-            shop.active, city, shop.openingHours, shop.company);
+        ShopDatabase(companyID: company.companyID).updateShopData(
+            shop.shopID, address, shop.coordinates, city, shop.openingHours, shop.company);
         Navigator.pop(context);
         customSnackbar(context: context, text: AppStringValues.shopInfoChangeSuccess);
       } catch (e) {

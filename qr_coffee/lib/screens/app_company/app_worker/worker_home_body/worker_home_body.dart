@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/shop.dart';
-import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/create_order_screen.dart';
 import 'package:qr_coffee/screens/order_screens/order_tile.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
@@ -10,7 +9,6 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 class WorkerHomeBody extends StatefulWidget {
@@ -32,28 +30,25 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
 
   @override
   Widget build(BuildContext context) {
-    // GET CURRENTLY LOGGED USER AND DATA STREAMS
-    final user = Provider.of<User?>(context);
-    return StreamBuilder4<List<Order>, List<Order>, UserData, dynamic>(
-      streams: Tuple4(
-          CompanyOrderDatabase().passiveOrderList,
-          CompanyOrderDatabase().activeOrderList,
-          UserDatabase(uid: user!.uid).userData,
-          Stream.periodic(const Duration(seconds: 1))),
+    return StreamBuilder3<List<Order>, List<Order>, dynamic>(
+      streams: Tuple3(
+        CompanyOrderDatabase().passiveOrderList,
+        CompanyOrderDatabase().activeOrderList,
+        Stream.periodic(const Duration(seconds: 1)),
+      ),
       builder: (context, snapshots) {
-        if (snapshots.item1.hasData && snapshots.item2.hasData && snapshots.item3.hasData) {
+        if (snapshots.item1.hasData && snapshots.item2.hasData) {
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-          UserData userData = snapshots.item3.data!;
 
           List<Order> passiveOrderList = snapshots.item1.data!;
           passiveOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
           passiveOrderList = passiveOrderList.reversed.toList();
 
-          List<Order> activeOrderList = _filterOutPending(snapshots.item2.data!, userData);
+          List<Order> activeOrderList = _filterOutPending(snapshots.item2.data!);
           activeOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
 
           List<Order> orderList = activeOrderList + passiveOrderList;
-          orderList = _getOrderByPlace(orderList, shop.uid);
+          orderList = _getOrderByPlace(orderList, shop.shopID);
           orderList = _getOrderByType(orderList);
 
           return Scaffold(
@@ -96,7 +91,7 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     );
   }
 
-  List<Order> _filterOutPending(List<Order> orders, UserData userData) {
+  List<Order> _filterOutPending(List<Order> orders) {
     List<Order> result = [];
     for (var item in orders) {
       if (item.status != 'PENDING') {
@@ -106,10 +101,10 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     return result;
   }
 
-  List<Order> _getOrderByPlace(List<Order> orders, String shopId) {
+  List<Order> _getOrderByPlace(List<Order> orders, String shopID) {
     List<Order> result = [];
     for (var item in orders) {
-      if (item.shopId == shopId) {
+      if (item.shopID == shopID) {
         result.add(item);
       }
     }

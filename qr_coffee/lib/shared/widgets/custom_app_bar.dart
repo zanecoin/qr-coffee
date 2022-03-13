@@ -1,5 +1,5 @@
 import 'package:community_material_icon/community_material_icon.dart';
-import 'package:qr_coffee/screens/app_customer/customer_settings.dart';
+import 'package:qr_coffee/screens/settings/customer_settings.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 

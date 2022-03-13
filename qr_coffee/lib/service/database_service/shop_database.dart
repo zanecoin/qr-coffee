@@ -2,81 +2,71 @@ import 'package:qr_coffee/models/shop.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ShopDatabase {
-  ShopDatabase({this.companyId, this.shopId});
-  final String? companyId;
-  final String? shopId;
+  ShopDatabase({this.companyID, this.shopID});
+  final String? companyID;
+  final String? shopID;
 
   CollectionReference _getCollection() {
-    return FirebaseFirestore.instance.collection('companies').doc(companyId).collection('shops');
+    return FirebaseFirestore.instance.collection('companies').doc(companyID).collection('shops');
   }
 
   Future addShop(String address, String city, String openingHours, String company) async {
-    bool active = false;
     CollectionReference shopCollection = _getCollection();
     DocumentReference _docRef = await shopCollection.add({
-      'uid': '',
+      'shopID': '',
       'address': address,
       'coordinates': '',
-      'active': active,
       'opening_hours': openingHours,
       'city': city,
       'company': company,
-      'companyId': this.companyId,
+      'companyID': this.companyID,
     });
-    await shopCollection.doc(_docRef.id).update({'uid': _docRef.id});
+    await shopCollection.doc(_docRef.id).update({'shopID': _docRef.id});
     return _docRef;
   }
 
-  Future updateShopData(String uid, String address, String coordinates, bool active, String city,
+  Future updateShopData(String shopID, String address, String coordinates, String city,
       String openingHours, String company) async {
     CollectionReference shopCollection = _getCollection();
-    return await shopCollection.doc(uid).set({
-      'uid': uid,
+    return await shopCollection.doc(shopID).set({
+      'shopID': shopID,
       'address': address,
       'coordinates': '',
-      'active': active,
       'opening_hours': openingHours,
       'city': city,
       'company': company,
-      'companyId': this.companyId,
+      'companyID': this.companyID,
     });
   }
 
-  Future updateShopStatus(String uid, bool active) async {
+  Future deleteShop(String shopID) async {
     CollectionReference shopCollection = _getCollection();
-    return await shopCollection.doc(uid).update({'active': active});
-  }
-
-  Future deleteShop(String uid) async {
-    CollectionReference shopCollection = _getCollection();
-    return await shopCollection.doc(uid).delete();
+    return await shopCollection.doc(shopID).delete();
   }
 
   List<Shop> _shopsFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Shop(
-        uid: (doc.data() as dynamic)['uid'],
+        shopID: (doc.data() as dynamic)['shopID'],
         address: (doc.data() as dynamic)['address'],
         coordinates: (doc.data() as dynamic)['coordinates'],
-        active: (doc.data() as dynamic)['active'],
         openingHours: (doc.data() as dynamic)['opening_hours'],
         city: (doc.data() as dynamic)['city'],
         company: (doc.data() as dynamic)['company'],
-        companyId: (doc.data() as dynamic)['companyId'],
+        companyID: (doc.data() as dynamic)['companyID'],
       );
     }).toList();
   }
 
   Shop _shopFromSnapshot(DocumentSnapshot snapshot) {
     return Shop(
-      uid: (snapshot.data() as dynamic)['uid'],
+      shopID: (snapshot.data() as dynamic)['shopID'],
       address: (snapshot.data() as dynamic)['address'],
       coordinates: (snapshot.data() as dynamic)['coordinates'],
-      active: (snapshot.data() as dynamic)['active'],
       openingHours: (snapshot.data() as dynamic)['opening_hours'],
       city: (snapshot.data() as dynamic)['city'],
       company: (snapshot.data() as dynamic)['company'],
-      companyId: (snapshot.data() as dynamic)['companyId'],
+      companyID: (snapshot.data() as dynamic)['companyID'],
     );
   }
 
@@ -89,9 +79,9 @@ class ShopDatabase {
   // Get specific shop stream.
   Stream<Shop> get shop {
     CollectionReference shopCollection = _getCollection();
-    if (shopId == null) {
-      print('Error: add parameter shopId - ShopDatabase(shopId: shopId).shop');
+    if (shopID == null) {
+      print('Error: add parameter shopID - ShopDatabase(shopID: shopID).shop');
     }
-    return shopCollection.doc(shopId).snapshots().map(_shopFromSnapshot);
+    return shopCollection.doc(shopID).snapshots().map(_shopFromSnapshot);
   }
 }

@@ -5,7 +5,7 @@ Order? getUpdatedOrder(List<Order> orderList, Order order) {
   // RETURN: [result] - updated order from database with same id as the static order
   Order? result;
   for (var item in orderList) {
-    if (item.orderId == order.orderId) {
+    if (item.orderID == order.orderID) {
       result = item;
     }
   }

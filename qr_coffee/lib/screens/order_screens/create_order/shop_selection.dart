@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/shop.dart';
-import 'package:qr_coffee/screens/app_company/shop_tile.dart';
+import 'package:qr_coffee/screens/app_company/common/shop_tile.dart';
 import 'package:qr_coffee/service/database_service/shop_database.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
@@ -17,7 +17,7 @@ class _ShopSelectionState extends State<ShopSelection> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Shop>>(
-      stream: ShopDatabase(companyId: 'c9wzSTR2HEnYxmgEC8Wl').shopList,
+      stream: ShopDatabase(companyID: 'c9wzSTR2HEnYxmgEC8Wl').shopList,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Shop> shopList = snapshot.data!;

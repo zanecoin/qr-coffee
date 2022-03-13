@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:qr_coffee/root/wrapper.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
-import 'package:qr_coffee/shared/widgets/custom_snackbar.dart';
-import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/auth.dart';
+import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 // Ensures the themeprovider is set before the app starts.
 class AppStart extends StatelessWidget {
@@ -51,9 +50,9 @@ class _MyAppState extends State<MyApp> {
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
-              StreamProvider<User?>(
+              StreamProvider<UserFromAuth?>(
                 create: (context) => AuthService().user,
-                initialData: User.initialData(),
+                initialData: UserFromAuth.initialData(),
               ),
             ],
             child: MaterialApp(

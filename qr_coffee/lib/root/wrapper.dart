@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/authenticate/authenticate.dart';
 import 'package:qr_coffee/service/database_service/user_database.dart';
-import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 // Checks internet connection and decides beetween admin worker and customer screen.
 class Wrapper extends StatefulWidget {
@@ -39,14 +39,14 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User?>(context);
+    final userFromAuth = Provider.of<UserFromAuth?>(context);
 
     if (isInternet) {
-      if (user == null || user.uid == '') {
+      if (userFromAuth == null || userFromAuth.userID == '') {
         return Authenticate();
       } else {
         return StreamBuilder<UserData>(
-          stream: UserDatabase(uid: user.uid).userData,
+          stream: UserDatabase(userID: userFromAuth.userID).userData,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               UserData userData = snapshot.data!;

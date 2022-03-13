@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/shop_details.dart';
-import 'package:qr_coffee/screens/app_company/app_worker/worker_home_body.dart';
+import 'package:qr_coffee/screens/app_company/app_worker/worker_home_body/worker_home_body.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/create_order_screen.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
@@ -42,7 +42,7 @@ class ShopTile extends StatelessWidget {
                 context,
                 new MaterialPageRoute(
                   builder: (context) => StreamProvider(
-                    create: (context) => CompanyDatabase(uid: company!.uid).company,
+                    create: (context) => CompanyDatabase(companyID: company!.companyID).company,
                     initialData: Company.initialData(),
                     catchError: (_, __) => Company.initialData(),
                     child: AdminShopDetails(shop: shop),

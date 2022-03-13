@@ -10,6 +10,7 @@ class CustomTextField extends StatelessWidget {
     this.initVal = '',
     this.obscure = false,
     this.validation = validateName,
+    this.hasIcon = true,
   });
 
   final String label;
@@ -18,6 +19,7 @@ class CustomTextField extends StatelessWidget {
   final bool obscure;
   final String? Function(String?) validation;
   final Function callback;
+  final bool hasIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +30,7 @@ class CustomTextField extends StatelessWidget {
         initialValue: initVal,
         decoration: InputDecoration(
           hintText: label,
-          prefixIcon: Icon(
-            icon,
-          ),
+          prefixIcon: hasIcon ? Icon(icon) : null,
           fillColor: Colors.white,
           filled: true,
           contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),

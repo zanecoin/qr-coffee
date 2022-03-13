@@ -1,33 +1,21 @@
-class User {
-  final String uid;
+import 'package:qr_coffee/service/database_service/database_imports.dart';
 
-  User({required this.uid});
+class UserFromAuth {
+  UserFromAuth({required this.userID});
 
-  factory User.initialData() {
-    return User(uid: '');
+  final String userID;
+
+  factory UserFromAuth.initialData() {
+    return UserFromAuth(userID: '');
   }
 }
 
-class UserData {
-  final String uid;
-  final String name;
-  final String surname;
-  final String email;
-  final String role;
-  final int tokens;
-  final bool switching;
-  final int numOrders;
-  final String company;
+class UserData extends UserFromAuth {
+  UserData({required this.role, required String userID}) : super(userID: userID);
 
-  UserData({
-    required this.uid,
-    required this.name,
-    required this.surname,
-    required this.email,
-    required this.role,
-    required this.tokens,
-    required this.switching,
-    required this.numOrders,
-    required this.company,
-  });
+  final String role;
+
+  updateRole(String role) {
+    UserDatabase(userID: this.userID).updateUserRole(role);
+  }
 }

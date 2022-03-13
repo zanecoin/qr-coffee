@@ -1,6 +1,4 @@
 ÚKOLY K BP:
-- podívat se jak se dělají sw projekty
-- podívat se na sw bakalářku
 - generování dokumentace flutter
 - oficial coding style flutter
 - naučit se pořádně s githubem
@@ -33,6 +31,9 @@ MINI PROJEKTY
 - přidat try/catch k operacím s databází
 - admin home - stringy
 - vytvořit pro pracovníka časový filtr na objednávky
++ nevolat přímo databázové metody jako např. updateCompanyShopNum
+- rozbít order screen na mensi funkce
+- při tvorbě objednávky může být customer null??
 
 GIGA PROJEKTY
 - statistiky
@@ -72,3 +73,5 @@ GB WebPay - poplatek na vyžádání, nejde integrovat s Android/iOS
 Global Payments - poplatek na vyžádání, nejde integrovat s Android/iOS
 ThePay - poplatek 10+2 kč, integrace?
 GoPay - poplatek 10+3 kč, integrace?
+
+android:icon="@mipmap/ic_launcher"

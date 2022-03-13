@@ -1,6 +1,6 @@
 import 'package:community_material_icon/community_material_icon.dart';
+import 'package:qr_coffee/models/customer.dart';
 import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/fancy_info_card.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/functions.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/qr_scan_screen.dart';
@@ -46,16 +46,16 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder4<UserData, List<Order>, List<Order>, dynamic>(
+    return StreamBuilder4<Customer, List<Order>, List<Order>, dynamic>(
       streams: Tuple4(
-        UserDatabase(uid: staticOrder.userId).userData,
-        UserOrderDatabase(uid: staticOrder.userId).activeOrderList,
-        UserOrderDatabase(uid: staticOrder.userId).passiveOrderList,
+        CustomerDatabase(userID: staticOrder.userID).customer,
+        CustomerOrderDatabase(userID: staticOrder.userID).activeOrderList,
+        CustomerOrderDatabase(userID: staticOrder.userID).passiveOrderList,
         Stream.periodic(const Duration(milliseconds: 1000)),
       ),
       builder: (context, snapshots) {
         if (snapshots.item2.hasData && snapshots.item3.hasData) {
-          UserData? userData = snapshots.item1.data;
+          Customer? customer = snapshots.item1.data;
           List<Order> allOrders = snapshots.item2.data! + snapshots.item3.data!;
 
           Order? order = _static ? staticOrder : getUpdatedOrder(allOrders, staticOrder);
@@ -96,7 +96,7 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
                 type: 1,
                 function: mode == 'qr' ? _doublePop : null,
               ),
-              body: userData == null && order.userId != 'generated-order^^'
+              body: customer == null && order.userID != 'generated-order^^'
                   ? Center(child: Text(AppStringValues.userNotFound))
                   : SingleChildScrollView(
                       child: Column(
@@ -106,7 +106,7 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
                           ResultWindowChooser(
                             order: order,
                             mode: mode,
-                            role: userData!.role,
+                            role: customer!.role,
                           ),
                           if (order.status == 'ABORTED') _returnInfo(order),
 
@@ -117,7 +117,7 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
                           _header(order, deviceWidth),
 
                           // ACTION BUTTONS -----------------------------------
-                          _resultButtons(order, userData),
+                          _resultButtons(order, customer),
                           SizedBox(height: 30),
                         ],
                       ),
@@ -184,9 +184,9 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
     );
   }
 
-  Widget _resultButtons(Order order, UserData userData) {
+  Widget _resultButtons(Order order, Customer customer) {
     _abortOrder() {
-      moveOrderToPassive(order, 'ABORTED', userData);
+      moveOrderToPassive(order, 'ABORTED', customer);
     }
 
     _triggerAlert() {

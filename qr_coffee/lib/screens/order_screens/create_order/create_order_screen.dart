@@ -1,3 +1,4 @@
+import 'package:qr_coffee/models/customer.dart';
 import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/models/user.dart';
@@ -31,6 +32,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
 
   late UserData userData;
   late List<Product> items;
+  late Customer customer;
   bool loading = false;
   double plusTime = 5;
   List<String> choices = [AppStringValues.drink, AppStringValues.food];
@@ -53,54 +55,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
     super.dispose();
   }
 
-  // Back button behavior.
-  Future<bool> _onWillPop() async {
-    if (screenNum == 1) {
-      return true;
-    } else {
-      _switchScreenNum();
-      return false;
-    }
-  }
-
-  // Icon chooser for submit button.
-  IconData _buttonIcon() {
-    IconData icon = Icons.check_circle;
-
-    if (screenNum == 1) {
-      if (role == 'customer') {
-        icon = CommunityMaterialIcons.arrow_right_circle;
-      } else if (role == 'worker') {
-        icon = CommunityMaterialIcons.upload_outline;
-      }
-    }
-    return icon;
-  }
-
-  // Text chooser for submit button.
-  String _buttonText() {
-    String text = AppStringValues.orderNow;
-
-    if (screenNum == 1) {
-      if (role == 'customer') {
-        text = AppStringValues.continueOn;
-      } else if (role == 'worker') {
-        text = AppStringValues.createOrder;
-      }
-    }
-    return text;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User?>(context);
+    final userFromAuth = Provider.of<UserFromAuth?>(context);
     final double deviceWidth = Responsive.deviceWidth(context);
 
-    return StreamBuilder3<List<Product>, List<Shop>, UserData>(
-      streams: Tuple3(
+    return StreamBuilder4<List<Product>, List<Shop>, UserData, Customer>(
+      streams: Tuple4(
         ProductDatabase().products,
-        ShopDatabase(companyId: 'c9wzSTR2HEnYxmgEC8Wl').shopList,
-        UserDatabase(uid: user!.uid).userData,
+        ShopDatabase(companyID: 'c9wzSTR2HEnYxmgEC8Wl').shopList,
+        UserDatabase(userID: userFromAuth!.userID).userData,
+        CustomerDatabase(userID: userFromAuth.userID).customer,
       ),
       builder: (context, snapshots) {
         if (snapshots.item1.hasData && snapshots.item2.hasData && snapshots.item3.hasData) {
@@ -108,6 +73,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
           List<Shop> shops = snapshots.item2.data!;
           userData = snapshots.item3.data!;
           role = userData.role;
+
+          if (snapshots.item4.data == null) {
+            customer = Customer.initialData();
+          } else {
+            customer = snapshots.item4.data!;
+          }
 
           return WillPopScope(
             onWillPop: () async => _onWillPop(),
@@ -146,7 +117,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
                               controller: controller,
                               onItemTap: _appendItem,
                             )
-                          : _orderDelivery(shops, deviceWidth, userData)),
+                          : _orderDelivery(shops, deviceWidth, customer)),
                   Container(
                     padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
                     decoration: BoxDecoration(
@@ -208,9 +179,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
     );
   }
 
-  void _appendItem(coffee) {
+  void _appendItem(item) {
     setState(() {
-      _selectedItems.insert(0, coffee);
+      _selectedItems.insert(0, item);
     });
   }
 
@@ -229,17 +200,55 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
       } else if (role == 'worker') {
         setState(() => loading = true);
         await createOrderFunction(
-            context, items, userData, _selectedItems, shop, paymentMethod, role, plusTime);
+            context, items, customer, _selectedItems, shop, paymentMethod, role, plusTime);
         setState(() => loading = false);
       }
     } else {
       if (role == 'customer') {
         setState(() => loading = true);
         await createOrderFunction(
-            context, items, userData, _selectedItems, shop, paymentMethod, role, plusTime);
+            context, items, customer, _selectedItems, shop, paymentMethod, role, plusTime);
         setState(() => loading = false);
       }
     }
+  }
+
+  // Back button behavior.
+  Future<bool> _onWillPop() async {
+    if (screenNum == 1) {
+      return true;
+    } else {
+      _switchScreenNum();
+      return false;
+    }
+  }
+
+  // Icon chooser for submit button.
+  IconData _buttonIcon() {
+    IconData icon = Icons.check_circle;
+
+    if (screenNum == 1) {
+      if (role == 'customer') {
+        icon = CommunityMaterialIcons.arrow_right_circle;
+      } else if (role == 'worker') {
+        icon = CommunityMaterialIcons.upload_outline;
+      }
+    }
+    return icon;
+  }
+
+  // Text chooser for submit button.
+  String _buttonText() {
+    String text = AppStringValues.orderNow;
+
+    if (screenNum == 1) {
+      if (role == 'customer') {
+        text = AppStringValues.continueOn;
+      } else if (role == 'worker') {
+        text = AppStringValues.createOrder;
+      }
+    }
+    return text;
   }
 
   Widget _text(String string, double size, FontWeight fontWeight, {Color color = Colors.black}) {
@@ -275,7 +284,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   Widget _orderDelivery(
     List<Shop> shops,
     double deviceWidth,
-    UserData userData,
+    Customer customer,
   ) {
     return SingleChildScrollView(
       child: Column(
@@ -327,7 +336,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
               ),
               TextButton(
                 onPressed: () => setState(() => paymentMethod = 2),
-                child: Text('${AppStringValues.withTokens} (${userData.tokens})'),
+                child: Text('${AppStringValues.withTokens} (${customer.tokens})'),
                 style: TextButton.styleFrom(
                   backgroundColor: paymentMethod == 2 ? Colors.black : Colors.white,
                   primary: paymentMethod == 2 ? Colors.white : Colors.grey,

@@ -1,11 +1,10 @@
-// Move order to passive orders.
 import 'package:flutter/material.dart';
+import 'package:qr_coffee/models/customer.dart';
 import 'package:qr_coffee/models/order.dart';
-import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/order_details_customer.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 
-Future moveOrderToPassive(Order order, String status, UserData userData) async {
+Future moveOrderToPassive(Order order, String status, Customer customer) async {
   await CompanyOrderDatabase().createPassiveOrder(
     status,
     order.items,
@@ -14,15 +13,14 @@ Future moveOrderToPassive(Order order, String status, UserData userData) async {
     order.username,
     order.shop,
     order.company,
-    order.orderId,
-    order.userId,
-    order.shopId,
-    order.companyId,
+    order.orderID,
+    order.userID,
+    order.shopID,
+    order.companyID,
     order.day,
-    order.triggerNum,
   );
 
-  await UserOrderDatabase(uid: order.userId).createPassiveOrder(
+  await CustomerOrderDatabase(userID: order.userID).createPassiveOrder(
     status,
     order.items,
     order.price,
@@ -30,21 +28,17 @@ Future moveOrderToPassive(Order order, String status, UserData userData) async {
     order.username,
     order.shop,
     order.company,
-    order.orderId,
-    order.userId,
-    order.shopId,
-    order.companyId,
+    order.orderID,
+    order.shopID,
+    order.companyID,
     order.day,
-    order.triggerNum,
   );
 
-  await CompanyOrderDatabase().deleteActiveOrder(order.orderId);
-  await UserOrderDatabase(uid: order.userId).deleteActiveOrder(order.orderId);
+  await CompanyOrderDatabase().deleteActiveOrder(order.orderID);
+  await CustomerOrderDatabase(userID: order.userID).deleteActiveOrder(order.orderID);
 
-  // REFUND ORDER WITH QR TOKENS
-  if (status == 'ABORTED') {
-    await UserDatabase(uid: userData.uid).updateUserTokens(userData.tokens + order.price);
-  }
+  // Refund order with QR Tokens.
+  customer.updateTokens(customer.tokens + order.price);
 }
 
 // Move order back to active orders.
@@ -58,14 +52,13 @@ Future repeatOrder(Order order, String status, BuildContext previousContext) asy
     order.shop,
     order.company,
     '',
-    order.userId,
-    order.shopId,
-    order.companyId,
+    order.userID,
+    order.shopID,
+    order.companyID,
     order.day,
-    order.triggerNum,
   );
 
-  await UserOrderDatabase(uid: order.userId).createActiveOrder(
+  await CustomerOrderDatabase(userID: order.userID).createActiveOrder(
     status,
     order.items,
     order.price,
@@ -74,11 +67,9 @@ Future repeatOrder(Order order, String status, BuildContext previousContext) asy
     order.shop,
     order.company,
     '',
-    order.userId,
-    order.shopId,
-    order.companyId,
+    order.shopID,
+    order.companyID,
     order.day,
-    order.triggerNum,
   );
 
   Navigator.pushReplacement(
@@ -94,6 +85,6 @@ Future repeatOrder(Order order, String status, BuildContext previousContext) asy
 
 // Update order from 'active' to 'ready'.
 Future updateOrderStatus(Order order, String status) async {
-  await CompanyOrderDatabase().updateOrderStatus(order.orderId, status);
-  await UserOrderDatabase(uid: order.userId).updateOrderStatus(order.orderId, status);
+  await CompanyOrderDatabase().updateOrderStatus(order.orderID, status);
+  await CustomerOrderDatabase(userID: order.userID).updateOrderStatus(order.orderID, status);
 }

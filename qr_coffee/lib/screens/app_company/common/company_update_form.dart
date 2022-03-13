@@ -77,7 +77,7 @@ class _CompanyUpdateFormState extends State<CompanyUpdateForm> {
       phone = '+420${(formField[AppStringValues.phone] ?? company.phone).trim()}';
 
       try {
-        await CompanyDatabase(uid: company.uid).updateCompanyData(name, phone, email);
+        await CompanyDatabase(companyID: company.companyID).updateCompanyData(name, phone, email);
         Navigator.pop(context);
         customSnackbar(context: context, text: AppStringValues.companyInfoChangeSuccess);
       } catch (e) {

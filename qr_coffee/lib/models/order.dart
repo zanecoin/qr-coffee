@@ -6,12 +6,11 @@ class Order {
   String username;
   String shop;
   String company;
-  String orderId;
-  String userId;
-  String shopId;
-  String companyId;
+  String orderID;
+  String userID;
+  String shopID;
+  String companyID;
   String day;
-  int triggerNum;
 
   Order({
     required this.status,
@@ -21,11 +20,10 @@ class Order {
     required this.username,
     required this.shop,
     required this.company,
-    required this.orderId,
-    required this.userId,
-    required this.shopId,
-    required this.companyId,
+    required this.orderID,
+    required this.userID,
+    required this.shopID,
+    required this.companyID,
     required this.day,
-    required this.triggerNum,
   });
 }

@@ -87,7 +87,7 @@ launchPaymentGateway(BuildContext context, int price, List<Product> items, Order
       'description': 'QR Coffee',
       'currencyCode': 'PLN',
       'totalAmount': '${price * 100}',
-      'extOrderId': '${order.orderId}_${order.companyId}_${order.userId}',
+      'extorderID': '${order.orderID}_${order.companyID}_${order.userID}',
       'products': [
         {'name': 'Wireless mouse', 'unitPrice': '15000', 'quantity': '1'},
         {'name': 'HDMI cable', 'unitPrice': '6000', 'quantity': '1'}
@@ -101,13 +101,13 @@ launchPaymentGateway(BuildContext context, int price, List<Product> items, Order
   );
 
   String url = '';
-  //String orderId = '';
+  //String orderID = '';
 
   if (response.statusCode == 302 || response.statusCode == 400) {
     print(jsonDecode(response.statusCode.toString()));
     print(jsonDecode(response.body).toString());
     url = Address.fromJson(jsonDecode(response.body)).redirectUri;
-    //orderId = Address.fromJson(jsonDecode(response3.body)).orderId;
+    //orderID = Address.fromJson(jsonDecode(response3.body)).orderID;
   } else {
     customSnackbar(
       context: context,

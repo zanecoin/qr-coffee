@@ -1,4 +1,5 @@
 import 'package:provider/provider.dart';
+import 'package:qr_coffee/models/customer.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
@@ -17,8 +18,7 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-        duration: const Duration(milliseconds: 100), vsync: this);
+    _controller = AnimationController(duration: const Duration(milliseconds: 100), vsync: this);
   }
 
   Future<void> _playAnimation() async {
@@ -32,14 +32,13 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // GET CURRENTLY LOGGED USER AND DATA STREAMS
-    final user = Provider.of<User?>(context);
+    final userFromAuth = Provider.of<UserFromAuth?>(context);
 
-    return StreamBuilder<UserData>(
-      stream: UserDatabase(uid: user!.uid).userData,
+    return StreamBuilder<Customer>(
+      stream: CustomerDatabase(userID: userFromAuth!.userID).customer,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          UserData userData = snapshot.data!;
+          Customer customer = snapshot.data!;
 
           return Scaffold(
             appBar: customAppBar(context, title: Text('')),
@@ -50,7 +49,7 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
                   child: Center(
                       child: TokenTable(
                     controller: _controller,
-                    userData: userData,
+                    customer: customer,
                     function: _playAnimation,
                   )),
                 ),
@@ -68,11 +67,7 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
 }
 
 class TokenTable extends StatelessWidget {
-  TokenTable(
-      {Key? key,
-      required this.controller,
-      required this.userData,
-      required this.function})
+  TokenTable({Key? key, required this.controller, required this.customer, required this.function})
       : width = Tween<double>(
           begin: 260.0,
           end: 255.0,
@@ -101,7 +96,7 @@ class TokenTable extends StatelessWidget {
         ),
         super(key: key);
 
-  final UserData userData;
+  final Customer customer;
   final Function function;
   final AnimationController controller;
   final Animation<double> width;
@@ -123,21 +118,17 @@ class TokenTable extends StatelessWidget {
               blurRadius: 15.0,
               spreadRadius: 5.0),
         ],
-        gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.amber.shade50,
-              Colors.amber.shade200,
-              Colors.amber.shade600,
-              Colors.amber.shade700,
-            ],
-            stops: [
-              0.1,
-              0.3,
-              0.8,
-              1
-            ]),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [
+          Colors.amber.shade50,
+          Colors.amber.shade200,
+          Colors.amber.shade600,
+          Colors.amber.shade700,
+        ], stops: [
+          0.1,
+          0.3,
+          0.8,
+          1
+        ]),
       ),
       child: InkWell(
         onTap: () {
@@ -149,7 +140,7 @@ class TokenTable extends StatelessWidget {
             height: 140,
             child: Center(
                 child: Text(
-              '${userData.tokens} QRT',
+              '${customer.tokens} QRT',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 40,
@@ -168,21 +159,18 @@ class TokenTable extends StatelessWidget {
                       blurRadius: 1.0,
                       spreadRadius: 1.0),
                 ],
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.amber.shade50,
-                      Colors.amber.shade200,
-                      Colors.amber.shade600,
-                      Colors.amber.shade700,
-                    ],
-                    stops: [
-                      0.1,
-                      0.3,
-                      0.8,
-                      1
-                    ])),
+                gradient:
+                    LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [
+                  Colors.amber.shade50,
+                  Colors.amber.shade200,
+                  Colors.amber.shade600,
+                  Colors.amber.shade700,
+                ], stops: [
+                  0.1,
+                  0.3,
+                  0.8,
+                  1
+                ])),
           ),
         ),
       ),

@@ -5,7 +5,6 @@ export 'package:qr_coffee/shared/widgets/custom_button_style(depricated).dart';
 export 'package:qr_coffee/shared/widgets/custom_button.dart';
 export 'package:qr_coffee/shared/widgets/custom_circle_avatar.dart';
 export 'package:qr_coffee/shared/widgets/custom_divider.dart';
-export 'package:qr_coffee/shared/widgets/custom_dropdown(depricated).dart';
 export 'package:qr_coffee/shared/widgets/custom_option_button.dart';
 export 'package:qr_coffee/shared/widgets/custom_option_dialog.dart';
 export 'package:qr_coffee/shared/widgets/custom_snackbar.dart';

@@ -6,12 +6,12 @@ class AuthService {
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
 
   // Create user object based on firebase user.
-  User? _userFromFirebase(auth.User? user) {
-    return user == null ? null : User(uid: user.uid);
+  UserFromAuth? _userFromFirebase(auth.User? user) {
+    return user == null ? null : UserFromAuth(userID: user.uid);
   }
 
   // Get user stream.
-  Stream<User?> get user {
+  Stream<UserFromAuth?> get user {
     return _auth.authStateChanges().map(_userFromFirebase);
   }
 
@@ -23,8 +23,11 @@ class AuthService {
           await _auth.createUserWithEmailAndPassword(email: email, password: password);
 
       // Create a new document for the user with the uid.
-      await UserDatabase(uid: credential.user!.uid)
-          .updateUserData(name, surname, email, 'customer', 0, false, 0, '');
+      await UserDatabase(userID: credential.user!.uid).updateUserData('customer');
+
+      // Create a new document for the customer with the uid.
+      await CustomerDatabase(userID: credential.user!.uid)
+          .updateCustomerData(name, surname, email, 0);
       return '';
     } on auth.FirebaseAuthException catch (error) {
       return error.message;

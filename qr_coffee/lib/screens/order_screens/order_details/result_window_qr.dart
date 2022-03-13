@@ -126,10 +126,10 @@ class QrCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          //QrImage(data: order.orderId, size: 220.0),
+          //QrImage(data: order.orderID, size: 220.0),
           QrImage(data: 'QR Coffee', size: 220.0),
           Text(
-            //'${AppStringValues.orderCode}: "${order.orderId.substring(0, 6).toUpperCase()}"',
+            //'${AppStringValues.orderCode}: "${order.orderID.substring(0, 6).toUpperCase()}"',
             'QR Coffee',
             style: TextStyle(
               fontSize: 16.0,

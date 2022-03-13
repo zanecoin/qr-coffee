@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
-Future<dynamic> customOptionDialog(BuildContext context, Function function, List<String> options) {
+Future<dynamic> customOptionDialog(
+  Function function,
+  List<String> options,
+  BuildContext context,
+  BuildContext generalContext,
+  String previousRole,
+  String userID,
+) {
   return showDialog(
     context: context,
     barrierDismissible: true,
@@ -12,9 +19,9 @@ Future<dynamic> customOptionDialog(BuildContext context, Function function, List
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
           child: Column(
             children: <Widget>[
-              _textButton(function, options[0], context),
-              _textButton(function, options[1], context),
-              _textButton(function, options[2], context),
+              _textButton(function, context, generalContext, options[0], previousRole, userID),
+              _textButton(function, context, generalContext, options[1], previousRole, userID),
+              _textButton(function, context, generalContext, options[2], previousRole, userID),
             ],
           ),
         ),
@@ -23,16 +30,23 @@ Future<dynamic> customOptionDialog(BuildContext context, Function function, List
   );
 }
 
-Widget _textButton(Function function, String option, BuildContext context) {
+Widget _textButton(
+  Function function,
+  BuildContext context,
+  BuildContext generalContext,
+  String futureRole,
+  String previousRole,
+  String userID,
+) {
   return TextButton(
     style: TextButton.styleFrom(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       primary: Colors.black,
       backgroundColor: Colors.white,
     ),
-    child: Text(option, style: TextStyle(fontSize: 16)),
+    child: Text(futureRole, style: TextStyle(fontSize: 16)),
     onPressed: () {
-      function(option);
+      function(futureRole, previousRole, generalContext, userID);
       Navigator.pop(context);
     },
   );

@@ -10,7 +10,7 @@ const app = express();
 
 app.post("/", async (req, res) => {
     var status;
-    var extOrderId;
+    var extorderID;
     iterateObject(req.body);
 
     function iterateObject(obj) {
@@ -19,8 +19,8 @@ app.post("/", async (req, res) => {
                 iterateObject(obj[prop]);
 
             } else {
-                if (prop == "extOrderId") {
-                    extOrderId = obj[prop];
+                if (prop == "extorderID") {
+                    extorderID = obj[prop];
                 }
                 if (prop == "status") {
                     status = obj[prop];
@@ -30,14 +30,14 @@ app.post("/", async (req, res) => {
     }
 
     console.log(status);
-    console.log(extOrderId);
-    const ids = extOrderId.split('_');
-    const orderId = ids[0];
+    console.log(extorderID);
+    const ids = extorderID.split('_');
+    const orderID = ids[0];
     const copmanyId = ids[1];
-    const userId = ids[2];
+    const userID = ids[2];
 
-    const userOrder = await admin.firestore().collection("users").doc(userId).collection("active_orders").doc(orderId);
-    const companyOrder = await admin.firestore().collection("companies").doc(copmanyId).collection("active_orders").doc(orderId);
+    const userOrder = await admin.firestore().collection("users").doc(userID).collection("active_orders").doc(orderID);
+    const companyOrder = await admin.firestore().collection("companies").doc(copmanyId).collection("active_orders").doc(orderID);
 
     updateStatus(userOrder);
     updateStatus(companyOrder);

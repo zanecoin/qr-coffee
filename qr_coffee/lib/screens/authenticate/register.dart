@@ -49,15 +49,26 @@ class _RegisterState extends State<Register> {
                   child: Column(
                     children: [
                       SizedBox(height: Responsive.height(3.0, context)),
-                      CustomTextField(
-                        AppStringValues.name,
-                        Icons.person_outline,
-                        _formCallback,
-                      ),
-                      CustomTextField(
-                        AppStringValues.surname,
-                        Icons.person,
-                        _formCallback,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              AppStringValues.name,
+                              Icons.person_outline,
+                              _formCallback,
+                              hasIcon: false,
+                            ),
+                          ),
+                          SizedBox(width: 15.0),
+                          Expanded(
+                            child: CustomTextField(
+                              AppStringValues.surname,
+                              Icons.person,
+                              _formCallback,
+                              hasIcon: false,
+                            ),
+                          ),
+                        ],
                       ),
                       CustomTextField(
                         AppStringValues.email,

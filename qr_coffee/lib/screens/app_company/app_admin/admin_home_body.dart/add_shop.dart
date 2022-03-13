@@ -1,6 +1,5 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
@@ -49,10 +48,7 @@ class _AddShopState extends State<AddShop> {
                   SizedBox(height: Responsive.height(1, context)),
                   Text(
                     errorMessage,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.red, fontSize: 14),
                     textAlign: TextAlign.center,
                   ),
                   CustomOutlinedIconButton(
@@ -91,8 +87,9 @@ class _AddShopState extends State<AddShop> {
         String openingHours = '${formField['1']}-${formField['2']}';
 
         try {
-          ShopDatabase(companyId: company.uid).addShop(address, city, openingHours, company.name);
-          CompanyDatabase(uid: company.uid).updateCompanyShopNum(company.numShops + 1);
+          ShopDatabase(companyID: company.companyID)
+              .addShop(address, city, openingHours, company.name);
+          CompanyDatabase(companyID: company.companyID).updateCompanyShopNum(company.numShops + 1);
           Navigator.pop(context);
           customSnackbar(context: context, text: AppStringValues.shopCreationSuccess);
         } catch (e) {

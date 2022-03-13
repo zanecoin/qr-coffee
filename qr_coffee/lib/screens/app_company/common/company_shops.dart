@@ -5,7 +5,7 @@ import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/add_shop.dart';
-import 'package:qr_coffee/screens/app_company/shop_tile.dart';
+import 'package:qr_coffee/screens/app_company/common/shop_tile.dart';
 import 'package:qr_coffee/service/database_service/shop_database.dart';
 import 'package:qr_coffee/service/database_service/user_database.dart';
 import 'package:qr_coffee/shared/strings.dart';
@@ -22,14 +22,14 @@ class CompanyShops extends StatefulWidget {
 class _CompanyShopsState extends State<CompanyShops> {
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User?>(context);
+    final userFromAuth = Provider.of<UserFromAuth?>(context);
     final company = Provider.of<Company>(context);
 
-    if (company.uid != '') {
+    if (company.companyID != '') {
       return StreamBuilder2<List<Shop>, UserData>(
         streams: Tuple2(
-          ShopDatabase(companyId: company.uid).shopList,
-          UserDatabase(uid: user!.uid).userData,
+          ShopDatabase(companyID: company.companyID).shopList,
+          UserDatabase(userID: userFromAuth!.userID).userData,
         ),
         builder: (context, snapshots) {
           if (snapshots.item1.hasData && snapshots.item2.hasData) {
@@ -44,7 +44,7 @@ class _CompanyShopsState extends State<CompanyShops> {
                   style: TextStyle(fontFamily: 'Galada', fontSize: 30),
                 ),
                 type: 3,
-                actions: [if (userData.role == 'admin') _add(company)],
+                actions: [if (userData.role == 'admin') _addShop(company)],
               ),
               body: SingleChildScrollView(
                 child: Container(
@@ -90,7 +90,7 @@ class _CompanyShopsState extends State<CompanyShops> {
     );
   }
 
-  Widget _add(Company company) {
+  Widget _addShop(Company company) {
     return IconButton(
       onPressed: () => Navigator.push(
           context, new MaterialPageRoute(builder: (context) => AddShop(company: company))),

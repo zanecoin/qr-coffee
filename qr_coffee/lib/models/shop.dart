@@ -1,34 +1,31 @@
 class Shop {
   Shop({
-    required this.uid,
+    required this.shopID,
     required this.address,
     required this.coordinates,
-    required this.active,
     required this.openingHours,
     required this.city,
     required this.company,
-    required this.companyId,
+    required this.companyID,
   });
 
-  final String uid;
+  final String shopID;
   final String address;
   final String coordinates;
-  final bool active;
   final String openingHours;
   final String city;
   final String company;
-  final String companyId;
+  final String companyID;
 
   factory Shop.initialData() {
     return Shop(
-      uid: '',
+      shopID: '',
       address: '',
       coordinates: '',
-      active: false,
       openingHours: '',
       city: '',
       company: '',
-      companyId: '',
+      companyID: '',
     );
   }
 }

@@ -1,5 +1,5 @@
 class Product {
-  final String uid;
+  final String productID;
   final String name;
   final String type;
   final int price;
@@ -7,7 +7,7 @@ class Product {
   final String picture;
 
   Product({
-    required this.uid,
+    required this.productID,
     required this.name,
     required this.type,
     required this.price,

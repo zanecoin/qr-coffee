@@ -6,7 +6,6 @@ import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/order_details_customer.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
 class QRScanScreen extends StatefulWidget {
@@ -22,7 +21,6 @@ class _QRScanScreenState extends State<QRScanScreen> {
   final qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   String barcode = AppStringValues.scanQr;
-  List<Order> activeOrders = [];
 
   @override
   void dispose() {
@@ -42,43 +40,32 @@ class _QRScanScreenState extends State<QRScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Order>>(
-      stream: CompanyOrderDatabase().activeOrderList,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          activeOrders = snapshot.data!;
-
-          return Scaffold(
-            body: Stack(
-              alignment: Alignment.center,
-              children: [
-                buildQrView(context),
-                Positioned(
-                  bottom: Responsive.height(16, context),
-                  child: buildResult(),
-                ),
-                Positioned(
-                  top: Responsive.height(8, context),
-                  left: Responsive.width(4, context),
-                  child: TextButton.icon(
-                    label: Text(AppStringValues.back),
-                    icon: Icon(Icons.arrow_back_ios, size: 22),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.white24,
-                      primary: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          buildQrView(context),
+          Positioned(
+            bottom: Responsive.height(16, context),
+            child: buildResult(),
+          ),
+          Positioned(
+            top: Responsive.height(8, context),
+            left: Responsive.width(4, context),
+            child: TextButton.icon(
+              label: Text(AppStringValues.back),
+              icon: Icon(Icons.arrow_back_ios, size: 22),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.white24,
+                primary: Colors.black,
+              ),
             ),
-          );
-        } else {
-          return Loading();
-        }
-      },
+          ),
+        ],
+      ),
     );
   }
 
@@ -120,15 +107,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
             order.username,
             order.shop,
             order.company,
-            order.orderId,
-            order.userId,
-            order.shopId,
-            order.companyId,
+            order.orderID,
+            order.userID,
+            order.shopID,
+            order.companyID,
             order.day,
-            order.triggerNum,
           );
 
-          await UserOrderDatabase(uid: order.userId).createPassiveOrder(
+          await CustomerOrderDatabase(userID: order.userID).createPassiveOrder(
             status,
             order.items,
             order.price,
@@ -136,16 +122,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
             order.username,
             order.shop,
             order.company,
-            order.orderId,
-            order.userId,
-            order.shopId,
-            order.companyId,
+            order.orderID,
+            order.shopID,
+            order.companyID,
             order.day,
-            order.triggerNum,
           );
 
-          await CompanyOrderDatabase().deleteActiveOrder(order.orderId);
-          await UserOrderDatabase(uid: order.userId).deleteActiveOrder(order.orderId);
+          await CompanyOrderDatabase().deleteActiveOrder(order.orderID);
+          await CustomerOrderDatabase(userID: order.userID).deleteActiveOrder(order.orderID);
         }
 
         if (!mounted) return;
@@ -158,14 +142,6 @@ class _QRScanScreenState extends State<QRScanScreen> {
             builder: (context) => OrderDetailsCustomer(order: order, mode: 'qr'),
           ),
         );
-
-        if (order.status == 'ACTIVE') {
-          await UserOrderDatabase(uid: order.userId).triggerOrder(order.orderId, 1);
-          print('trigger: 1');
-          Future.delayed(Duration(milliseconds: 3000));
-          await UserOrderDatabase(uid: order.userId).triggerOrder(order.orderId, 0);
-          print('trigger: 0');
-        }
       } else {
         setState(() => this.barcode = AppStringValues.wrongQr);
       }

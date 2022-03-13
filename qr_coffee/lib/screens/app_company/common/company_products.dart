@@ -3,7 +3,6 @@ import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/product.dart';
-import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/product_update_form.dart';
 import 'package:qr_coffee/screens/order_screens/product_tile.dart';
@@ -11,7 +10,6 @@ import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/loading.dart';
 import 'package:qr_coffee/shared/widgets/widget_imports.dart';
 
 class CompanyProducts extends StatefulWidget {
@@ -46,13 +44,13 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
     final double deviceWidth = Responsive.deviceWidth(context);
     final bool largeDevice = deviceWidth > kDeviceUpperWidthTreshold ? true : false;
     final company = Provider.of<Company>(context);
-    final user = Provider.of<User?>(context);
+    final userFromAuth = Provider.of<UserFromAuth?>(context);
 
-    if (company.uid != '') {
+    if (company.companyID != '') {
       return StreamBuilder2<List<Product>, UserData>(
         streams: Tuple2(
-          ProductDatabase(uid: company.uid).products,
-          UserDatabase(uid: user!.uid).userData,
+          ProductDatabase(productID: company.companyID).products,
+          UserDatabase(userID: userFromAuth!.userID).userData,
         ),
         builder: (context, snapshots) {
           if (snapshots.item1.hasData && snapshots.item2.hasData) {

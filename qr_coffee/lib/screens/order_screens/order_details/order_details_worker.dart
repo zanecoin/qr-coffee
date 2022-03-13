@@ -47,7 +47,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
   Widget build(BuildContext context) {
     return StreamBuilder4<UserData, List<Order>, List<Order>, dynamic>(
       streams: Tuple4(
-        UserDatabase(uid: staticOrder.userId).userData,
+        UserDatabase(userID: staticOrder.userID).userData,
         CompanyOrderDatabase().activeOrderList,
         CompanyOrderDatabase().passiveOrderList,
         Stream.periodic(const Duration(milliseconds: 1000)),
@@ -72,11 +72,6 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
               ),
             );
           } else {
-            // Show alert if user tries to claim order which is not ready.
-            if (order.triggerNum == 1) {
-              _showAlert = true;
-            }
-
             // Header format chooser.
             if (order.status == 'ACTIVE' || order.status == 'READY') {
               List returnArray = time == '' ? ['?', Colors.black] : getRemainingTime(order, time);
@@ -95,7 +90,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                   style: TextStyle(color: color, fontSize: 18),
                 ),
               ),
-              body: userData == null && order.userId != 'generated-order^^'
+              body: userData == null && order.userID != 'generated-order^^'
                   ? Center(child: Text(AppStringValues.userNotFound))
                   : SingleChildScrollView(
                       child: Column(
@@ -116,7 +111,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                           SizedBox(height: 10),
 
                           // ACTION BUTTONS -----------------------------------
-                          if (userData != null) _resultButtons(order, userData),
+                          if (userData != null) _resultButtons(order),
                           SizedBox(height: 30),
                           if (_showAlert) Text('not ready'),
                         ],
@@ -153,12 +148,11 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
     );
   }
 
-  Widget _resultButtons(Order order, UserData userData) {
+  Widget _resultButtons(Order order) {
     return Column(
       children: [
         if (order.status == 'ACTIVE' && mode == 'normal')
           ResultButton(
-            userData: userData,
             text: AppStringValues.ready,
             icon: Icons.done,
             color: Colors.green,
@@ -173,7 +167,6 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ResultButton(
-                    userData: userData,
                     text: AppStringValues.abandoned,
                     icon: Icons.clear,
                     color: Colors.red,
@@ -182,7 +175,6 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                     previousContext: context,
                   ),
                   ResultButton(
-                    userData: userData,
                     text: AppStringValues.collected,
                     icon: Icons.done,
                     color: Colors.green,

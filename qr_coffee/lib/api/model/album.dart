@@ -14,14 +14,14 @@ class Album {
 
 class Address {
   final String redirectUri;
-  final String orderId;
+  final String orderID;
 
-  Address({required this.redirectUri, required this.orderId});
+  Address({required this.redirectUri, required this.orderID});
 
   factory Address.fromJson(Map<String, dynamic> json) {
     return Address(
       redirectUri: json['redirectUri'],
-      orderId: json['orderId'],
+      orderID: json['orderID'],
     );
   }
 }

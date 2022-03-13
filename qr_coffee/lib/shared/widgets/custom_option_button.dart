@@ -8,12 +8,18 @@ class CustomOptionButton extends StatelessWidget {
     required this.current,
     required this.function,
     required this.options,
+    required this.generalContext,
+    required this.previousRole,
+    required this.userID,
   }) : super(key: key);
 
   final String title;
   final String current;
   final Function function;
   final List<String> options;
+  final BuildContext generalContext;
+  final String previousRole;
+  final String userID;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +45,8 @@ class CustomOptionButton extends StatelessWidget {
             ],
           ),
         ),
-        onTap: () => customOptionDialog(context, function, options),
+        onTap: () =>
+            customOptionDialog(function, options, context, generalContext, previousRole, userID),
       ),
     );
   }

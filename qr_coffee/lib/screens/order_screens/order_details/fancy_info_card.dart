@@ -77,7 +77,7 @@ class FancyInfoCard extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  '${AppStringValues.orderCode}: ${order.orderId.substring(0, 6).toUpperCase()}',
+                  '${AppStringValues.orderCode}: ${order.orderID.substring(0, 6).toUpperCase()}',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black,

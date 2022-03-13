@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_coffee/models/customer.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_tile.dart';
@@ -30,21 +31,20 @@ class _MyOrdersState extends State<MyOrders> {
 
   @override
   Widget build(BuildContext context) {
-    // GET CURRENTLY LOGGED USER AND DATA STREAMS
-    final user = Provider.of<User?>(context);
+    final userFromAuth = Provider.of<UserFromAuth?>(context);
 
-    return StreamBuilder4<UserData, List<Order>, List<Order>, dynamic>(
+    return StreamBuilder4<Customer, List<Order>, List<Order>, dynamic>(
       streams: Tuple4(
-        UserDatabase(uid: user!.uid).userData,
-        UserOrderDatabase(uid: user.uid).activeOrderList,
-        UserOrderDatabase(uid: user.uid).passiveOrderList,
+        CustomerDatabase(userID: userFromAuth!.userID).customer,
+        CustomerOrderDatabase(userID: userFromAuth.userID).activeOrderList,
+        CustomerOrderDatabase(userID: userFromAuth.userID).passiveOrderList,
         Stream.periodic(const Duration(seconds: 1)),
       ),
       builder: (context, snapshots) {
         if (snapshots.item1.hasData && snapshots.item2.hasData && snapshots.item3.hasData) {
-          UserData userData = snapshots.item1.data!;
-          List<Order> activeOrderList = _getActiveOrdersForUser(snapshots.item2.data!, userData);
-          List<Order> passiveOrderList = _getPassiveOrdersForUser(snapshots.item3.data!, userData);
+          Customer customer = snapshots.item1.data!;
+          List<Order> activeOrderList = _getActiveOrdersForUser(snapshots.item2.data!, customer);
+          List<Order> passiveOrderList = _getPassiveOrdersForUser(snapshots.item3.data!, customer);
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
           activeOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
           passiveOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
@@ -85,7 +85,7 @@ class _MyOrdersState extends State<MyOrders> {
                             itemBuilder: (context, index) => OrderTile(
                               order: activeOrderList[index],
                               time: time,
-                              role: 'customer',
+                              role: customer.role,
                             ),
                             itemCount: activeOrderList.length,
                             shrinkWrap: true,
@@ -115,7 +115,7 @@ class _MyOrdersState extends State<MyOrders> {
                                 itemBuilder: (context, index) => OrderTile(
                                   order: passiveOrderList[index],
                                   time: time,
-                                  role: 'customer',
+                                  role: customer.role,
                                 ),
                                 itemCount: _itemCount,
                                 shrinkWrap: true,
@@ -155,20 +155,20 @@ class _MyOrdersState extends State<MyOrders> {
     );
   }
 
-  List<Order> _getActiveOrdersForUser(List<Order> orderList, UserData userData) {
+  List<Order> _getActiveOrdersForUser(List<Order> orderList, Customer customer) {
     List<Order> result = [];
     for (var item in orderList) {
-      if (item.userId == userData.uid) {
+      if (item.userID == customer.userID) {
         result.add(item);
       }
     }
     return result;
   }
 
-  List<Order> _getPassiveOrdersForUser(List<Order> orderList, UserData userData) {
+  List<Order> _getPassiveOrdersForUser(List<Order> orderList, Customer customer) {
     List<Order> result = [];
     for (var item in orderList) {
-      if (item.userId == userData.uid) {
+      if (item.userID == customer.userID) {
         result.add(item);
       }
     }

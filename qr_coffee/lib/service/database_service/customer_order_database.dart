@@ -1,17 +1,17 @@
 import 'package:qr_coffee/models/order.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UserOrderDatabase {
-  final String uid;
-  UserOrderDatabase({required this.uid});
+class CustomerOrderDatabase {
+  final String userID;
+  CustomerOrderDatabase({required this.userID});
 
   late CollectionReference activeOrderCollection =
-      FirebaseFirestore.instance.collection('users').doc(uid).collection('active_orders');
+      FirebaseFirestore.instance.collection('customers').doc(userID).collection('active_orders');
   late CollectionReference passiveOrderCollection =
-      FirebaseFirestore.instance.collection('users').doc(uid).collection('passive_orders');
+      FirebaseFirestore.instance.collection('customers').doc(userID).collection('passive_orders');
 
-  Future deleteActiveOrder(String orderId) async {
-    return await activeOrderCollection.doc(orderId).delete();
+  Future deleteActiveOrder(String orderID) async {
+    return await activeOrderCollection.doc(orderID).delete();
   }
 
   Future createActiveOrder(
@@ -22,14 +22,12 @@ class UserOrderDatabase {
     String username,
     String shop,
     String company,
-    String orderId,
-    String userId,
-    String shopId,
-    String companyId,
+    String orderID,
+    String shopID,
+    String companyID,
     String day,
-    int triggerNum,
   ) async {
-    if (orderId == '') {
+    if (orderID == '') {
       DocumentReference _docRef = await activeOrderCollection.add({
         'status': status,
         'items': items,
@@ -38,17 +36,16 @@ class UserOrderDatabase {
         'username': username,
         'shop': shop,
         'company': company,
-        'orderId': orderId,
-        'userId': userId,
-        'shopId': shopId,
-        'companyId': companyId,
+        'orderID': orderID,
+        'userID': this.userID,
+        'shopID': shopID,
+        'companyID': companyID,
         'day': day,
-        'triggerNum': triggerNum,
       });
-      updateOrderId(_docRef.id, status);
+      updateorderID(_docRef.id, status);
       return _docRef;
     } else {
-      return await activeOrderCollection.doc(orderId).set({
+      return await activeOrderCollection.doc(orderID).set({
         'status': status,
         'items': items,
         'price': price,
@@ -56,12 +53,11 @@ class UserOrderDatabase {
         'username': username,
         'shop': shop,
         'company': company,
-        'orderId': orderId,
-        'userId': userId,
-        'shopId': shopId,
-        'companyId': companyId,
+        'orderID': orderID,
+        'userID': this.userID,
+        'shopID': shopID,
+        'companyID': companyID,
         'day': day,
-        'triggerNum': triggerNum,
       });
     }
   }
@@ -74,14 +70,12 @@ class UserOrderDatabase {
     String username,
     String shop,
     String company,
-    String orderId,
-    String userId,
-    String shopId,
-    String companyId,
+    String orderID,
+    String shopID,
+    String companyID,
     String day,
-    int triggerNum,
   ) async {
-    if (orderId == '') {
+    if (orderID == '') {
       DocumentReference _docRef = await passiveOrderCollection.add({
         'status': status,
         'items': items,
@@ -90,17 +84,16 @@ class UserOrderDatabase {
         'username': username,
         'shop': shop,
         'company': company,
-        'orderId': orderId,
-        'userId': userId,
-        'shopId': shopId,
-        'companyId': companyId,
+        'orderID': orderID,
+        'userID': this.userID,
+        'shopID': shopID,
+        'companyID': companyID,
         'day': day,
-        'triggerNum': triggerNum,
       });
-      updateOrderId(_docRef.id, status);
+      updateorderID(_docRef.id, status);
       return _docRef;
     } else {
-      return await passiveOrderCollection.doc(orderId).set({
+      return await passiveOrderCollection.doc(orderID).set({
         'status': status,
         'items': items,
         'price': price,
@@ -108,53 +101,30 @@ class UserOrderDatabase {
         'username': username,
         'shop': shop,
         'company': company,
-        'orderId': orderId,
-        'userId': userId,
-        'shopId': shopId,
-        'companyId': companyId,
+        'orderID': orderID,
+        'userID': this.userID,
+        'shopID': shopID,
+        'companyID': companyID,
         'day': day,
-        'triggerNum': triggerNum,
       });
     }
   }
 
-  // SET ID FOR NEW ORDER
-  Future updateOrderId(
-    String orderId,
-    String status,
-  ) async {
+  // Set id for new order.
+  Future updateorderID(String orderID, String status) async {
     if (status == 'ACTIVE' || status == 'PENDING') {
-      return await activeOrderCollection.doc(orderId).update({
-        'orderId': orderId,
-      });
+      return await activeOrderCollection.doc(orderID).update({'orderID': orderID});
     } else {
-      return await passiveOrderCollection.doc(orderId).update({
-        'orderId': orderId,
-      });
+      return await passiveOrderCollection.doc(orderID).update({'orderID': orderID});
     }
   }
 
-  // UPDATE ORDER STATUS FROM 'ACTIVE' TO 'READY'
-  Future updateOrderStatus(
-    String orderId,
-    String status,
-  ) async {
-    return await activeOrderCollection.doc(orderId).update({
-      'status': status,
-    });
+  // Update order status from 'active' to 'ready'.
+  Future updateOrderStatus(String orderID, String status) async {
+    return await activeOrderCollection.doc(orderID).update({'status': status});
   }
 
-  // CHANGE ORDER 'TRIGGER FLAG' TO TRIGGER DIFFERENT EVENTS
-  Future triggerOrder(
-    String orderId,
-    int triggerNum,
-  ) async {
-    return await activeOrderCollection.doc(orderId).update({
-      'triggerNum': triggerNum,
-    });
-  }
-
-  // GET ORDER LIST FROM DATABASE
+  // Get order list from database.
   List<Order> _OrderListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Order(
@@ -165,17 +135,16 @@ class UserOrderDatabase {
         username: (doc.data() as dynamic)['username'],
         shop: (doc.data() as dynamic)['shop'],
         company: (doc.data() as dynamic)['company'],
-        orderId: (doc.data() as dynamic)['orderId'],
-        userId: (doc.data() as dynamic)['userId'],
-        shopId: (doc.data() as dynamic)['shopId'],
-        companyId: (doc.data() as dynamic)['companyId'],
+        orderID: (doc.data() as dynamic)['orderID'],
+        userID: (doc.data() as dynamic)['userID'],
+        shopID: (doc.data() as dynamic)['shopID'],
+        companyID: (doc.data() as dynamic)['companyID'],
         day: (doc.data() as dynamic)['day'],
-        triggerNum: (doc.data() as dynamic)['triggerNum'],
       );
     }).toList();
   }
 
-  // GET SPECIFIC ORDER FROM DATABASE
+  // Get specific order from database.
   Order _OrderFromSnapshot(DocumentSnapshot snapshot) {
     return Order(
       status: (snapshot.data() as dynamic)['status'],
@@ -185,27 +154,26 @@ class UserOrderDatabase {
       username: (snapshot.data() as dynamic)['username'],
       shop: (snapshot.data() as dynamic)['shop'],
       company: (snapshot.data() as dynamic)['company'],
-      orderId: (snapshot.data() as dynamic)['orderId'],
-      userId: (snapshot.data() as dynamic)['userId'],
-      shopId: (snapshot.data() as dynamic)['shopId'],
-      companyId: (snapshot.data() as dynamic)['companyId'],
+      orderID: (snapshot.data() as dynamic)['orderID'],
+      userID: (snapshot.data() as dynamic)['userID'],
+      shopID: (snapshot.data() as dynamic)['shopID'],
+      companyID: (snapshot.data() as dynamic)['companyID'],
       day: (snapshot.data() as dynamic)['day'],
-      triggerNum: (snapshot.data() as dynamic)['triggerNum'],
     );
   }
 
-  // GET ACTIVE ORDERS LIST STREAM
+  // Get active orders list stream.
   Stream<List<Order>> get activeOrderList {
     return activeOrderCollection.snapshots().map(_OrderListFromSnapshot);
   }
 
-  // GET PASSIVE ORDERS LIST STREAM
+  // Get passive orders list stream.
   Stream<List<Order>> get passiveOrderList {
     return passiveOrderCollection.snapshots().map(_OrderListFromSnapshot);
   }
 
-  // GET SPECIFIC ORDER DOCUMENT STREAM
+  // Get specific order document stream.
   Stream<Order> get order {
-    return activeOrderCollection.doc(uid).snapshots().map(_OrderFromSnapshot);
+    return activeOrderCollection.doc(userID).snapshots().map(_OrderFromSnapshot);
   }
 }

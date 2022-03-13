@@ -1,30 +1,30 @@
 class Company {
   Company({
+    required this.companyID,
+    required this.adminID,
+    required this.workerID,
     required this.name,
     required this.phone,
     required this.email,
-    required this.uid,
-    required this.admin,
-    required this.worker,
     required this.numShops,
   });
 
+  final String companyID;
+  final String adminID;
+  final String workerID;
   final String name;
   final String phone;
   final String email;
-  final String uid;
-  final String admin;
-  final String worker;
   final int numShops;
 
   factory Company.initialData() {
     return Company(
+      companyID: '',
+      adminID: '',
+      workerID: '',
       name: '',
       phone: '',
       email: '',
-      uid: '',
-      admin: '',
-      worker: '',
       numShops: 0,
     );
   }

@@ -1,37 +1,47 @@
 import 'package:qr_coffee/models/order.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 String _tempId = 'c9wzSTR2HEnYxmgEC8Wl';
 
 class CompanyOrderDatabase {
-  final String? uid;
   CompanyOrderDatabase({this.uid});
+  final String? uid;
+
+  CollectionReference _getPassiveOrderCollection() {
+    String date = DateFormat('yyyy_MM_dd').format(DateTime.now());
+    return FirebaseFirestore.instance
+        .collection('companies')
+        .doc(_tempId)
+        .collection('passive_orders')
+        .doc('$date')
+        .collection('orders');
+  }
 
   final CollectionReference activeOrderCollection =
       FirebaseFirestore.instance.collection('companies').doc(_tempId).collection('active_orders');
-  final CollectionReference passiveOrderCollection =
-      FirebaseFirestore.instance.collection('companies').doc(_tempId).collection('passive_orders');
+
   final CollectionReference virtualOrderCollection =
       FirebaseFirestore.instance.collection('companies').doc(_tempId).collection('virtual_orders');
 
-  Future deleteActiveOrder(String orderId) async {
-    return await activeOrderCollection.doc(orderId).delete();
+  Future deleteActiveOrder(String orderID) async {
+    return await activeOrderCollection.doc(orderID).delete();
   }
 
   Future createActiveOrder(
-      String status,
-      List items,
-      int price,
-      String pickUpTime,
-      String username,
-      String shop,
-      String company,
-      String orderId,
-      String userId,
-      String shopId,
-      String companyId,
-      String day,
-      int triggerNum) async {
+    String status,
+    List items,
+    int price,
+    String pickUpTime,
+    String username,
+    String shop,
+    String company,
+    String orderID,
+    String userID,
+    String shopID,
+    String companyID,
+    String day,
+  ) async {
     DocumentReference _docRef = await activeOrderCollection.add({
       'status': status,
       'items': items,
@@ -40,14 +50,13 @@ class CompanyOrderDatabase {
       'username': username,
       'shop': shop,
       'company': company,
-      'orderId': orderId,
-      'userId': userId,
-      'shopId': shopId,
-      'companyId': companyId,
+      'orderID': orderID,
+      'userID': userID,
+      'shopID': shopID,
+      'companyID': companyID,
       'day': day,
-      'triggerNum': triggerNum,
     });
-    updateOrderId(_docRef.id, status);
+    updateorderID(_docRef.id, status);
     return _docRef;
   }
 
@@ -59,14 +68,14 @@ class CompanyOrderDatabase {
     String username,
     String shop,
     String company,
-    String orderId,
-    String userId,
-    String shopId,
-    String companyId,
+    String orderID,
+    String userID,
+    String shopID,
+    String companyID,
     String day,
-    int triggerNum,
   ) async {
-    if (orderId == '') {
+    CollectionReference passiveOrderCollection = _getPassiveOrderCollection();
+    if (orderID == '') {
       DocumentReference _docRef = await passiveOrderCollection.add({
         'status': status,
         'items': items,
@@ -75,17 +84,16 @@ class CompanyOrderDatabase {
         'username': username,
         'shop': shop,
         'company': company,
-        'orderId': orderId,
-        'userId': userId,
-        'shopId': shopId,
-        'companyId': companyId,
+        'orderID': orderID,
+        'userID': userID,
+        'shopID': shopID,
+        'companyID': companyID,
         'day': day,
-        'triggerNum': triggerNum,
       });
-      updateOrderId(_docRef.id, status);
+      updateorderID(_docRef.id, status);
       return _docRef;
     } else {
-      return await passiveOrderCollection.doc(orderId).set({
+      return await passiveOrderCollection.doc(orderID).set({
         'status': status,
         'items': items,
         'price': price,
@@ -93,12 +101,11 @@ class CompanyOrderDatabase {
         'username': username,
         'shop': shop,
         'company': company,
-        'orderId': orderId,
-        'userId': userId,
-        'shopId': shopId,
-        'companyId': companyId,
+        'orderID': orderID,
+        'userID': userID,
+        'shopID': shopID,
+        'companyID': companyID,
         'day': day,
-        'triggerNum': triggerNum,
       });
     }
   }
@@ -111,12 +118,11 @@ class CompanyOrderDatabase {
     String username,
     String shop,
     String company,
-    String orderId,
-    String userId,
-    String shopId,
-    String companyId,
+    String orderID,
+    String userID,
+    String shopID,
+    String companyID,
     String day,
-    int triggerNum,
   ) async {
     return await virtualOrderCollection.add({
       'status': status,
@@ -126,57 +132,47 @@ class CompanyOrderDatabase {
       'username': username,
       'shop': shop,
       'company': company,
-      'orderId': orderId,
-      'userId': userId,
-      'shopId': shopId,
-      'companyId': companyId,
+      'orderID': orderID,
+      'userID': userID,
+      'shopID': shopID,
+      'companyID': companyID,
       'day': day,
-      'triggerNum': triggerNum,
     });
   }
 
   // Set id for new virtual order.
-  Future updateVirtualOrderId(
-    String orderId,
+  Future updateVirtualorderID(
+    String orderID,
   ) async {
-    return await virtualOrderCollection.doc(orderId).update({
-      'orderId': orderId,
+    return await virtualOrderCollection.doc(orderID).update({
+      'orderID': orderID,
     });
   }
 
   // Set id for new order
-  Future updateOrderId(
-    String orderId,
+  Future updateorderID(
+    String orderID,
     String status,
   ) async {
     if (status == 'ACTIVE' || status == 'PENDING') {
-      return await activeOrderCollection.doc(orderId).update({
-        'orderId': orderId,
+      return await activeOrderCollection.doc(orderID).update({
+        'orderID': orderID,
       });
     } else {
-      return await passiveOrderCollection.doc(orderId).update({
-        'orderId': orderId,
+      CollectionReference passiveOrderCollection = _getPassiveOrderCollection();
+      return await passiveOrderCollection.doc(orderID).update({
+        'orderID': orderID,
       });
     }
   }
 
   // Update order status from 'active' to 'ready'.
   Future updateOrderStatus(
-    String orderId,
+    String orderID,
     String status,
   ) async {
-    return await activeOrderCollection.doc(orderId).update({
+    return await activeOrderCollection.doc(orderID).update({
       'status': status,
-    });
-  }
-
-  // Change order 'trigger flag' to trigger different events.
-  Future triggerOrder(
-    String orderId,
-    int triggerNum,
-  ) async {
-    return await activeOrderCollection.doc(orderId).update({
-      'triggerNum': triggerNum,
     });
   }
 
@@ -191,12 +187,11 @@ class CompanyOrderDatabase {
         username: (doc.data() as dynamic)['username'],
         shop: (doc.data() as dynamic)['shop'],
         company: (doc.data() as dynamic)['company'],
-        orderId: (doc.data() as dynamic)['orderId'],
-        userId: (doc.data() as dynamic)['userId'],
-        shopId: (doc.data() as dynamic)['shopId'],
-        companyId: (doc.data() as dynamic)['companyId'],
+        orderID: (doc.data() as dynamic)['orderID'],
+        userID: (doc.data() as dynamic)['userID'],
+        shopID: (doc.data() as dynamic)['shopID'],
+        companyID: (doc.data() as dynamic)['companyID'],
         day: (doc.data() as dynamic)['day'],
-        triggerNum: (doc.data() as dynamic)['triggerNum'],
       );
     }).toList();
   }
@@ -211,12 +206,11 @@ class CompanyOrderDatabase {
       username: (snapshot.data() as dynamic)['username'],
       shop: (snapshot.data() as dynamic)['shop'],
       company: (snapshot.data() as dynamic)['company'],
-      orderId: (snapshot.data() as dynamic)['orderId'],
-      userId: (snapshot.data() as dynamic)['userId'],
-      shopId: (snapshot.data() as dynamic)['shopId'],
-      companyId: (snapshot.data() as dynamic)['companyId'],
+      orderID: (snapshot.data() as dynamic)['orderID'],
+      userID: (snapshot.data() as dynamic)['userID'],
+      shopID: (snapshot.data() as dynamic)['shopID'],
+      companyID: (snapshot.data() as dynamic)['companyID'],
       day: (snapshot.data() as dynamic)['day'],
-      triggerNum: (snapshot.data() as dynamic)['triggerNum'],
     );
   }
 
@@ -227,6 +221,7 @@ class CompanyOrderDatabase {
 
   // Get passive orders list stream.
   Stream<List<Order>> get passiveOrderList {
+    CollectionReference passiveOrderCollection = _getPassiveOrderCollection();
     return passiveOrderCollection.snapshots().map(_OrderListFromSnapshot);
   }
 

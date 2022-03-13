@@ -31,28 +31,25 @@ class _StatsState extends State<Stats> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User?>(context);
+    final userFromAuth = Provider.of<UserFromAuth?>(context);
     final company = Provider.of<Company>(context);
-    if (company.uid != '') {
-      return StreamBuilder5<List<Order>, List<Order>, List<Product>, List<Shop>, UserData>(
-        streams: Tuple5(
+    if (company.companyID != '') {
+      return StreamBuilder4<List<Order>, List<Order>, List<Product>, List<Shop>>(
+        streams: Tuple4(
           CompanyOrderDatabase().passiveOrderList,
           CompanyOrderDatabase().virtualOrderList,
-          ProductDatabase(uid: company.uid).products,
-          ShopDatabase(companyId: company.uid).shopList,
-          UserDatabase(uid: user!.uid).userData,
+          ProductDatabase(productID: company.companyID).products,
+          ShopDatabase(companyID: company.companyID).shopList,
         ),
         builder: (context, snapshots) {
           if (snapshots.item1.hasData &&
               snapshots.item2.hasData &&
               snapshots.item3.hasData &&
-              snapshots.item4.hasData &&
-              snapshots.item5.hasData) {
+              snapshots.item4.hasData) {
             List<Order> passiveOrderList = snapshots.item1.data!;
             List<Order> virtualOrderList = snapshots.item2.data!;
             List<Product> items = snapshots.item3.data!;
             List<Shop> places = snapshots.item4.data!;
-            UserData userData = snapshots.item5.data!;
 
             return Scaffold(
               appBar: customAppBar(
@@ -223,11 +220,10 @@ class _StatsState extends State<Stats> {
       int price = getTotalPrice(items, selectedItems);
       String username = names[random(0, 40)];
       String shop = 'Ulice 666';
-      String orderId = 'ID';
-      String userId = 'ID';
-      String shopId = 'ID';
-      String companyId = 'ID';
-      int triggerNum = 0;
+      String orderID = 'ID';
+      String userID = 'ID';
+      String shopID = 'ID';
+      String companyID = 'ID';
       String company = 'QR Coffee';
 
       // print('\n#################ORDER#################');
@@ -247,15 +243,14 @@ class _StatsState extends State<Stats> {
         username,
         shop,
         company,
-        orderId,
-        userId,
-        shopId,
-        companyId,
+        orderID,
+        userID,
+        shopID,
+        companyID,
         day,
-        triggerNum,
       );
 
-      await CompanyOrderDatabase().updateVirtualOrderId(_docRef.id);
+      await CompanyOrderDatabase().updateVirtualorderID(_docRef.id);
     }
     setState(() => show = !show);
     setState(() => progress = '');
