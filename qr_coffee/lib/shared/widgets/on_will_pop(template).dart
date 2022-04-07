@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class OnWillPopTemplate extends StatefulWidget {
   const OnWillPopTemplate({Key? key}) : super(key: key);

@@ -9,7 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_coffee/screens/settings/worker_settings.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class WorkerHome extends StatefulWidget {
   const WorkerHome({Key? key, required this.databaseImages}) : super(key: key);
@@ -25,15 +26,13 @@ class _WorkerHomeState extends State<WorkerHome> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [
-      WorkerSettings(),
-      CompanyShops(databaseImages: widget.databaseImages),
-      CompanyProducts(databaseImages: widget.databaseImages),
-    ];
+    final List<Widget> screens = [WorkerSettings(), CompanyShops(), CompanyProducts()];
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final userFromAuth = Provider.of<UserFromAuth?>(context);
 
     return Scaffold(
+      backgroundColor: themeProvider.themeData().backgroundColor,
       body: StreamBuilder<Worker>(
         stream: WorkerDatabase(userID: userFromAuth!.userID).worker,
         builder: (context, snapshot) {
@@ -60,9 +59,9 @@ class _WorkerHomeState extends State<WorkerHome> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey.shade300,
+        backgroundColor: themeProvider.themeData().backgroundColor,
+        selectedItemColor: themeProvider.themeAdditionalData().selectedColor,
+        unselectedItemColor: themeProvider.themeAdditionalData().unselectedColor,
         showUnselectedLabels: false,
         selectedFontSize: 12.0,
         iconSize: 30.0,

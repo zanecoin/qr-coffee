@@ -40,6 +40,14 @@ class Responsive {
   static int textTresholdShort(BuildContext context) {
     return (Responsive.deviceWidth(context) / 18).floor();
   }
+
+  static bool isLargeDevice(BuildContext context) {
+    return Responsive.deviceWidth(context) > kDeviceUpperWidthTreshold ? true : false;
+  }
+
+  static bool isSmallDevice(BuildContext context) {
+    return Responsive.deviceWidth(context) < kDeviceLowerWidthTreshold ? true : false;
+  }
 }
 
 // CUSTOM ICONS

@@ -7,17 +7,17 @@ class CustomerDatabase {
 
   final CollectionReference customerCollection = FirebaseFirestore.instance.collection('customers');
 
-  Future updateCustomerData(String name, String surname, String email, int tokens) async {
+  Future updateCustomerData(String name, String surname, String email, int credits) async {
     return await customerCollection.doc(userID).set({
       'name': name,
       'surname': surname,
       'email': email,
-      'tokens': tokens,
+      'credits': credits,
     });
   }
 
-  Future updateTokens(int tokens) async {
-    return await customerCollection.doc(userID).update({'tokens': tokens});
+  Future updateCredits(int credits) async {
+    return await customerCollection.doc(userID).update({'credits': credits});
   }
 
   Future updateName(String name, String surname) async {
@@ -30,7 +30,7 @@ class CustomerDatabase {
       name: (snapshot.data() as dynamic)['name'],
       surname: (snapshot.data() as dynamic)['surname'],
       email: (snapshot.data() as dynamic)['email'],
-      tokens: (snapshot.data() as dynamic)['tokens'],
+      credits: (snapshot.data() as dynamic)['credits'],
     );
   }
 
@@ -41,7 +41,7 @@ class CustomerDatabase {
         name: (doc.data() as dynamic)['name'],
         surname: (doc.data() as dynamic)['surname'],
         email: (doc.data() as dynamic)['email'],
-        tokens: (doc.data() as dynamic)['tokens'],
+        credits: (doc.data() as dynamic)['credits'],
       );
     }).toList();
   }

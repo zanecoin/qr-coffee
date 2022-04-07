@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_coffee/models/user.dart';
+import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/custom_option_dialog.dart';
 
 class CustomOptionButton extends StatelessWidget {
@@ -18,12 +22,15 @@ class CustomOptionButton extends StatelessWidget {
   final Function function;
   final List<String> options;
   final BuildContext generalContext;
-  final String previousRole;
+  final UserRole previousRole;
   final String userID;
 
   @override
   Widget build(BuildContext context) {
+    final double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
+      width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
       margin: EdgeInsets.symmetric(horizontal: 30.0),
       child: InkWell(
         child: Container(
@@ -31,15 +38,24 @@ class CustomOptionButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: TextStyle(fontSize: 16.0)),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: themeProvider.themeAdditionalData().textColor,
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
                     current,
-                    style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                    style: TextStyle(
+                        fontSize: 12.0,
+                        color: themeProvider.themeAdditionalData().blendedInvertColor),
                   ),
-                  Icon(Icons.arrow_forward_ios),
+                  Icon(Icons.arrow_forward_ios,
+                      color: themeProvider.themeAdditionalData().textColor),
                 ],
               )
             ],

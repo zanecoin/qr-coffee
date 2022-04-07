@@ -36,8 +36,8 @@ class AppStringValues {
   static const String chooseItemsDot = 'Přidejte položky do objednávky.';
   static const String paymentMethod = 'Jakým způsobem chcete platit?';
   static const String withCard = 'Platební kartou';
-  static const String withTokens = 'QR Tokeny';
-  static const String insufficientTokenBalace = 'Nedostatek QR Tokenů!';
+  static const String withCredits = 'Kredity';
+  static const String insufficientCreditBalace = 'Nedostatek Kreditů!';
 
   // ORDER INFO
   static const String collected = 'Vyzvednuto';
@@ -59,7 +59,7 @@ class AppStringValues {
   static const String manualAnswer = 'Klikněte pro manuální vyřízení objednávky';
   static const String orderCode = 'Kód objednávky';
   static const String returned = 'Vráceno';
-  static const String inTokens = 'v QR Tokenech.';
+  static const String inCredits = 'v Kreditech.';
 
   static const String all = 'Všechny';
   static const String completed = 'Vyřízené';
@@ -119,7 +119,7 @@ class AppStringValues {
   static const String goodday = 'Dobrý den!';
   static const String goodevening = 'Dobrý večer!';
   static const String myOrders = 'Moje objednávky';
-  static const String myTokens = 'Moje QR-Tokeny';
+  static const String myCredits = 'Moje Kredity';
 
   // SETTINGS
   static const String personal = 'Osobní údaje';
@@ -173,4 +173,11 @@ class AppStringValues {
   static const String shopNum = 'Počet provozoven';
   static const String shopCreationSuccess = 'Provozovna byla úspěšně vytvořena!';
   static const String shopDeletionSuccess = 'Provozovna byla úspěšně smazána!';
+
+  // STATISTICS
+  static const String totalEarnings = 'Celková tržba';
+  static const String totalAmounts = 'Celkově objednávek';
+  static const String productEarnings = 'Tržba za jednotlivé produkty';
+  static const String productAmounts = 'Množství objednaných produktů';
+  static const String orderEndingState = 'Zakončení objednávek';
 }

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_coffee/models/company.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/bar_chart.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:flutter/material.dart';
@@ -33,12 +33,14 @@ class _StatsState extends State<Stats> {
   Widget build(BuildContext context) {
     final userFromAuth = Provider.of<UserFromAuth?>(context);
     final company = Provider.of<Company>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     if (company.companyID != '') {
       return StreamBuilder4<List<Order>, List<Order>, List<Product>, List<Shop>>(
         streams: Tuple4(
-          CompanyOrderDatabase().passiveOrderList,
-          CompanyOrderDatabase().virtualOrderList,
-          ProductDatabase(productID: company.companyID).products,
+          CompanyOrderDatabase(companyID: company.companyID).passiveOrderList,
+          CompanyOrderDatabase(companyID: company.companyID).virtualOrderList,
+          ProductDatabase(companyID: company.companyID).products,
           ShopDatabase(companyID: company.companyID).shopList,
         ),
         builder: (context, snapshots) {
@@ -70,7 +72,7 @@ class _StatsState extends State<Stats> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(AppStringValues.virtualMode, style: TextStyle(fontSize: 16)),
-                            animatedToggle(virtualMode, callbackVirtual),
+                            animatedToggle(virtualMode, callbackVirtual, themeProvider),
                           ],
                         ),
                       ),
@@ -90,26 +92,6 @@ class _StatsState extends State<Stats> {
                             SizedBox(height: Responsive.height(2, context)),
                           ],
                         ),
-                      show
-                          ? BarChartSample2(
-                              virtualMode: virtualMode,
-                              orders: virtualMode ? virtualOrderList : passiveOrderList)
-                          : Container(
-                              height: min(
-                                  Responsive.width(100, context), Responsive.height(100, context)),
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(progress),
-                                  SizedBox(height: 20),
-                                  Loading(
-                                    color:
-                                        virtualMode ? Colors.amber.shade300 : Colors.blue.shade300,
-                                  ),
-                                ],
-                              ),
-                            ),
                     ],
                   ),
                 ),
@@ -169,7 +151,7 @@ class _StatsState extends State<Stats> {
     for (var i = 1; i < iterations + 1; i++) {
       setState(() => progress = 'Generování objednávek: $i/$iterations');
       // STATE
-      String status = states[0];
+      OrderStatus status = states[0];
       if (random(1, 101) % 25 == 0) {
         status = states[1];
       }
@@ -216,7 +198,7 @@ class _StatsState extends State<Stats> {
         selectedItems.add(items[random(1, 10)]);
       }
 
-      List<String> stringList = getStringList(selectedItems);
+      Map<String, String> stringList = getStringList(selectedItems);
       int price = getTotalPrice(items, selectedItems);
       String username = names[random(0, 40)];
       String shop = 'Ulice 666';
@@ -235,7 +217,8 @@ class _StatsState extends State<Stats> {
       // print('place: $place');
 
       // Place virtual order to database.
-      DocumentReference _docRef = await CompanyOrderDatabase().createVirtualOrder(
+      DocumentReference _docRef =
+          await CompanyOrderDatabase(companyID: companyID).createVirtualOrder(
         status,
         stringList,
         price,
@@ -250,7 +233,7 @@ class _StatsState extends State<Stats> {
         day,
       );
 
-      await CompanyOrderDatabase().updateVirtualorderID(_docRef.id);
+      await CompanyOrderDatabase(companyID: companyID).updateVirtualorderID(_docRef.id);
     }
     setState(() => show = !show);
     setState(() => progress = '');
@@ -305,10 +288,10 @@ List<String> names = [
   'Vít Kuba',
 ];
 
-List<String> states = [
-  'COMPLETED',
-  'ABORTED',
-  'ABANDONED',
+List<OrderStatus> states = [
+  OrderStatus.completed,
+  OrderStatus.aborted,
+  OrderStatus.abandoned,
 ];
 
 List<String> days = [

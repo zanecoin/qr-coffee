@@ -1,3 +1,4 @@
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/fancy_info_card.dart';
@@ -11,7 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 // SCREEN WITH ORDER SUMMARY -------------------------------------------------------------------------------------------
 class OrderDetailsWorker extends StatefulWidget {
@@ -38,18 +40,19 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
   @override
   void initState() {
     super.initState();
-    if (staticOrder.status != 'ACTIVE' && staticOrder.status != 'READY') {
+    if (staticOrder.status != OrderStatus.waiting && staticOrder.status != OrderStatus.ready) {
       _static = true;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return StreamBuilder4<UserData, List<Order>, List<Order>, dynamic>(
       streams: Tuple4(
         UserDatabase(userID: staticOrder.userID).userData,
-        CompanyOrderDatabase().activeOrderList,
-        CompanyOrderDatabase().passiveOrderList,
+        CompanyOrderDatabase(companyID: staticOrder.companyID).activeOrderList,
+        CompanyOrderDatabase(companyID: staticOrder.companyID).passiveOrderList,
         Stream.periodic(const Duration(milliseconds: 1000)),
       ),
       builder: (context, snapshots) {
@@ -61,33 +64,39 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
 
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
           String remainingTime = '';
-          Color color = Colors.black;
-          final double deviceWidth = Responsive.deviceWidth(context);
+          Color textColor = themeProvider.themeAdditionalData().textColor!;
 
           if (order == null) {
             return Scaffold(
+              backgroundColor: themeProvider.themeData().backgroundColor,
               appBar: customAppBar(context, title: Text('')),
               body: Center(
-                child: Text(AppStringValues.orderNotFound),
+                child: Text(
+                  AppStringValues.orderNotFound,
+                  style: TextStyle(
+                    color: themeProvider.themeAdditionalData().textColor,
+                  ),
+                ),
               ),
             );
           } else {
             // Header format chooser.
-            if (order.status == 'ACTIVE' || order.status == 'READY') {
-              List returnArray = time == '' ? ['?', Colors.black] : getRemainingTime(order, time);
+            if (order.status == OrderStatus.waiting || order.status == OrderStatus.ready) {
+              List returnArray =
+                  time == '' ? ['?', textColor] : getRemainingTime(order, time, themeProvider);
               remainingTime = returnArray[0];
-              color = returnArray[1];
+              textColor = returnArray[1];
             } else {
               remainingTime = '${timeFormatter(order.pickUpTime)}';
-              color = Colors.black;
             }
 
             return Scaffold(
+              backgroundColor: themeProvider.themeData().backgroundColor,
               appBar: customAppBar(
                 context,
                 title: Text(
                   remainingTime,
-                  style: TextStyle(color: color, fontSize: 18),
+                  style: TextStyle(color: textColor, fontSize: 14),
                 ),
               ),
               body: userData == null && order.userID != 'generated-order^^'
@@ -100,18 +109,18 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                           ResultWindowChooser(
                             order: order,
                             mode: mode,
-                            role: 'worker',
+                            role: UserRole.worker,
                           ),
 
                           // QR CODE OR FANCY INFO CARD -----------------------
                           FancyInfoCard(order: order),
 
                           // ORDER HEADER INFO --------------------------------
-                          _header(order, deviceWidth),
+                          _header(order),
                           SizedBox(height: 10),
 
                           // ACTION BUTTONS -----------------------------------
-                          if (userData != null) _resultButtons(order),
+                          if (userData != null) _resultButtons(order, themeProvider),
                           SizedBox(height: 30),
                           if (_showAlert) Text('not ready'),
                         ],
@@ -126,15 +135,17 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
     );
   }
 
-  Widget _header(Order order, double deviceWidth) {
+  Widget _header(Order order) {
+    final double deviceWidth = Responsive.deviceWidth(context);
     return Column(
       children: [
         CustomDividerWithText(text: AppStringValues.items),
         SizedBox(
+          width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
           child: ListView.builder(
             itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-              child: CustomTextBanner(title: order.items[index], showIcon: false),
+              child: CustomTextBanner(title: order.items.values.toList()[index], showIcon: false),
             ),
             itemCount: order.items.length,
             shrinkWrap: true,
@@ -142,25 +153,25 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
             physics: NeverScrollableScrollPhysics(),
           ),
         ),
-        if (order.status == 'ACTIVE' || order.status == 'READY')
+        if (order.status == OrderStatus.waiting || order.status == OrderStatus.ready)
           CustomDividerWithText(text: AppStringValues.actions),
       ],
     );
   }
 
-  Widget _resultButtons(Order order) {
+  Widget _resultButtons(Order order, ThemeProvider themeProvider) {
     return Column(
       children: [
-        if (order.status == 'ACTIVE' && mode == 'normal')
+        if (order.status == OrderStatus.waiting && mode == 'normal')
           ResultButton(
             text: AppStringValues.ready,
             icon: Icons.done,
             color: Colors.green,
             order: order,
-            status: 'READY',
+            status: OrderStatus.ready,
             previousContext: context,
           ),
-        if (order.status == 'READY' && mode == 'normal' && _showButtons)
+        if (order.status == OrderStatus.ready && mode == 'normal' && _showButtons)
           Column(
             children: [
               Row(
@@ -171,7 +182,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                     icon: Icons.clear,
                     color: Colors.red,
                     order: order,
-                    status: 'ABANDONED',
+                    status: OrderStatus.abandoned,
                     previousContext: context,
                   ),
                   ResultButton(
@@ -179,14 +190,14 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                     icon: Icons.done,
                     color: Colors.green,
                     order: order,
-                    status: 'COMPLETED',
+                    status: OrderStatus.completed,
                     previousContext: context,
                   ),
                 ],
               ),
             ],
           ),
-        if (order.status == 'READY' && mode == 'normal' && !_showButtons)
+        if (order.status == OrderStatus.ready && mode == 'normal' && !_showButtons)
           Column(
             children: [
               TextButton(
@@ -195,8 +206,8 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                 },
                 child: Text(AppStringValues.manualAnswer),
                 style: TextButton.styleFrom(
-                  backgroundColor: Colors.grey.shade100,
-                  primary: Colors.grey.shade700,
+                  backgroundColor: themeProvider.themeAdditionalData().blendedColor,
+                  primary: themeProvider.themeAdditionalData().blendedInvertColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),

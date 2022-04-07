@@ -6,7 +6,8 @@ import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class ShopUpdateForm extends StatefulWidget {
   const ShopUpdateForm({Key? key, required this.shop, required this.company}) : super(key: key);
@@ -32,8 +33,10 @@ class _ShopUpdateFormState extends State<ShopUpdateForm> {
   Widget build(BuildContext context) {
     company = widget.company;
     final double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
+      backgroundColor: themeProvider.themeData().backgroundColor,
       appBar: customAppBar(context, title: Text(''), type: 1),
       body: SingleChildScrollView(
         child: Center(

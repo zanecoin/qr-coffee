@@ -4,7 +4,7 @@ class Worker extends UserData {
   Worker({
     required this.companyID,
     required String userID,
-    String role = 'worker',
+    UserRole role = UserRole.worker,
   }) : super(role: role, userID: userID);
 
   final String companyID;

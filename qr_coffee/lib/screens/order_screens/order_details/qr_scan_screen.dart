@@ -97,9 +97,9 @@ class _QRScanScreenState extends State<QRScanScreen> {
       Order order = widget.order;
 
       if (barcode.code == 'QR Coffee') {
-        if (order.status == 'READY') {
-          String status = 'COMPLETED';
-          await CompanyOrderDatabase().createPassiveOrder(
+        if (order.status == OrderStatus.ready) {
+          OrderStatus status = OrderStatus.completed;
+          await CompanyOrderDatabase(companyID: order.companyID).createPassiveOrder(
             status,
             order.items,
             order.price,
@@ -128,7 +128,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
             order.day,
           );
 
-          await CompanyOrderDatabase().deleteActiveOrder(order.orderID);
+          await CompanyOrderDatabase(companyID: order.companyID).deleteActiveOrder(order.orderID);
           await CustomerOrderDatabase(userID: order.userID).deleteActiveOrder(order.orderID);
         }
 

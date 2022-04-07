@@ -12,22 +12,33 @@ import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
+
+class SelectedItemNotifier extends ChangeNotifier {
+  List<Product> selectedItems = [];
+
+  void addItem(Product item) {
+    selectedItems.insert(0, item);
+    notifyListeners();
+  }
+
+  void removeItem(int index) {
+    selectedItems.removeAt(index);
+    notifyListeners();
+  }
+}
 
 class CreateOrderScreen extends StatefulWidget {
-  const CreateOrderScreen({Key? key, required this.databaseImages, required this.shop})
-      : super(key: key);
-  final List<Map<String, dynamic>> databaseImages;
+  const CreateOrderScreen({Key? key, required this.shop}) : super(key: key);
   final Shop shop;
 
   @override
-  _CreateOrderScreenState createState() =>
-      _CreateOrderScreenState(shop: shop, databaseImages: databaseImages);
+  _CreateOrderScreenState createState() => _CreateOrderScreenState(shop: shop);
 }
 
 class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTickerProviderStateMixin {
-  _CreateOrderScreenState({required this.databaseImages, required this.shop});
-  final List<Map<String, dynamic>> databaseImages;
+  _CreateOrderScreenState({required this.shop});
   final Shop shop;
 
   late UserData userData;
@@ -36,11 +47,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   bool loading = false;
   double plusTime = 5;
   List<String> choices = [AppStringValues.drink, AppStringValues.food];
-  List<dynamic> _selectedItems = [];
   late TabController controller;
   int screenNum = 1;
   int paymentMethod = 2;
-  String role = '';
+  late UserRole role;
+
+  final _selectedItemNotifier = SelectedItemNotifier();
 
   // Upper tab controller.
   @override
@@ -52,6 +64,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   @override
   void dispose() {
     controller.dispose();
+    _selectedItemNotifier.dispose();
     super.dispose();
   }
 
@@ -59,50 +72,59 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   Widget build(BuildContext context) {
     final userFromAuth = Provider.of<UserFromAuth?>(context);
     final double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return StreamBuilder4<List<Product>, List<Shop>, UserData, Customer>(
-      streams: Tuple4(
-        ProductDatabase().products,
-        ShopDatabase(companyID: 'c9wzSTR2HEnYxmgEC8Wl').shopList,
+    return StreamBuilder3<List<Product>, UserData, Customer>(
+      streams: Tuple3(
+        ProductDatabase(companyID: shop.companyID).products,
         UserDatabase(userID: userFromAuth!.userID).userData,
         CustomerDatabase(userID: userFromAuth.userID).customer,
       ),
       builder: (context, snapshots) {
-        if (snapshots.item1.hasData && snapshots.item2.hasData && snapshots.item3.hasData) {
+        if (snapshots.item1.hasData && snapshots.item2.hasData) {
           items = snapshots.item1.data!;
-          List<Shop> shops = snapshots.item2.data!;
-          userData = snapshots.item3.data!;
+          userData = snapshots.item2.data!;
           role = userData.role;
 
-          if (snapshots.item4.data == null) {
+          if (snapshots.item3.data == null) {
             customer = Customer.initialData();
           } else {
-            customer = snapshots.item4.data!;
+            customer = snapshots.item3.data!;
           }
 
           return WillPopScope(
             onWillPop: () async => _onWillPop(),
             child: Scaffold(
+              backgroundColor: themeProvider.themeData().backgroundColor,
               appBar: AppBar(
+                backgroundColor: themeProvider.themeData().backgroundColor,
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back_ios, size: 22),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    size: 22.0,
+                    color: themeProvider.themeAdditionalData().textColor,
+                  ),
                   onPressed: () {
                     screenNum == 1 ? Navigator.pop(context) : _switchScreenNum();
                   },
                 ),
                 title: Text(
                   screenNum == 1 ? AppStringValues.orderItems : '',
-                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14.0,
+                    color: themeProvider.themeAdditionalData().textColor,
+                  ),
                 ),
                 centerTitle: true,
-                elevation: 0,
+                elevation: 0.0,
                 bottom: screenNum == 1
                     ? TabBar(
                         controller: controller,
-                        labelPadding: EdgeInsets.symmetric(vertical: 0),
-                        labelColor: Colors.black,
-                        unselectedLabelColor: Colors.grey.shade300,
-                        indicatorColor: Colors.black,
+                        labelPadding: const EdgeInsets.symmetric(vertical: 0.0),
+                        labelColor: themeProvider.themeAdditionalData().textColor,
+                        unselectedLabelColor: themeProvider.themeAdditionalData().unselectedColor,
+                        indicatorColor: themeProvider.themeAdditionalData().textColor,
                         tabs: choices.map<Widget>((choice) => Tab(text: choice)).toList(),
                       )
                     : null,
@@ -111,63 +133,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
                 children: [
                   Expanded(
                       child: screenNum == 1
-                          ? OrderMenu(
-                              databaseImages: databaseImages,
-                              items: items,
-                              controller: controller,
-                              onItemTap: _appendItem,
-                            )
-                          : _orderDelivery(shops, deviceWidth, customer)),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.shade400,
-                          offset: Offset(1, 1),
-                          blurRadius: 15,
-                          spreadRadius: 0,
-                        )
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (loading) Container(height: 140.0, child: Loading(delay: false)),
-                        if (!loading)
-                          Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  _text('${AppStringValues.yourOrder}:    ', 16, FontWeight.normal),
-                                  _text(
-                                    '${getTotalPrice(items, _selectedItems)} ${AppStringValues.currency}',
-                                    22,
-                                    FontWeight.bold,
-                                  ),
-                                ],
-                              ),
-                              _dynamicChips(),
-                              SizedBox(height: Responsive.height(1, context)),
-                              CustomOutlinedIconButton(
-                                function: _buttonFunc,
-                                icon: _buttonIcon(),
-                                label: _buttonText(),
-                                iconColor: Colors.green,
-                              ),
-                              SizedBox(height: Responsive.height(2, context)),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
+                          ? _orderMenu()
+                          : _orderDelivery(deviceWidth, customer, themeProvider)),
+                  _bottomBar(themeProvider),
                 ],
               ),
             ),
@@ -180,34 +148,29 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   }
 
   void _appendItem(item) {
-    setState(() {
-      _selectedItems.insert(0, item);
-    });
+    //_selectedItems.value.insert(0, item);
+    _selectedItemNotifier.addItem(item);
   }
 
   void _switchScreenNum() {
-    setState(() {
-      screenNum = 1;
-    });
+    setState(() => screenNum = 1);
   }
 
   void _buttonFunc() async {
     if (screenNum == 1) {
-      if (role == 'customer') {
-        setState(() {
-          screenNum = 2;
-        });
-      } else if (role == 'worker') {
+      if (role == UserRole.customer) {
+        setState(() => screenNum = 2);
+      } else if (role == UserRole.worker) {
         setState(() => loading = true);
-        await createOrderFunction(
-            context, items, customer, _selectedItems, shop, paymentMethod, role, plusTime);
+        await createOrderFunction(context, items, customer, _selectedItemNotifier.selectedItems,
+            shop, paymentMethod, role, plusTime);
         setState(() => loading = false);
       }
     } else {
-      if (role == 'customer') {
+      if (role == UserRole.customer) {
         setState(() => loading = true);
-        await createOrderFunction(
-            context, items, customer, _selectedItems, shop, paymentMethod, role, plusTime);
+        await createOrderFunction(context, items, customer, _selectedItemNotifier.selectedItems,
+            shop, paymentMethod, role, plusTime);
         setState(() => loading = false);
       }
     }
@@ -228,9 +191,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
     IconData icon = Icons.check_circle;
 
     if (screenNum == 1) {
-      if (role == 'customer') {
+      if (role == UserRole.customer) {
         icon = CommunityMaterialIcons.arrow_right_circle;
-      } else if (role == 'worker') {
+      } else if (role == UserRole.worker) {
         icon = CommunityMaterialIcons.upload_outline;
       }
     }
@@ -242,87 +205,174 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
     String text = AppStringValues.orderNow;
 
     if (screenNum == 1) {
-      if (role == 'customer') {
+      if (role == UserRole.customer) {
         text = AppStringValues.continueOn;
-      } else if (role == 'worker') {
+      } else if (role == UserRole.worker) {
         text = AppStringValues.createOrder;
       }
     }
     return text;
   }
 
-  Widget _text(String string, double size, FontWeight fontWeight, {Color color = Colors.black}) {
+  Widget _text(String string, double size, FontWeight fontWeight, ThemeProvider themeProvider) {
     return Text(
       string,
-      style: TextStyle(color: color, fontSize: size, fontWeight: fontWeight),
+      style: TextStyle(
+        color: themeProvider.themeAdditionalData().textColor,
+        fontSize: size,
+        fontWeight: fontWeight,
+      ),
       textAlign: TextAlign.center,
     );
   }
 
-  Widget _dynamicChips() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 7),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Wrap(
-          spacing: 6,
-          runSpacing: 0,
-          children: List<Widget>.generate(
-            _selectedItems.length,
-            (index) => Chip(
-              label: Text(_selectedItems[index].name),
-              labelPadding: EdgeInsets.fromLTRB(8, 3, 0, 3),
-              backgroundColor: Colors.grey.shade200,
-              onDeleted: () => setState(() => _selectedItems.removeAt(index)),
-            ),
-          ),
+  Widget _bottomBar(ThemeProvider themeProvider) {
+    print('lol');
+    return Container(
+      padding: EdgeInsets.fromLTRB(0.0, 25.0, 0.0, 0.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30.0),
+          topRight: Radius.circular(30.0),
         ),
+        color: themeProvider.themeAdditionalData().containerColor,
+        boxShadow: themeProvider.themeAdditionalData().shadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (loading) Container(height: 140.0, child: Loading(delay: false)),
+          if (!loading)
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _text(
+                      '${AppStringValues.yourOrder}:    ',
+                      16.0,
+                      FontWeight.normal,
+                      themeProvider,
+                    ),
+                    AnimatedBuilder(
+                      animation: _selectedItemNotifier,
+                      builder: (_, __) => _text(
+                        '${getTotalPrice(items, _selectedItemNotifier.selectedItems)} ${AppStringValues.currency}',
+                        22.0,
+                        FontWeight.bold,
+                        themeProvider,
+                      ),
+                    ),
+                  ],
+                ),
+                _dynamicChips(themeProvider),
+                SizedBox(height: Responsive.height(0.0, context)),
+                CustomOutlinedIconButton(
+                  function: _buttonFunc,
+                  icon: _buttonIcon(),
+                  label: _buttonText(),
+                  iconColor: Colors.green,
+                ),
+                SizedBox(height: Responsive.height(2.0, context)),
+              ],
+            ),
+        ],
       ),
     );
   }
 
-  Widget _orderDelivery(
-    List<Shop> shops,
-    double deviceWidth,
-    Customer customer,
-  ) {
+  Widget _dynamicChips(ThemeProvider themeProvider) {
+    return AnimatedBuilder(
+      animation: _selectedItemNotifier,
+      builder: (_, __) => (Padding(
+        padding: EdgeInsets.symmetric(vertical: 4.0),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Wrap(
+            spacing: 6.0,
+            runSpacing: 0.0,
+            children: List<Widget>.generate(
+              _selectedItemNotifier.selectedItems.length,
+              (index) => Chip(
+                label: Text(
+                  _selectedItemNotifier.selectedItems[index].name,
+                  style: TextStyle(
+                    color: themeProvider.themeAdditionalData().textColor,
+                  ),
+                ),
+                labelPadding: EdgeInsets.fromLTRB(8.0, 3.0, 0.0, 3.0),
+                backgroundColor: themeProvider.themeAdditionalData().chipColor,
+                onDeleted: () => _selectedItemNotifier.removeItem(index),
+              ),
+            ),
+          ),
+        ),
+      )),
+    );
+  }
+
+  Widget _orderMenu() {
+    return FutureBuilder(
+      future: loadImages('pictures/products/${shop.companyID}/'),
+      builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> picSnapshot) {
+        if (picSnapshot.connectionState == ConnectionState.done) {
+          return OrderMenu(
+            databaseImages: picSnapshot.data!,
+            items: items,
+            controller: controller,
+            onItemTap: _appendItem,
+          );
+        } else {
+          return Loading();
+        }
+      },
+    );
+  }
+
+  Widget _orderDelivery(double deviceWidth, Customer customer, ThemeProvider themeProvider) {
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: Responsive.height(8, context)),
-          _text(AppStringValues.orderTime, 16, FontWeight.normal),
-          SizedBox(height: Responsive.height(1, context)),
+          SizedBox(height: Responsive.height(8.0, context)),
+          _text(AppStringValues.orderTime, 16.0, FontWeight.normal, themeProvider),
+          SizedBox(height: Responsive.height(1.0, context)),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 20),
-            width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60, context) : null,
+            margin: EdgeInsets.symmetric(horizontal: 20.0),
+            width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
             child: Slider.adaptive(
               value: plusTime,
               onChanged: (val) => setState(() => plusTime = val),
-              min: 5,
-              max: 30,
+              min: 5.0,
+              max: 30.0,
               divisions: 25,
-              activeColor: Colors.black,
+              activeColor: themeProvider.themeAdditionalData().textColor,
             ),
           ),
           Center(
             child: Text(
               'Za ${plusTime.toInt()} min',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 30.0,
+                fontWeight: FontWeight.bold,
+                color: themeProvider.themeAdditionalData().textColor,
+              ),
             ),
           ),
           Center(
             child: Text(
               //'${getPickUpTime(plusTime)}',
               '(${getPickUpTime(plusTime).substring(8, 10)}:${getPickUpTime(plusTime).substring(10, 12)})',
-              style: TextStyle(fontSize: 17),
+              style:
+                  TextStyle(fontSize: 17.0, color: themeProvider.themeAdditionalData().textColor),
             ),
           ),
-          SizedBox(height: Responsive.height(2, context)),
+          SizedBox(height: Responsive.height(2.0, context)),
           CustomDivider(),
-          SizedBox(height: Responsive.height(4, context)),
-          _text(AppStringValues.paymentMethod, 16, FontWeight.normal),
-          SizedBox(height: Responsive.height(1, context)),
+          SizedBox(height: Responsive.height(4.0, context)),
+          _text(AppStringValues.paymentMethod, 16.0, FontWeight.normal, themeProvider),
+          SizedBox(height: Responsive.height(1.0, context)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -330,21 +380,29 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
                 onPressed: () => setState(() => paymentMethod = 1),
                 child: Text(AppStringValues.withCard),
                 style: TextButton.styleFrom(
-                  backgroundColor: paymentMethod == 1 ? Colors.black : Colors.white,
-                  primary: paymentMethod == 1 ? Colors.white : Colors.grey,
+                  backgroundColor: paymentMethod == 1
+                      ? themeProvider.themeAdditionalData().textColor
+                      : themeProvider.themeAdditionalData().backgroundColor,
+                  primary: paymentMethod == 1
+                      ? themeProvider.themeAdditionalData().backgroundColor
+                      : themeProvider.themeAdditionalData().unselectedColor,
                 ),
               ),
               TextButton(
                 onPressed: () => setState(() => paymentMethod = 2),
-                child: Text('${AppStringValues.withTokens} (${customer.tokens})'),
+                child: Text('${AppStringValues.withCredits} (${customer.credits})'),
                 style: TextButton.styleFrom(
-                  backgroundColor: paymentMethod == 2 ? Colors.black : Colors.white,
-                  primary: paymentMethod == 2 ? Colors.white : Colors.grey,
+                  backgroundColor: paymentMethod == 2
+                      ? themeProvider.themeAdditionalData().textColor
+                      : themeProvider.themeAdditionalData().backgroundColor,
+                  primary: paymentMethod == 2
+                      ? themeProvider.themeAdditionalData().backgroundColor
+                      : themeProvider.themeAdditionalData().unselectedColor,
                 ),
               ),
             ],
           ),
-          SizedBox(height: Responsive.height(2, context)),
+          SizedBox(height: Responsive.height(2.0, context)),
         ],
       ),
     );

@@ -8,7 +8,8 @@ import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class AdminSettings extends StatefulWidget {
   @override
@@ -24,14 +25,19 @@ class _AdminSettingsState extends State<AdminSettings> {
     final userFromAuth = Provider.of<UserFromAuth?>(context);
     final admin = Provider.of<Admin>(context);
     company = Provider.of<Company>(context);
-    final double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     if (userFromAuth != null && company.phone != '') {
       return Scaffold(
+        backgroundColor: themeProvider.themeData().backgroundColor,
         appBar: customAppBar(
           context,
-          title:
-              Text(AppStringValues.app_name, style: TextStyle(fontFamily: 'Galada', fontSize: 30)),
+          title: Text(AppStringValues.app_name,
+              style: TextStyle(
+                fontFamily: 'Galada',
+                fontSize: 30,
+                color: themeProvider.themeAdditionalData().textColor,
+              )),
           type: 3,
         ),
         body: SingleChildScrollView(
@@ -45,9 +51,13 @@ class _AdminSettingsState extends State<AdminSettings> {
                   SizedBox(height: 20.0),
                   Text(
                     company.name,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24.0,
+                      color: themeProvider.themeAdditionalData().textColor,
+                    ),
                   ),
-                  _adminInfoColumn(company, deviceWidth),
+                  _adminInfoColumn(company),
                   SettingsButtons(
                     role: admin.role,
                     generalContext: context,
@@ -69,7 +79,7 @@ class _AdminSettingsState extends State<AdminSettings> {
         context, new MaterialPageRoute(builder: (context) => CompanyUpdateForm(company: company)));
   }
 
-  Widget _adminInfoColumn(Company company, double deviceWidth) {
+  Widget _adminInfoColumn(Company company) {
     return Column(
       children: [
         Text('ID: ${company.companyID}', style: TextStyle(color: Colors.grey)),

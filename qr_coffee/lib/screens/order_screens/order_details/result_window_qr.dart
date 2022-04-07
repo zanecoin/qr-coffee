@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/order.dart';
+import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ResultWindow extends StatelessWidget {
@@ -10,7 +13,7 @@ class ResultWindow extends StatelessWidget {
     required this.text,
     required this.icon,
     required this.color,
-    this.fontSize = 20.0,
+    this.fontSize = 16.0,
   }) : super(key: key);
 
   final double fontSize;
@@ -20,6 +23,7 @@ class ResultWindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       width: 280.0,
       padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 0.0),
@@ -33,7 +37,11 @@ class ResultWindow extends StatelessWidget {
           children: [
             icon,
             SizedBox(width: 5.0),
-            Text(text, style: TextStyle(fontSize: fontSize)),
+            Text(text,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  color: themeProvider.themeAdditionalData().textColor,
+                )),
           ],
         ),
       ),
@@ -51,51 +59,52 @@ class ResultWindowChooser extends StatelessWidget {
 
   final Order order;
   final String mode;
-  final String role;
+  final UserRole role;
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Column(
       children: [
-        if (order.status == 'COMPLETED')
+        if (order.status == OrderStatus.completed)
           ResultWindow(
             text: AppStringValues.orderCollected,
-            color: Colors.green.shade100,
+            color: themeProvider.themeAdditionalData().greenBannerColor!,
             icon: checkIcon(color: Colors.green.shade400),
           ),
-        if (order.status == 'ABANDONED')
+        if (order.status == OrderStatus.abandoned)
           ResultWindow(
             text: AppStringValues.orderAbandoned,
-            color: Colors.orange.shade100,
+            color: themeProvider.themeAdditionalData().orangeBannerColor!,
             icon: questionIcon(),
-            fontSize: 18.0,
           ),
-        if (order.status == 'ABORTED')
+        if (order.status == OrderStatus.aborted)
           ResultWindow(
             text: AppStringValues.orderCancelled,
-            color: Colors.red.shade100,
+            color: themeProvider.themeAdditionalData().redBannerColor!,
             icon: errorIcon(),
           ),
-        if (order.status == 'PENDING')
+        if (order.status == OrderStatus.pending)
           ResultWindow(
             text: AppStringValues.orderPending,
-            color: Colors.blue.shade100,
+            color: themeProvider.themeAdditionalData().blueBannerColor!,
             icon: waitingIcon(),
-            fontSize: 18.0,
           ),
-        if (order.status == 'READY')
+        if (order.status == OrderStatus.ready)
           ResultWindow(
             text: AppStringValues.orderReady,
-            color: role == 'customer' ? Colors.green.shade100 : Colors.blue.shade100,
+            color: role == UserRole.customer
+                ? themeProvider.themeAdditionalData().greenBannerColor!
+                : themeProvider.themeAdditionalData().blueBannerColor!,
             icon: checkIcon(
-              color: role == 'customer' ? Colors.green.shade400 : Colors.blue.shade400,
+              color: role == UserRole.customer ? Colors.green.shade400 : Colors.blue.shade400,
             ),
           ),
         if (mode == 'after-creation')
-          if (order.status == 'ACTIVE')
+          if (order.status == OrderStatus.waiting)
             ResultWindow(
               text: AppStringValues.orderRecieved,
-              color: Colors.blue.shade100,
+              color: themeProvider.themeAdditionalData().blueBannerColor!,
               icon: checkIcon(color: Colors.blue.shade400),
             ),
       ],

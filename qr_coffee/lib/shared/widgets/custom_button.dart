@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
 const Color textColor = Colors.black;
 
@@ -24,17 +26,24 @@ class CustomOutlinedIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    Color newOutlineColor = outlineColor == Colors.black
+        ? themeProvider.themeAdditionalData().textColor!
+        : outlineColor;
+    Color newBgColor =
+        bgColor == Colors.white ? themeProvider.themeAdditionalData().backgroundColor! : bgColor;
+    double newElevation = themeProvider.isLightMode() ? elevation : 0;
     return OutlinedButton.icon(
       onPressed: () => function(),
       icon: Icon(icon, color: iconColor),
-      label: Text(label, style: TextStyle(color: outlineColor, fontWeight: FontWeight.bold)),
+      label: Text(label, style: TextStyle(color: newOutlineColor, fontWeight: FontWeight.bold)),
       style: OutlinedButton.styleFrom(
         minimumSize: Size(0.0, 45.0),
-        side: BorderSide(color: outlineColor, width: 1.5),
-        backgroundColor: bgColor,
+        side: BorderSide(color: newOutlineColor, width: 1.5),
+        backgroundColor: newBgColor,
         shadowColor: outlineColor,
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-        elevation: elevation,
+        elevation: newElevation,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
@@ -49,6 +58,7 @@ class CustomOutlinedButton extends StatelessWidget {
     required this.function,
     required this.label,
     this.bgColor = Colors.white,
+    this.outlineColor = textColor,
     this.elevation = 4.0,
   }) : super(key: key);
 
@@ -56,22 +66,28 @@ class CustomOutlinedButton extends StatelessWidget {
   final String label;
   final Color bgColor;
   final double elevation;
+  final Color outlineColor;
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    Color newOutlineColor = outlineColor == Colors.black
+        ? themeProvider.themeAdditionalData().textColor!
+        : outlineColor;
+    Color newBgColor =
+        bgColor == Colors.white ? themeProvider.themeAdditionalData().backgroundColor! : bgColor;
+    double newElevation = themeProvider.isLightMode() ? elevation : 0;
     return OutlinedButton(
       onPressed: () => function(),
-      child: Text(label, style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+      child: Text(label, style: TextStyle(color: newOutlineColor, fontWeight: FontWeight.bold)),
       style: OutlinedButton.styleFrom(
-        minimumSize: Size(0.0, 45.0),
-        side: BorderSide(color: textColor, width: 1.5),
-        backgroundColor: bgColor,
-        shadowColor: textColor,
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-        elevation: elevation,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-        ),
+        minimumSize: const Size(0.0, 45.0),
+        side: BorderSide(color: newOutlineColor, width: 1.5),
+        backgroundColor: newBgColor,
+        shadowColor: newOutlineColor,
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
+        elevation: newElevation,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
       ),
     );
   }

@@ -1,10 +1,12 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class CompanyUpdateForm extends StatefulWidget {
   const CompanyUpdateForm({Key? key, required this.company}) : super(key: key);
@@ -30,7 +32,10 @@ class _CompanyUpdateFormState extends State<CompanyUpdateForm> {
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
+      backgroundColor: themeProvider.themeData().backgroundColor,
       appBar: customAppBar(context, title: Text(''), type: 1),
       body: SingleChildScrollView(
         child: Center(

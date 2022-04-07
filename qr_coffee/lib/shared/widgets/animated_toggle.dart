@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
-Widget animatedToggle(
-  bool toggleValue,
-  Function callback,
-) {
+Widget animatedToggle(bool toggleValue, Function callback, ThemeProvider themeProvider) {
   return AnimatedContainer(
     duration: Duration(milliseconds: 500),
     curve: Curves.easeOutCubic,
@@ -12,13 +10,11 @@ Widget animatedToggle(
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(20.0),
       color: toggleValue
-          ? Colors.greenAccent[100]
-          : Colors.redAccent[100]!.withOpacity(0.5),
+          ? themeProvider.themeAdditionalData().greenBannerColor
+          : themeProvider.themeAdditionalData().redBannerColor,
     ),
     child: InkWell(
-      onTap: () {
-        callback();
-      },
+      onTap: () => callback(),
       child: Stack(
         children: [
           AnimatedPositioned(

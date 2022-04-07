@@ -1,17 +1,17 @@
 class Product {
   final String productID;
   final String name;
-  final String type;
+  final ProductType type;
   final int price;
-  final int count;
-  final String picture;
+  final String pictureURL;
 
   Product({
     required this.productID,
     required this.name,
     required this.type,
     required this.price,
-    required this.count,
-    required this.picture,
+    required this.pictureURL,
   });
 }
+
+enum ProductType { drink, food }

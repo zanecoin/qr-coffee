@@ -5,7 +5,7 @@ class Admin extends UserData {
   Admin({
     required this.companyID,
     required String userID,
-    String role = 'admin',
+    UserRole role = UserRole.admin,
   }) : super(role: role, userID: userID);
 
   final String companyID;

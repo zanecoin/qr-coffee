@@ -1,5 +1,6 @@
 import 'package:qr_coffee/models/order.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:qr_coffee/service/database_service/common_functions.dart';
 
 class CustomerOrderDatabase {
   final String userID;
@@ -15,8 +16,8 @@ class CustomerOrderDatabase {
   }
 
   Future createActiveOrder(
-    String status,
-    List items,
+    OrderStatus status,
+    Map<dynamic, dynamic> items,
     int price,
     String pickUpTime,
     String username,
@@ -29,7 +30,7 @@ class CustomerOrderDatabase {
   ) async {
     if (orderID == '') {
       DocumentReference _docRef = await activeOrderCollection.add({
-        'status': status,
+        'status': CommonDatabaseFunctions().getStrStatus(status),
         'items': items,
         'price': price,
         'pickUpTime': pickUpTime,
@@ -46,7 +47,7 @@ class CustomerOrderDatabase {
       return _docRef;
     } else {
       return await activeOrderCollection.doc(orderID).set({
-        'status': status,
+        'status': CommonDatabaseFunctions().getStrStatus(status),
         'items': items,
         'price': price,
         'pickUpTime': pickUpTime,
@@ -63,8 +64,8 @@ class CustomerOrderDatabase {
   }
 
   Future createPassiveOrder(
-    String status,
-    List items,
+    OrderStatus status,
+    Map<dynamic, dynamic> items,
     int price,
     String pickUpTime,
     String username,
@@ -77,7 +78,7 @@ class CustomerOrderDatabase {
   ) async {
     if (orderID == '') {
       DocumentReference _docRef = await passiveOrderCollection.add({
-        'status': status,
+        'status': CommonDatabaseFunctions().getStrStatus(status),
         'items': items,
         'price': price,
         'pickUpTime': pickUpTime,
@@ -94,7 +95,7 @@ class CustomerOrderDatabase {
       return _docRef;
     } else {
       return await passiveOrderCollection.doc(orderID).set({
-        'status': status,
+        'status': CommonDatabaseFunctions().getStrStatus(status),
         'items': items,
         'price': price,
         'pickUpTime': pickUpTime,
@@ -111,24 +112,26 @@ class CustomerOrderDatabase {
   }
 
   // Set id for new order.
-  Future updateorderID(String orderID, String status) async {
-    if (status == 'ACTIVE' || status == 'PENDING') {
+  Future updateorderID(String orderID, OrderStatus status) async {
+    if (status == OrderStatus.waiting || status == OrderStatus.pending) {
       return await activeOrderCollection.doc(orderID).update({'orderID': orderID});
     } else {
       return await passiveOrderCollection.doc(orderID).update({'orderID': orderID});
     }
   }
 
-  // Update order status from 'active' to 'ready'.
-  Future updateOrderStatus(String orderID, String status) async {
-    return await activeOrderCollection.doc(orderID).update({'status': status});
+  // Update order status from OrderStatus.waiting to OrderStatus.ready.
+  Future updateOrderStatus(String orderID, OrderStatus status) async {
+    return await activeOrderCollection
+        .doc(orderID)
+        .update({'status': CommonDatabaseFunctions().getStrStatus(status)});
   }
 
   // Get order list from database.
   List<Order> _OrderListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Order(
-        status: (doc.data() as dynamic)['status'],
+        status: CommonDatabaseFunctions().getEnumStatus((doc.data() as dynamic)['status']),
         items: (doc.data() as dynamic)['items'],
         price: (doc.data() as dynamic)['price'],
         pickUpTime: (doc.data() as dynamic)['pickUpTime'],
@@ -144,24 +147,6 @@ class CustomerOrderDatabase {
     }).toList();
   }
 
-  // Get specific order from database.
-  Order _OrderFromSnapshot(DocumentSnapshot snapshot) {
-    return Order(
-      status: (snapshot.data() as dynamic)['status'],
-      items: (snapshot.data() as dynamic)['items'],
-      price: (snapshot.data() as dynamic)['price'],
-      pickUpTime: (snapshot.data() as dynamic)['pickUpTime'],
-      username: (snapshot.data() as dynamic)['username'],
-      shop: (snapshot.data() as dynamic)['shop'],
-      company: (snapshot.data() as dynamic)['company'],
-      orderID: (snapshot.data() as dynamic)['orderID'],
-      userID: (snapshot.data() as dynamic)['userID'],
-      shopID: (snapshot.data() as dynamic)['shopID'],
-      companyID: (snapshot.data() as dynamic)['companyID'],
-      day: (snapshot.data() as dynamic)['day'],
-    );
-  }
-
   // Get active orders list stream.
   Stream<List<Order>> get activeOrderList {
     return activeOrderCollection.snapshots().map(_OrderListFromSnapshot);
@@ -170,10 +155,5 @@ class CustomerOrderDatabase {
   // Get passive orders list stream.
   Stream<List<Order>> get passiveOrderList {
     return passiveOrderCollection.snapshots().map(_OrderListFromSnapshot);
-  }
-
-  // Get specific order document stream.
-  Stream<Order> get order {
-    return activeOrderCollection.doc(userID).snapshots().map(_OrderFromSnapshot);
   }
 }

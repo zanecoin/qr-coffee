@@ -13,9 +13,11 @@ class UserFromAuth {
 class UserData extends UserFromAuth {
   UserData({required this.role, required String userID}) : super(userID: userID);
 
-  final String role;
+  final UserRole role;
 
-  updateRole(String role) {
+  updateRole(UserRole role) {
     UserDatabase(userID: this.userID).updateUserRole(role);
   }
 }
+
+enum UserRole { customer, worker, admin }

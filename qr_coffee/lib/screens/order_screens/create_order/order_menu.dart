@@ -22,29 +22,25 @@ class OrderMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<String> choices = [AppStringValues.drink, AppStringValues.food];
-    final double deviceWidth = Responsive.deviceWidth(context);
-    final bool largeDevice = deviceWidth > kDeviceUpperWidthTreshold ? true : false;
-
     return TabBarView(
       controller: controller,
       children:
-          choices.map((choice) => _orderGrid(items, choice, databaseImages, largeDevice)).toList(),
+          choices.map((choice) => _orderGrid(items, choice, databaseImages, context)).toList(),
     );
   }
 
-  Widget _orderGrid(items, choice, databaseImages, largeDevice) {
+  Widget _orderGrid(items, choice, databaseImages, BuildContext context) {
     return GridView(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       children: _filter(items, choice)
           .map((item) => ProductTile(
                 item: item,
                 onItemTap: onItemTap,
-                imageUrl: chooseUrl(databaseImages, item.picture),
-                largeDevice: largeDevice,
+                imageUrl: chooseUrl(databaseImages, item.pictureURL),
               ))
           .toList(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: largeDevice ? 4 : 2,
+        crossAxisCount: Responsive.isLargeDevice(context) ? 4 : 2,
       ),
     );
   }
@@ -52,10 +48,10 @@ class OrderMenu extends StatelessWidget {
   List<Product> _filter(List<Product> items, String choice) {
     List<Product> result = [];
     for (var item in items) {
-      if (item.type == 'drink' && choice == AppStringValues.drink) {
+      if (item.type == ProductType.drink && choice == AppStringValues.drink) {
         result.add(item);
       }
-      if (item.type == 'food' && choice == AppStringValues.food) {
+      if (item.type == ProductType.food && choice == AppStringValues.food) {
         result.add(item);
       }
     }

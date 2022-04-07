@@ -58,6 +58,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/cafe.jpg
+    - assets/cafe_darkmode.png
+    - assets/cafe_black.png
     - assets/map.jpg
     - assets/blank.png
   fonts:

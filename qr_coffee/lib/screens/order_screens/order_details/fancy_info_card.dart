@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
 class FancyInfoCard extends StatelessWidget {
   const FancyInfoCard({
@@ -14,24 +16,16 @@ class FancyInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = Responsive.deviceWidth(context);
-    final bool largeDevice = deviceWidth > kDeviceUpperWidthTreshold ? true : false;
-
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(50, context) : null,
+      width: Responsive.isLargeDevice(context) ? Responsive.width(50, context) : null,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: themeProvider.themeAdditionalData().containerColor,
         borderRadius: BorderRadius.all(
           Radius.circular(40),
         ),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.shade300,
-              offset: Offset(0, 0),
-              blurRadius: 15.0,
-              spreadRadius: 5.0),
-        ],
+        boxShadow: themeProvider.themeAdditionalData().shadow,
       ),
       child: Stack(
         children: [
@@ -43,11 +37,15 @@ class FancyInfoCard extends StatelessWidget {
                   height: 150,
                   width: 150,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(40),
                     image: DecorationImage(
                       colorFilter:
                           new ColorFilter.mode(Colors.black.withOpacity(0.2), BlendMode.dstATop),
-                      image: AssetImage('assets/cafe.jpg'),
+                      image: AssetImage(
+                        themeProvider.isLightMode()
+                            ? 'assets/cafe.jpg'
+                            : 'assets/cafe_darkmode.png',
+                      ),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -61,26 +59,30 @@ class FancyInfoCard extends StatelessWidget {
               children: [
                 SizedBox(height: 20),
                 Text(
-                  largeDevice
+                  Responsive.isLargeDevice(context)
                       ? (cutTextIfNeccessary(order.username, 400 ~/ 17))
                       : (cutTextIfNeccessary(
                           order.username, Responsive.textTresholdShort(context))),
                   style: TextStyle(
                     fontSize: 23,
-                    color: Colors.black,
+                    color: themeProvider.themeAdditionalData().textColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  '${order.price.toString()} Kč',
-                  style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold),
+                  '${order.price.toString()} ${AppStringValues.currency}',
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: themeProvider.themeAdditionalData().textColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 20),
                 Text(
                   '${AppStringValues.orderCode}: ${order.orderID.substring(0, 6).toUpperCase()}',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.black,
+                    color: themeProvider.themeAdditionalData().textColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

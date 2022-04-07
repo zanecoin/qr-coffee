@@ -1,14 +1,14 @@
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/screens/app_customer/customer_shop_map.dart';
+import 'package:qr_coffee/screens/app_customer/my_credits.dart';
 import 'package:qr_coffee/screens/app_customer/my_orders.dart';
-import 'package:qr_coffee/screens/app_customer/qr_tokens.dart';
-import 'package:qr_coffee/screens/order_screens/create_order/create_order_screen.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/shop_selection.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
 class CustomerHomeBody extends StatefulWidget {
   const CustomerHomeBody({
@@ -41,6 +41,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -51,15 +52,8 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
               child: Container(
                 height: Responsive.height(40, context) / Responsive.height(0.18, context),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(1, 1),
-                      blurRadius: 10,
-                      spreadRadius: 0,
-                    )
-                  ],
+                  color: themeProvider.themeAdditionalData().containerColor,
+                  boxShadow: themeProvider.themeAdditionalData().shadow,
                 ),
                 child: Stack(
                   children: [
@@ -72,12 +66,16 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                           Text(
                             AppStringValues.app_name,
                             style: TextStyle(
-                              color: Colors.black,
+                              color: themeProvider.themeAdditionalData().textColor,
                               fontSize: 50,
                               fontFamily: 'Galada',
                             ),
                           ),
-                          Text(welcome, style: TextStyle(fontSize: 20)),
+                          Text(welcome,
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: themeProvider.themeAdditionalData().textColor,
+                              )),
                         ],
                       ),
                     ),
@@ -88,12 +86,14 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
           ),
           Container(
             margin: EdgeInsets.fromLTRB(0, Responsive.height(9, context), 0, 0),
+            color: themeProvider.themeData().backgroundColor,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _proceedToOrder(widget.databaseImages),
+                _proceedToOrder(widget.databaseImages, themeProvider),
                 Container(
+                  color: themeProvider.themeData().backgroundColor,
                   height: Responsive.height(21, context),
                   margin: EdgeInsets.symmetric(
                     horizontal: Responsive.height(3, context),
@@ -102,9 +102,9 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _squareButton(1, widget.databaseImages),
+                      _squareButton(1, widget.databaseImages, themeProvider),
                       SizedBox(width: Responsive.height(3, context)),
-                      _squareButton(2, widget.databaseImages),
+                      _squareButton(2, widget.databaseImages, themeProvider),
                     ],
                   ),
                 ),
@@ -122,7 +122,13 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
     Navigator.push(context, new MaterialPageRoute(builder: (context) => CustomerShopMap()));
   }
 
-  Widget _squareButton(int type, List<Map<String, dynamic>> databaseImages) {
+  Widget _squareButton(
+    int type,
+    List<Map<String, dynamic>> databaseImages,
+    ThemeProvider themeProvider,
+  ) {
+    double opacity = themeProvider.isLightMode() ? 1 : 0.8;
+
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
@@ -130,28 +136,23 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
             Radius.circular(30),
           ),
           image: DecorationImage(
-            colorFilter: new ColorFilter.mode(Colors.black.withOpacity(1), BlendMode.dstATop),
+            colorFilter: new ColorFilter.mode(Colors.black.withOpacity(opacity), BlendMode.dstATop),
             image: type == 1
-                ? NetworkImage(chooseUrl(databaseImages, 'pictures/my_orders_tile.JPG'))
-                : NetworkImage(chooseUrl(databaseImages, 'pictures/qr_token_tile.JPG')),
+                ? NetworkImage(
+                    chooseUrl(databaseImages, 'pictures/customer_screen/my_orders_tile.JPG'))
+                : NetworkImage(
+                    chooseUrl(databaseImages, 'pictures/customer_screen/qr_token_tile.JPG')),
             fit: BoxFit.cover,
           ),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade600,
-              offset: Offset(1, 1),
-              blurRadius: 10,
-              spreadRadius: 0,
-            )
-          ],
+          color: themeProvider.themeData().backgroundColor,
+          boxShadow: themeProvider.themeAdditionalData().shadow,
         ),
         child: InkWell(
           onTap: () async {
             Navigator.push(
               context,
               new MaterialPageRoute(
-                builder: (context) => type == 1 ? MyOrders() : QRTokens(),
+                builder: (context) => type == 1 ? MyOrders() : Credits(),
               ),
             );
           },
@@ -164,13 +165,13 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    color: Colors.white,
+                    color: themeProvider.themeData().backgroundColor,
                   ),
                   child: Text(
-                    type == 1 ? AppStringValues.myOrders : AppStringValues.myTokens,
+                    type == 1 ? AppStringValues.myOrders : AppStringValues.myCredits,
                     style: TextStyle(
                       fontWeight: FontWeight.normal,
-                      color: Colors.black,
+                      color: themeProvider.themeAdditionalData().textColor,
                       fontSize: 11,
                     ),
                     textAlign: TextAlign.center,
@@ -184,7 +185,8 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
     );
   }
 
-  Widget _proceedToOrder(List<Map<String, dynamic>> databaseImages) {
+  Widget _proceedToOrder(List<Map<String, dynamic>> databaseImages, ThemeProvider themeProvider) {
+    double opacity = themeProvider.isLightMode() ? 1 : 0.8;
     return Container(
       margin: EdgeInsets.symmetric(horizontal: Responsive.height(3, context)),
       height: Responsive.height(21, context),
@@ -194,28 +196,22 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
         ),
         image: DecorationImage(
           colorFilter: new ColorFilter.mode(
-            Colors.black.withOpacity(1),
+            Colors.black.withOpacity(opacity),
             BlendMode.dstATop,
           ),
-          image: NetworkImage(chooseUrl(databaseImages, 'pictures/create_order_tile.JPG')),
+          image: NetworkImage(
+              chooseUrl(databaseImages, 'pictures/customer_screen/create_order_tile.JPG')),
           fit: BoxFit.cover,
         ),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade600,
-            offset: Offset(1, 1),
-            blurRadius: 10,
-            spreadRadius: 0,
-          )
-        ],
+        color: themeProvider.themeData().backgroundColor,
+        boxShadow: themeProvider.themeAdditionalData().shadow,
       ),
       child: InkWell(
         onTap: () async {
           Navigator.push(
             context,
             new MaterialPageRoute(
-              builder: (context) => ShopSelection(databaseImages: databaseImages),
+              builder: (context) => ShopSelection(),
             ),
           );
         },
@@ -228,7 +224,7 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Colors.white,
+                  color: themeProvider.themeData().backgroundColor,
                 ),
                 child: Row(
                   children: [
@@ -236,14 +232,14 @@ class _CustomerHomeBodyState extends State<CustomerHomeBody> {
                       AppStringValues.createOrder,
                       style: TextStyle(
                         fontWeight: FontWeight.normal,
-                        color: Colors.black,
+                        color: themeProvider.themeAdditionalData().textColor,
                         fontSize: 16,
                       ),
                     ),
                     SizedBox(width: 5),
                     Icon(
                       Icons.arrow_forward_ios,
-                      color: Colors.black,
+                      color: themeProvider.themeAdditionalData().textColor,
                       size: 16,
                     )
                   ],

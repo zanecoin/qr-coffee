@@ -9,12 +9,11 @@ import 'package:qr_coffee/screens/app_company/common/shop_tile.dart';
 import 'package:qr_coffee/service/database_service/shop_database.dart';
 import 'package:qr_coffee/service/database_service/user_database.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class CompanyShops extends StatefulWidget {
-  const CompanyShops({Key? key, required this.databaseImages}) : super(key: key);
-  final List<Map<String, dynamic>> databaseImages;
-
+  const CompanyShops({Key? key}) : super(key: key);
   @override
   _CompanyShopsState createState() => _CompanyShopsState();
 }
@@ -24,6 +23,7 @@ class _CompanyShopsState extends State<CompanyShops> {
   Widget build(BuildContext context) {
     final userFromAuth = Provider.of<UserFromAuth?>(context);
     final company = Provider.of<Company>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     if (company.companyID != '') {
       return StreamBuilder2<List<Shop>, UserData>(
@@ -37,14 +37,19 @@ class _CompanyShopsState extends State<CompanyShops> {
             UserData userData = snapshots.item2.data!;
 
             return Scaffold(
+              backgroundColor: themeProvider.themeData().backgroundColor,
               appBar: customAppBar(
                 context,
                 title: Text(
                   AppStringValues.app_name,
-                  style: TextStyle(fontFamily: 'Galada', fontSize: 30),
+                  style: TextStyle(
+                    fontFamily: 'Galada',
+                    fontSize: 30,
+                    color: themeProvider.themeAdditionalData().textColor,
+                  ),
                 ),
                 type: 3,
-                actions: [if (userData.role == 'admin') _addShop(company)],
+                actions: [if (userData.role == UserRole.admin) _addShop(company, themeProvider)],
               ),
               body: SingleChildScrollView(
                 child: Container(
@@ -73,13 +78,12 @@ class _CompanyShopsState extends State<CompanyShops> {
     }
   }
 
-  Widget _shopList(List<Shop> shopList, String role, Company company) {
+  Widget _shopList(List<Shop> shopList, UserRole role, Company company) {
     return SizedBox(
       child: ListView.builder(
         itemBuilder: (context, index) => ShopTile(
           shop: shopList[index],
           role: role,
-          databaseImages: widget.databaseImages,
           company: company,
         ),
         itemCount: shopList.length,
@@ -90,11 +94,15 @@ class _CompanyShopsState extends State<CompanyShops> {
     );
   }
 
-  Widget _addShop(Company company) {
+  Widget _addShop(Company company, ThemeProvider themeProvider) {
     return IconButton(
       onPressed: () => Navigator.push(
           context, new MaterialPageRoute(builder: (context) => AddShop(company: company))),
-      icon: Icon(Icons.add_business_outlined, size: 30),
+      icon: Icon(
+        Icons.add_business_outlined,
+        size: 30,
+        color: themeProvider.themeAdditionalData().textColor,
+      ),
     );
   }
 }

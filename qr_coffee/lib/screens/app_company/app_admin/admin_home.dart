@@ -3,17 +3,17 @@ import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/admin.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/user.dart';
+import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/statistics/statistics.dart';
 import 'package:qr_coffee/screens/app_company/common/company_products.dart';
 import 'package:qr_coffee/screens/settings/admin_settings.dart';
 import 'package:qr_coffee/screens/app_company/common/company_shops.dart';
-import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/stats.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/loading.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({Key? key, required this.databaseImages}) : super(key: key);
-
   final List<Map<String, dynamic>> databaseImages;
 
   @override
@@ -21,20 +21,17 @@ class AdminHome extends StatefulWidget {
 }
 
 class _AdminHomeState extends State<AdminHome> {
-  int _currentIndex = 1;
+  int _currentIndex = 2;
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [
-      AdminSettings(),
-      CompanyShops(databaseImages: widget.databaseImages),
-      CompanyProducts(databaseImages: widget.databaseImages),
-      Stats(),
-    ];
+    final List<Widget> screens = [AdminSettings(), CompanyShops(), CompanyProducts(), Statistics()];
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final userFromAuth = Provider.of<UserFromAuth?>(context);
 
     return Scaffold(
+      backgroundColor: themeProvider.themeData().backgroundColor,
       body: StreamBuilder<Admin>(
         stream: AdminDatabase(userID: userFromAuth!.userID).admin,
         builder: (context, snapshot) {
@@ -61,9 +58,9 @@ class _AdminHomeState extends State<AdminHome> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey.shade300,
+        backgroundColor: themeProvider.themeData().backgroundColor,
+        selectedItemColor: themeProvider.themeAdditionalData().selectedColor,
+        unselectedItemColor: themeProvider.themeAdditionalData().unselectedColor,
         showUnselectedLabels: false,
         selectedFontSize: 12.0,
         iconSize: 30.0,

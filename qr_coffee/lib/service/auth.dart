@@ -23,7 +23,7 @@ class AuthService {
           await _auth.createUserWithEmailAndPassword(email: email, password: password);
 
       // Create a new document for the user with the uid.
-      await UserDatabase(userID: credential.user!.uid).updateUserData('customer');
+      await UserDatabase(userID: credential.user!.uid).updateUserData(UserRole.customer);
 
       // Create a new document for the customer with the uid.
       await CustomerDatabase(userID: credential.user!.uid)

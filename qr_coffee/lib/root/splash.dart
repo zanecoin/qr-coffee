@@ -10,7 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/auth.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 // Ensures the themeprovider is set before the app starts.
 class AppStart extends StatelessWidget {
@@ -56,6 +56,14 @@ class _MyAppState extends State<MyApp> {
               ),
             ],
             child: MaterialApp(
+              themeMode: ThemeMode.system,
+              // theme: ThemeData(
+              //   brightness: Brightness.light,
+              //   primaryColor: Colors.red,
+              // ),
+              // darkTheme: ThemeData(
+              //   brightness: Brightness.dark,
+              // ),
               title: AppStringValues.app_name,
               debugShowCheckedModeBanner: false,
               home: SplashScreen(),
@@ -81,7 +89,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: loadImages('pictures/'),
+      future: loadImages('pictures/customer_screen/'),
       builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> picSnapshot) {
         if (picSnapshot.connectionState == ConnectionState.done) {
           return Wrapper(databaseImages: picSnapshot.data!);
@@ -99,14 +107,15 @@ class Splash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Container(
-      color: Colors.white,
+      color: themeProvider.themeData().backgroundColor,
       child: SafeArea(
         child: Scaffold(
           body: Stack(
             children: <Widget>[
-              Container(color: Colors.white),
+              Container(color: themeProvider.themeData().backgroundColor),
               Container(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -116,12 +125,19 @@ class Splash extends StatelessWidget {
                     Text(
                       AppStringValues.app_name,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: themeProvider.themeAdditionalData().textColor,
                         fontSize: Responsive.width(12.0, context),
                         fontFamily: 'Galada',
                       ),
                     ),
-                    if (isPortrait) ImageBanner(path: 'assets/cafe.jpg', size: 'large'),
+                    if (isPortrait)
+                      ImageBanner(
+                        path: themeProvider.isLightMode()
+                            ? 'assets/cafe.jpg'
+                            : 'assets/cafe_black.png',
+                        size: 'large',
+                        color: themeProvider.themeAdditionalData().backgroundColor!,
+                      ),
                     Expanded(
                       flex: 1,
                       child: Column(
@@ -135,7 +151,7 @@ class Splash extends StatelessWidget {
                           if (isPortrait)
                             Text(AppStringValues.motto,
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: themeProvider.themeAdditionalData().textColor,
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
                                 )),

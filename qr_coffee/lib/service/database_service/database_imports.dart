@@ -7,3 +7,4 @@ export 'package:qr_coffee/service/database_service/product_database.dart';
 export 'package:qr_coffee/service/database_service/customer_database.dart';
 export 'package:qr_coffee/service/database_service/admin_database.dart';
 export 'package:qr_coffee/service/database_service/worker_database.dart';
+export 'package:qr_coffee/service/database_service/day_cell_database.dart';

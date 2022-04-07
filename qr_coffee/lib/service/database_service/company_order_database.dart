@@ -1,36 +1,46 @@
 import 'package:qr_coffee/models/order.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-
-String _tempId = 'c9wzSTR2HEnYxmgEC8Wl';
+import 'package:qr_coffee/service/database_service/common_functions.dart';
 
 class CompanyOrderDatabase {
-  CompanyOrderDatabase({this.uid});
-  final String? uid;
+  CompanyOrderDatabase({required this.companyID});
+  final String? companyID;
 
   CollectionReference _getPassiveOrderCollection() {
     String date = DateFormat('yyyy_MM_dd').format(DateTime.now());
     return FirebaseFirestore.instance
         .collection('companies')
-        .doc(_tempId)
+        .doc(companyID)
         .collection('passive_orders')
         .doc('$date')
         .collection('orders');
   }
 
-  final CollectionReference activeOrderCollection =
-      FirebaseFirestore.instance.collection('companies').doc(_tempId).collection('active_orders');
+  CollectionReference _getActiveOrderCollection() {
+    return FirebaseFirestore.instance
+        .collection('companies')
+        .doc(companyID)
+        .collection('active_orders');
+  }
 
-  final CollectionReference virtualOrderCollection =
-      FirebaseFirestore.instance.collection('companies').doc(_tempId).collection('virtual_orders');
+  CollectionReference _getVirtualOrderCollection() {
+    String date = DateFormat('yyyy_MM_dd').format(DateTime.now());
+    return FirebaseFirestore.instance
+        .collection('companies')
+        .doc(companyID)
+        .collection('virtual_orders')
+        .doc('$date')
+        .collection('orders');
+  }
 
   Future deleteActiveOrder(String orderID) async {
-    return await activeOrderCollection.doc(orderID).delete();
+    return await _getActiveOrderCollection().doc(orderID).delete();
   }
 
   Future createActiveOrder(
-    String status,
-    List items,
+    OrderStatus status,
+    Map<dynamic, dynamic> items,
     int price,
     String pickUpTime,
     String username,
@@ -42,8 +52,8 @@ class CompanyOrderDatabase {
     String companyID,
     String day,
   ) async {
-    DocumentReference _docRef = await activeOrderCollection.add({
-      'status': status,
+    DocumentReference _docRef = await _getActiveOrderCollection().add({
+      'status': CommonDatabaseFunctions().getStrStatus(status),
       'items': items,
       'price': price,
       'pickUpTime': pickUpTime,
@@ -61,8 +71,8 @@ class CompanyOrderDatabase {
   }
 
   Future createPassiveOrder(
-    String status,
-    List items,
+    OrderStatus status,
+    Map<dynamic, dynamic> items,
     int price,
     String pickUpTime,
     String username,
@@ -77,7 +87,7 @@ class CompanyOrderDatabase {
     CollectionReference passiveOrderCollection = _getPassiveOrderCollection();
     if (orderID == '') {
       DocumentReference _docRef = await passiveOrderCollection.add({
-        'status': status,
+        'status': CommonDatabaseFunctions().getStrStatus(status),
         'items': items,
         'price': price,
         'pickUpTime': pickUpTime,
@@ -94,7 +104,7 @@ class CompanyOrderDatabase {
       return _docRef;
     } else {
       return await passiveOrderCollection.doc(orderID).set({
-        'status': status,
+        'status': CommonDatabaseFunctions().getStrStatus(status),
         'items': items,
         'price': price,
         'pickUpTime': pickUpTime,
@@ -111,8 +121,8 @@ class CompanyOrderDatabase {
   }
 
   Future createVirtualOrder(
-    String status,
-    List items,
+    OrderStatus status,
+    Map<dynamic, dynamic> items,
     int price,
     String pickUpTime,
     String username,
@@ -124,8 +134,8 @@ class CompanyOrderDatabase {
     String companyID,
     String day,
   ) async {
-    return await virtualOrderCollection.add({
-      'status': status,
+    return await _getVirtualOrderCollection().add({
+      'status': CommonDatabaseFunctions().getStrStatus(status),
       'items': items,
       'price': price,
       'pickUpTime': pickUpTime,
@@ -141,46 +151,32 @@ class CompanyOrderDatabase {
   }
 
   // Set id for new virtual order.
-  Future updateVirtualorderID(
-    String orderID,
-  ) async {
-    return await virtualOrderCollection.doc(orderID).update({
-      'orderID': orderID,
-    });
+  Future updateVirtualorderID(String orderID) async {
+    return await _getVirtualOrderCollection().doc(orderID).update({'orderID': orderID});
   }
 
   // Set id for new order
-  Future updateorderID(
-    String orderID,
-    String status,
-  ) async {
-    if (status == 'ACTIVE' || status == 'PENDING') {
-      return await activeOrderCollection.doc(orderID).update({
-        'orderID': orderID,
-      });
+  Future updateorderID(String orderID, OrderStatus status) async {
+    if (status == OrderStatus.waiting || status == OrderStatus.pending) {
+      return await _getActiveOrderCollection().doc(orderID).update({'orderID': orderID});
     } else {
       CollectionReference passiveOrderCollection = _getPassiveOrderCollection();
-      return await passiveOrderCollection.doc(orderID).update({
-        'orderID': orderID,
-      });
+      return await passiveOrderCollection.doc(orderID).update({'orderID': orderID});
     }
   }
 
-  // Update order status from 'active' to 'ready'.
-  Future updateOrderStatus(
-    String orderID,
-    String status,
-  ) async {
-    return await activeOrderCollection.doc(orderID).update({
-      'status': status,
-    });
+  // Update order status from OrderStatus.waiting to OrderStatus.ready.
+  Future updateOrderStatus(String orderID, OrderStatus status) async {
+    return await _getActiveOrderCollection()
+        .doc(orderID)
+        .update({'status': CommonDatabaseFunctions().getStrStatus(status)});
   }
 
   // Get order list from database.
   List<Order> _OrderListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Order(
-        status: (doc.data() as dynamic)['status'],
+        status: CommonDatabaseFunctions().getEnumStatus((doc.data() as dynamic)['status']),
         items: (doc.data() as dynamic)['items'],
         price: (doc.data() as dynamic)['price'],
         pickUpTime: (doc.data() as dynamic)['pickUpTime'],
@@ -196,27 +192,9 @@ class CompanyOrderDatabase {
     }).toList();
   }
 
-  // Get specific order from database.
-  Order _OrderFromSnapshot(DocumentSnapshot snapshot) {
-    return Order(
-      status: (snapshot.data() as dynamic)['status'],
-      items: (snapshot.data() as dynamic)['items'],
-      price: (snapshot.data() as dynamic)['price'],
-      pickUpTime: (snapshot.data() as dynamic)['pickUpTime'],
-      username: (snapshot.data() as dynamic)['username'],
-      shop: (snapshot.data() as dynamic)['shop'],
-      company: (snapshot.data() as dynamic)['company'],
-      orderID: (snapshot.data() as dynamic)['orderID'],
-      userID: (snapshot.data() as dynamic)['userID'],
-      shopID: (snapshot.data() as dynamic)['shopID'],
-      companyID: (snapshot.data() as dynamic)['companyID'],
-      day: (snapshot.data() as dynamic)['day'],
-    );
-  }
-
   // Get active orders list stream.
   Stream<List<Order>> get activeOrderList {
-    return activeOrderCollection.snapshots().map(_OrderListFromSnapshot);
+    return _getActiveOrderCollection().snapshots().map(_OrderListFromSnapshot);
   }
 
   // Get passive orders list stream.
@@ -227,11 +205,6 @@ class CompanyOrderDatabase {
 
   // Get virtual orders list stream.
   Stream<List<Order>> get virtualOrderList {
-    return virtualOrderCollection.snapshots().map(_OrderListFromSnapshot);
-  }
-
-  // Get specific active order stream.
-  Stream<Order> get order {
-    return activeOrderCollection.doc(uid).snapshots().map(_OrderFromSnapshot);
+    return _getVirtualOrderCollection().snapshots().map(_OrderListFromSnapshot);
   }
 }

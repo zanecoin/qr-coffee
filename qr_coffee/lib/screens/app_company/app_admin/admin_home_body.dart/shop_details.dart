@@ -8,7 +8,8 @@ import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class AdminShopDetails extends StatefulWidget {
   const AdminShopDetails({Key? key, required this.shop}) : super(key: key);
@@ -27,6 +28,7 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
   Widget build(BuildContext context) {
     double deviceWidth = Responsive.deviceWidth(context);
     company = Provider.of<Company>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     if (company.companyID != '') {
       return StreamBuilder<Shop>(
@@ -36,7 +38,15 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
             shop = snapshot.data!;
 
             return Scaffold(
-              appBar: customAppBar(context, title: Text(AppStringValues.shopDetails)),
+              backgroundColor: themeProvider.themeData().backgroundColor,
+              appBar: customAppBar(context,
+                  title: Text(
+                    AppStringValues.shopDetails,
+                    style: TextStyle(
+                      color: themeProvider.themeAdditionalData().textColor,
+                      fontSize: 16.0,
+                    ),
+                  )),
               body: SingleChildScrollView(
                 child: Center(
                   child: Container(
@@ -48,13 +58,34 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
                         SizedBox(height: Responsive.height(3, context)),
                         CustomCircleAvatar(icon: Icons.store),
                         SizedBox(height: Responsive.height(3, context)),
-                        Text(
-                          cutTextIfNeccessary(shop.address, Responsive.textTresholdShort(context)),
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.place,
+                              color: themeProvider.themeAdditionalData().textColor,
+                            ),
+                            Text(
+                              cutTextIfNeccessary(
+                                  shop.address, Responsive.textTresholdShort(context)),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24.0,
+                                color: themeProvider.themeAdditionalData().textColor,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text('${shop.city}', style: TextStyle(color: Colors.grey)),
+                        Text('${shop.city}',
+                            style: TextStyle(
+                              color: themeProvider.themeAdditionalData().unselectedColor,
+                            )),
                         SizedBox(height: Responsive.height(2, context)),
-                        Text(AppStringValues.openingHours, style: TextStyle(fontSize: 16)),
+                        Text(AppStringValues.openingHours,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: themeProvider.themeAdditionalData().textColor,
+                            )),
                         SizedBox(height: Responsive.height(1, context)),
                         CustomTextBanner(title: shop.openingHours, showIcon: false),
                         SizedBox(height: Responsive.height(10, context)),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
 class CustomTimeDropdown extends StatefulWidget {
   CustomTimeDropdown({
@@ -39,25 +41,28 @@ class _CustomTimeDropdownState extends State<CustomTimeDropdown> {
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     String? currentValue;
     return Container(
-      //margin: EdgeInsets.symmetric(horizontal: 20),
-      //width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(10, context) : null,
       height: 50,
       width: 110,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-            border: Border.all(width: 1, color: Colors.grey),
+            border: Border.all(width: 1, color: themeProvider.themeAdditionalData().FlBorderColor!),
             borderRadius: BorderRadius.circular(10)),
         child: Row(
           children: [
             Expanded(
               child: DropdownButtonFormField(
                 value: currentValue,
+                style:
+                    TextStyle(color: themeProvider.themeAdditionalData().textColor, fontSize: 13.0),
                 items: values.map((value) {
                   return DropdownMenuItem(
-                    child: Text(value),
+                    child: Text(value,
+                        style: TextStyle(
+                            color: themeProvider.themeAdditionalData().textColor, fontSize: 13.0)),
                     value: value,
                   );
                 }).toList(),
@@ -65,6 +70,7 @@ class _CustomTimeDropdownState extends State<CustomTimeDropdown> {
                   currentValue = val.toString();
                   callback(label, val);
                 },
+                dropdownColor: themeProvider.themeAdditionalData().buttonColor,
               ),
             ),
           ],

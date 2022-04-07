@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/shop.dart';
+import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/create_order_screen.dart';
 import 'package:qr_coffee/screens/order_screens/order_tile.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
@@ -9,31 +11,30 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:intl/intl.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class WorkerHomeBody extends StatefulWidget {
-  WorkerHomeBody({required this.shop, required this.databaseImages});
+  WorkerHomeBody({required this.shop});
   final Shop shop;
-  final List<Map<String, dynamic>> databaseImages;
 
   @override
-  _WorkerHomeBodyState createState() =>
-      _WorkerHomeBodyState(shop: shop, databaseImages: databaseImages);
+  _WorkerHomeBodyState createState() => _WorkerHomeBodyState(shop: shop);
 }
 
 class _WorkerHomeBodyState extends State<WorkerHomeBody> {
-  _WorkerHomeBodyState({required this.shop, required this.databaseImages});
+  _WorkerHomeBodyState({required this.shop});
   final Shop shop;
-  final List<Map<String, dynamic>> databaseImages;
 
   dynamic _currentFilter = AppStringValues.active;
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return StreamBuilder3<List<Order>, List<Order>, dynamic>(
       streams: Tuple3(
-        CompanyOrderDatabase().passiveOrderList,
-        CompanyOrderDatabase().activeOrderList,
+        CompanyOrderDatabase(companyID: shop.companyID).passiveOrderList,
+        CompanyOrderDatabase(companyID: shop.companyID).activeOrderList,
         Stream.periodic(const Duration(seconds: 1)),
       ),
       builder: (context, snapshots) {
@@ -52,10 +53,15 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
           orderList = _getOrderByType(orderList);
 
           return Scaffold(
+            backgroundColor: themeProvider.themeData().backgroundColor,
             appBar: customAppBar(context,
-                title: Text(shop.address, style: TextStyle(fontSize: 14)),
+                title: Text(shop.address,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: themeProvider.themeAdditionalData().textColor,
+                    )),
                 type: 1,
-                actions: [_add(databaseImages)]),
+                actions: [_add(themeProvider)]),
             body: SingleChildScrollView(
               child: Container(
                 margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
@@ -63,10 +69,17 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _filterDropDown(),
+                    _filterDropDown(themeProvider),
                     CustomDivider(),
                     if (orderList.isNotEmpty) _orderList(orderList, time),
-                    if (orderList.isEmpty) Center(child: Text(AppStringValues.noOrders)),
+                    if (orderList.isEmpty)
+                      Center(
+                          child: Text(
+                        AppStringValues.noOrders,
+                        style: TextStyle(
+                          color: themeProvider.themeAdditionalData().textColor,
+                        ),
+                      )),
                     SizedBox(height: 20),
                   ],
                 ),
@@ -80,21 +93,20 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     );
   }
 
-  Widget _add(List<Map<String, dynamic>> databaseImages) {
+  Widget _add(ThemeProvider themeProvider) {
     return IconButton(
       onPressed: () => Navigator.push(
         context,
-        new MaterialPageRoute(
-            builder: (context) => CreateOrderScreen(shop: shop, databaseImages: databaseImages)),
+        new MaterialPageRoute(builder: (context) => CreateOrderScreen(shop: shop)),
       ),
-      icon: Icon(Icons.add_box_outlined),
+      icon: Icon(Icons.add_box_outlined, color: themeProvider.themeAdditionalData().textColor),
     );
   }
 
   List<Order> _filterOutPending(List<Order> orders) {
     List<Order> result = [];
     for (var item in orders) {
-      if (item.status != 'PENDING') {
+      if (item.status != OrderStatus.pending) {
         result.add(item);
       }
     }
@@ -118,22 +130,22 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     } else {
       for (var order in orders) {
         if (_currentFilter == AppStringValues.completed &&
-            (order.status == 'COMPLETED' ||
-                order.status == 'ABORTED' ||
-                order.status == 'ABANDONED')) {
+            (order.status == OrderStatus.completed ||
+                order.status == OrderStatus.aborted ||
+                order.status == OrderStatus.abandoned)) {
           result.add(order);
         }
         if (_currentFilter == AppStringValues.active &&
-            (order.status == 'ACTIVE' || order.status == 'READY')) {
+            (order.status == OrderStatus.waiting || order.status == OrderStatus.ready)) {
           result.add(order);
         }
-        if (_currentFilter == AppStringValues.picked && order.status == 'COMPLETED') {
+        if (_currentFilter == AppStringValues.picked && order.status == OrderStatus.completed) {
           result.add(order);
         }
-        if (_currentFilter == AppStringValues.unpicked && order.status == 'ABANDONED') {
+        if (_currentFilter == AppStringValues.unpicked && order.status == OrderStatus.abandoned) {
           result.add(order);
         }
-        if (_currentFilter == AppStringValues.aborted && order.status == 'ABORTED') {
+        if (_currentFilter == AppStringValues.aborted && order.status == OrderStatus.aborted) {
           result.add(order);
         }
       }
@@ -148,7 +160,7 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
         itemBuilder: (context, index) => OrderTile(
           order: orderList[index],
           time: time,
-          role: 'worker',
+          role: UserRole.worker,
         ),
         itemCount: orderList.length,
         shrinkWrap: true,
@@ -158,7 +170,7 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
     );
   }
 
-  Widget _filterDropDown() {
+  Widget _filterDropDown(ThemeProvider themeProvider) {
     List types = [
       [AppStringValues.all, allIcon(size: 25)],
       [AppStringValues.completed, thumbIcon(size: 25)],
@@ -173,17 +185,29 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-            border: Border.all(width: 1, color: Colors.grey),
+            border:
+                Border.all(width: 1, color: themeProvider.themeAdditionalData().unselectedColor!),
             borderRadius: BorderRadius.circular(10)),
         child: Row(
           children: [
             Expanded(
               child: DropdownButtonFormField(
+                style: TextStyle(
+                  color: themeProvider.themeAdditionalData().textColor,
+                ),
                 value: _currentFilter,
                 items: types.map((type) {
                   return DropdownMenuItem(
                     child: Row(
-                      children: [type[1], Text(' ${type[0]}')],
+                      children: [
+                        type[1],
+                        Text(
+                          ' ${type[0]}',
+                          style: TextStyle(
+                            color: themeProvider.themeAdditionalData().textColor,
+                          ),
+                        ),
+                      ],
                     ),
                     value: type[0],
                   );

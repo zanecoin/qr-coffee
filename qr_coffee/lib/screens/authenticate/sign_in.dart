@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:qr_coffee/shared/widgets/custom_button.dart';
 import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
@@ -6,7 +8,7 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/auth.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class SignIn extends StatefulWidget {
   @override
@@ -25,9 +27,10 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.themeData().backgroundColor,
       appBar: customAppBar(context, title: Text('')),
       body: SingleChildScrollView(
         child: Center(
@@ -36,12 +39,16 @@ class _SignInState extends State<SignIn> {
               Text(
                 AppStringValues.app_name,
                 style: TextStyle(
-                  color: Colors.black,
+                  color: themeProvider.themeAdditionalData().textColor,
                   fontSize: Responsive.width(12.0, context),
                   fontFamily: 'Galada',
                 ),
               ),
-              ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
+              ImageBanner(
+                path: themeProvider.isLightMode() ? 'assets/cafe.jpg' : 'assets/cafe_black.png',
+                size: 'medium',
+                color: themeProvider.themeAdditionalData().backgroundColor!,
+              ),
               Container(
                 width: deviceWidth > kDeviceUpperWidthTreshold
                     ? 400.0

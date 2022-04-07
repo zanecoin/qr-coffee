@@ -2,16 +2,17 @@ import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/customer.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/shared/widgets/loading.dart';
 
-class QRTokens extends StatefulWidget {
+class Credits extends StatefulWidget {
   @override
-  _QRTokensState createState() => _QRTokensState();
+  _CreditsState createState() => _CreditsState();
 }
 
-class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
+class _CreditsState extends State<Credits> with TickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -33,6 +34,7 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final userFromAuth = Provider.of<UserFromAuth?>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return StreamBuilder<Customer>(
       stream: CustomerDatabase(userID: userFromAuth!.userID).customer,
@@ -41,6 +43,7 @@ class _QRTokensState extends State<QRTokens> with TickerProviderStateMixin {
           Customer customer = snapshot.data!;
 
           return Scaffold(
+            backgroundColor: themeProvider.themeData().backgroundColor,
             appBar: customAppBar(context, title: Text('')),
             body: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -102,7 +105,22 @@ class TokenTable extends StatelessWidget {
   final Animation<double> width;
   final Animation<double> height;
 
+  final List<Color> gold = [
+    Colors.amber.shade50,
+    Colors.amber.shade200,
+    Colors.amber.shade600,
+    Colors.amber.shade700,
+  ];
+
+  final List<Color> silver = [
+    Colors.grey.shade50,
+    Colors.grey.shade200,
+    Colors.grey.shade600,
+    Colors.grey.shade700,
+  ];
+
   Widget _buildAnimation(BuildContext context, Widget? child) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       width: width.value,
       height: height.value,
@@ -112,23 +130,19 @@ class TokenTable extends StatelessWidget {
         ),
         shape: BoxShape.rectangle,
         boxShadow: [
-          BoxShadow(
-              color: Colors.grey.shade300,
-              offset: Offset(10.0, 10.0),
-              blurRadius: 15.0,
-              spreadRadius: 5.0),
+          themeProvider.isLightMode()
+              ? BoxShadow(
+                  color: Colors.grey.shade300,
+                  offset: Offset(10.0, 10.0),
+                  blurRadius: 15.0,
+                  spreadRadius: 5.0)
+              : BoxShadow(),
         ],
-        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [
-          Colors.amber.shade50,
-          Colors.amber.shade200,
-          Colors.amber.shade600,
-          Colors.amber.shade700,
-        ], stops: [
-          0.1,
-          0.3,
-          0.8,
-          1
-        ]),
+        gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: themeProvider.isLightMode() ? gold : silver,
+            stops: [0.1, 0.3, 0.8, 1]),
       ),
       child: InkWell(
         onTap: () {
@@ -140,10 +154,12 @@ class TokenTable extends StatelessWidget {
             height: 140,
             child: Center(
                 child: Text(
-              '${customer.tokens} QRT',
+              '${customer.credits} CR',
               style: TextStyle(
-                color: Colors.black,
-                fontSize: 40,
+                color: themeProvider.isLightMode()
+                    ? Color.fromARGB(255, 148, 101, 0)
+                    : Color.fromARGB(255, 60, 60, 70),
+                fontSize: 35,
               ),
             )),
             decoration: BoxDecoration(
@@ -154,23 +170,18 @@ class TokenTable extends StatelessWidget {
                 shape: BoxShape.rectangle,
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.amber.shade700,
+                      color: themeProvider.isLightMode()
+                          ? Colors.amber.shade700
+                          : Colors.grey.shade700,
                       offset: Offset(3.0, 3.0),
                       blurRadius: 1.0,
                       spreadRadius: 1.0),
                 ],
-                gradient:
-                    LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [
-                  Colors.amber.shade50,
-                  Colors.amber.shade200,
-                  Colors.amber.shade600,
-                  Colors.amber.shade700,
-                ], stops: [
-                  0.1,
-                  0.3,
-                  0.8,
-                  1
-                ])),
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: themeProvider.isLightMode() ? gold : silver,
+                    stops: [0.1, 0.3, 0.8, 1])),
           ),
         ),
       ),

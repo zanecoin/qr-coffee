@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/shop.dart';
+import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/shop_details.dart';
 import 'package:qr_coffee/screens/app_company/app_worker/worker_home_body/worker_home_body.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/create_order_screen.dart';
@@ -11,33 +12,34 @@ import 'package:qr_coffee/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class ShopTile extends StatelessWidget {
   ShopTile({
     required this.shop,
     required this.role,
-    required this.databaseImages,
     this.company,
   });
 
   final Shop shop;
-  final String role;
-  final List<Map<String, dynamic>> databaseImages;
+  final UserRole role;
   final Company? company;
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       child: Card(
+        color: themeProvider.themeAdditionalData().containerColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: InkWell(
           onTap: () {
-            if (role == 'admin') {
+            if (role == UserRole.admin) {
               Navigator.push(
                 context,
                 new MaterialPageRoute(
@@ -49,11 +51,11 @@ class ShopTile extends StatelessWidget {
                   ),
                 ),
               );
-            } else if (role == 'worker') {
+            } else if (role == UserRole.worker) {
               Navigator.push(
                 context,
                 new MaterialPageRoute(
-                  builder: (context) => WorkerHomeBody(shop: shop, databaseImages: databaseImages),
+                  builder: (context) => WorkerHomeBody(shop: shop),
                 ),
               );
             } else {
@@ -61,8 +63,7 @@ class ShopTile extends StatelessWidget {
                 Navigator.push(
                   context,
                   new MaterialPageRoute(
-                    builder: (context) =>
-                        CreateOrderScreen(shop: shop, databaseImages: databaseImages),
+                    builder: (context) => CreateOrderScreen(shop: shop),
                   ),
                 );
               } else {
@@ -74,32 +75,41 @@ class ShopTile extends StatelessWidget {
             height: max(Responsive.height(15, context), 90),
             width: Responsive.width(67, context),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  offset: Offset(1, 1),
-                  blurRadius: 15,
-                  spreadRadius: 0,
-                )
-              ],
-            ),
+                color: themeProvider.themeAdditionalData().containerColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: themeProvider.themeAdditionalData().shadow),
             child: Center(
               child: Row(
                 children: [
                   SizedBox(width: Responsive.width(6, context)),
-                  Icon(Icons.store, size: 40),
+                  Icon(Icons.store, size: 40, color: themeProvider.themeAdditionalData().textColor),
                   SizedBox(width: Responsive.width(6, context)),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (role == UserRole.customer)
+                        Text(
+                          shop.company,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: themeProvider.themeAdditionalData().textColor,
+                          ),
+                        ),
                       Text(
                         cutTextIfNeccessary(shop.address, Responsive.textTreshold(context)),
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: themeProvider.themeAdditionalData().textColor,
+                        ),
                       ),
-                      Text(shop.city),
+                      Text(
+                        shop.city,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: themeProvider.themeAdditionalData().textColor,
+                        ),
+                      ),
                       Text(
                         _getShopOpenStatus()[0],
                         style: TextStyle(color: _getShopOpenStatus()[1]),
@@ -125,7 +135,7 @@ class ShopTile extends StatelessWidget {
     if (presentTime > lowerBoundary && presentTime < upperBoundary) {
       return [AppStringValues.opened, Colors.green, true];
     } else {
-      return [AppStringValues.closed, Colors.red, false];
+      return [AppStringValues.closed, Colors.red, true];
     }
   }
 }

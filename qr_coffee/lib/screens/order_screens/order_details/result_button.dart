@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/customer.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/result_function.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class ResultButton extends StatelessWidget {
   const ResultButton({
@@ -21,11 +23,12 @@ class ResultButton extends StatelessWidget {
   final IconData icon;
   final Color color;
   final Order order;
-  final String status;
+  final OrderStatus status;
   final BuildContext previousContext;
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return StreamBuilder<Customer>(
       stream: CustomerDatabase(userID: order.userID).customer,
       builder: (context, snapshot) {
@@ -40,16 +43,19 @@ class ResultButton extends StatelessWidget {
                   Icon(icon, size: 70, color: color),
                   Text(
                     text,
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: themeProvider.themeAdditionalData().textColor,
+                    ),
                   ),
                 ],
               ),
             ),
             onPressed: () {
-              if (status == 'ACTIVE') {
+              if (status == OrderStatus.waiting) {
                 repeatOrder(order, status, previousContext);
-              } else if (status == 'READY') {
+              } else if (status == OrderStatus.ready) {
                 updateOrderStatus(order, status);
                 customSnackbar(
                   context: context,
@@ -57,17 +63,17 @@ class ResultButton extends StatelessWidget {
                 );
               } else {
                 moveOrderToPassive(order, status, customer);
-                if (status == 'COMPLETED')
+                if (status == OrderStatus.completed)
                   customSnackbar(
                     context: context,
                     text: '${AppStringValues.orderStatusChange}${AppStringValues.orderCollected}',
                   );
-                if (status == 'ABANDONED')
+                if (status == OrderStatus.abandoned)
                   customSnackbar(
                     context: context,
                     text: '${AppStringValues.orderStatusChange}${AppStringValues.orderAbandoned}',
                   );
-                if (status == 'ABORTED') {
+                if (status == OrderStatus.aborted) {
                   customSnackbar(
                     context: context,
                     text: '${AppStringValues.orderStatusChange}${AppStringValues.orderCancelled}',

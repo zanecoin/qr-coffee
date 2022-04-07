@@ -10,6 +10,8 @@ class ShopDatabase {
     return FirebaseFirestore.instance.collection('companies').doc(companyID).collection('shops');
   }
 
+  final Query allShops = FirebaseFirestore.instance.collectionGroup('shops');
+
   Future addShop(String address, String city, String openingHours, String company) async {
     CollectionReference shopCollection = _getCollection();
     DocumentReference _docRef = await shopCollection.add({
@@ -70,10 +72,15 @@ class ShopDatabase {
     );
   }
 
-  // Get shop list stream.
+  // Get shop list stream from specific company.
   Stream<List<Shop>> get shopList {
     CollectionReference shopCollection = _getCollection();
     return shopCollection.snapshots().map(_shopsFromSnapshot);
+  }
+
+  // Get shop list stream from all companies.
+  Stream<List<Shop>> get fullShopList {
+    return allShops.snapshots().map(_shopsFromSnapshot);
   }
 
   // Get specific shop stream.

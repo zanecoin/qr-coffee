@@ -7,6 +7,7 @@ import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/order_tile.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:qr_coffee/shared/widgets/custom_divider.dart';
 import 'package:qr_coffee/shared/strings.dart';
@@ -32,6 +33,7 @@ class _MyOrdersState extends State<MyOrders> {
   @override
   Widget build(BuildContext context) {
     final userFromAuth = Provider.of<UserFromAuth?>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return StreamBuilder4<Customer, List<Order>, List<Order>, dynamic>(
       streams: Tuple4(
@@ -59,10 +61,11 @@ class _MyOrdersState extends State<MyOrders> {
           }
 
           return Scaffold(
+              backgroundColor: themeProvider.themeData().backgroundColor,
               appBar: customAppBar(context, title: Text('')),
               body: SingleChildScrollView(
                 child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  margin: EdgeInsets.fromLTRB(15, 0, 15, 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -71,13 +74,16 @@ class _MyOrdersState extends State<MyOrders> {
                         children: [
                           SizedBox(width: 15),
                           Icon(Icons.check_circle, color: Colors.green),
-                          _text(AppStringValues.activeOrders),
+                          _text(AppStringValues.activeOrders, themeProvider),
                         ],
                       ),
                       if (activeOrderList.length == 0)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                          child: Text(AppStringValues.noOrders),
+                          child: Text(
+                            AppStringValues.noOrders,
+                            style: TextStyle(color: themeProvider.themeAdditionalData().textColor),
+                          ),
                         ),
                       if (activeOrderList.length > 0)
                         SizedBox(
@@ -99,13 +105,16 @@ class _MyOrdersState extends State<MyOrders> {
                         children: [
                           SizedBox(width: 15),
                           Icon(Icons.restore, color: Colors.blue),
-                          _text(AppStringValues.orderHistory),
+                          _text(AppStringValues.orderHistory, themeProvider),
                         ],
                       ),
                       if (passiveOrderList.length == 0)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                          child: Text(AppStringValues.noOrders),
+                          child: Text(
+                            AppStringValues.noOrders,
+                            style: TextStyle(color: themeProvider.themeAdditionalData().textColor),
+                          ),
                         ),
                       if (passiveOrderList.length > 0)
                         Column(
@@ -134,8 +143,8 @@ class _MyOrdersState extends State<MyOrders> {
                                 },
                                 child: Text(AppStringValues.loadMore),
                                 style: TextButton.styleFrom(
-                                  backgroundColor: Colors.grey.shade100,
-                                  primary: Colors.grey.shade700,
+                                  backgroundColor: themeProvider.themeAdditionalData().blendedColor,
+                                  primary: themeProvider.themeAdditionalData().blendedInvertColor,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                   ),
@@ -149,7 +158,7 @@ class _MyOrdersState extends State<MyOrders> {
                 ),
               ));
         } else {
-          return Container(color: Colors.white);
+          return Container(color: themeProvider.themeAdditionalData().backgroundColor);
         }
       },
     );
@@ -175,13 +184,13 @@ class _MyOrdersState extends State<MyOrders> {
     return result;
   }
 
-  Widget _text(String string) {
+  Widget _text(String string, ThemeProvider themeProvider) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Text(
         string,
         style: TextStyle(
-          color: Colors.black,
+          color: themeProvider.themeAdditionalData().textColor,
           fontSize: Responsive.deviceWidth(context) > kDeviceUpperWidthTreshold
               ? 16
               : Responsive.width(4.2, context),

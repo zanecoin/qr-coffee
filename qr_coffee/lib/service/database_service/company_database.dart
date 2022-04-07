@@ -1,5 +1,6 @@
 import 'package:qr_coffee/models/company.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:qr_coffee/models/shop.dart';
 
 class CompanyDatabase {
   final String? companyID;
@@ -43,12 +44,12 @@ class CompanyDatabase {
     }).toList();
   }
 
-  // Get Company Document Stream.
+  // Get Company document stream.
   Stream<Company> get company {
     return companyCollection.doc(companyID).snapshots().map(_companyFromSnapshot);
   }
 
-  // Get Company Document Stream.
+  // Get Company list stream.
   Stream<List<Company>> get companyList {
     return companyCollection.snapshots().map(_companyListFromSnapshot);
   }

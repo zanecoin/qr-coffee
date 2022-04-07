@@ -1,8 +1,10 @@
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/auth.dart';
 import 'package:qr_coffee/shared/constants.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -22,9 +24,10 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     final double deviceHeight = Responsive.deviceHeight(context);
     final double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.themeData().backgroundColor,
       appBar: customAppBar(context, title: Text('')),
       body: SingleChildScrollView(
         child: Center(
@@ -33,13 +36,17 @@ class _RegisterState extends State<Register> {
               Text(
                 AppStringValues.app_name,
                 style: TextStyle(
-                  color: Colors.black,
+                  color: themeProvider.themeAdditionalData().textColor,
                   fontSize: Responsive.width(12.0, context),
                   fontFamily: 'Galada',
                 ),
               ),
               if (deviceHeight > kDeviceLowerHeightTreshold)
-                ImageBanner(path: 'assets/cafe.jpg', size: 'medium'),
+                ImageBanner(
+                  path: themeProvider.isLightMode() ? 'assets/cafe.jpg' : 'assets/cafe_black.png',
+                  size: 'medium',
+                  color: themeProvider.themeAdditionalData().backgroundColor!,
+                ),
               Container(
                 width: deviceWidth > kDeviceUpperWidthTreshold
                     ? 400.0

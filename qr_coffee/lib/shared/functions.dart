@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:math';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/order.dart';
@@ -5,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_coffee/shared/strings.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
 String cutTextIfNeccessary(String text, int treshold) {
   return text.length < treshold ? text : '${text.substring(0, treshold)}...';
@@ -54,15 +58,80 @@ int getTotalPrice(List<Product> items, selectedItems) {
   return price;
 }
 
-List<String> getStringList(selectedItems) {
+Map<String, String> getStringList(List<Product> selectedItems) {
   // PARAMS: [selectedItems] - all items selected by user
   // RETURN: [result] - string list of items selected by user
-  List<String> result = [];
-  for (var item in selectedItems) {
-    result.add(item.name);
+  SplayTreeMap<String, String> result = SplayTreeMap<String, String>();
+
+  random(min, max) {
+    var rn = new Random();
+    return min + rn.nextInt(max - min);
   }
-  result.sort();
+
+  for (var item in selectedItems) {
+    String newID = '${item.productID}_${random(0, 9)}';
+    while (result[newID] != null) {
+      newID = '${item.productID}_${random(0, 9)}';
+    }
+
+    result[newID] = item.name;
+  }
+
   return result;
+}
+
+List<String> getDateList(String day1, String month1, String day2, String month2, String year) {
+  List<String> dateList = [];
+  int dayNum = int.parse(day1);
+  int monthNum = int.parse(month1);
+
+  int dayNumFinal = int.parse(day2);
+  int monthNumFinal = int.parse(month2);
+
+  String monthType = '';
+  bool calculate = true;
+
+  while (calculate) {
+    if (dayNum == dayNumFinal && monthNum == monthNumFinal) {
+      calculate = false;
+    }
+    String dayString;
+    String monthString;
+    if (dayNum < 10) {
+      dayString = '0$dayNum';
+    } else {
+      dayString = '$dayNum';
+    }
+    if (monthNum < 10) {
+      monthString = '0$monthNum';
+    } else {
+      monthString = '$monthNum';
+    }
+    dateList.add('${year}_${monthString}_${dayString}');
+
+    monthType = 'feb';
+    if (monthNum == 1 ||
+        monthNum == 3 ||
+        monthNum == 5 ||
+        monthNum == 7 ||
+        monthNum == 8 ||
+        monthNum == 10 ||
+        monthNum == 12) {
+      monthType = 'long';
+    }
+    if (monthNum == 4 || monthNum == 6 || monthNum == 9 || monthNum == 11) {
+      monthType = 'short';
+    }
+    if ((monthType == 'long' && dayNum == 31) ||
+        (monthType == 'short' && dayNum == 30) ||
+        (monthType == 'feb' && dayNum == 28)) {
+      monthNum++;
+      dayNum = 1;
+    } else {
+      dayNum++;
+    }
+  }
+  return dateList;
 }
 
 // IS INPUT INT?
@@ -111,7 +180,7 @@ String getPickUpTime(double plusTime) {
   return futureTime;
 }
 
-List<dynamic> getRemainingTime(Order order, String time) {
+List<dynamic> getRemainingTime(Order order, String time, ThemeProvider themeProvider) {
   /// PARAMS: [time] - current time; [order] - current order
   /// RETURN: [result] - formatted time based on when user created the order, [color] - color of timestamp
   String result;
@@ -137,25 +206,14 @@ List<dynamic> getRemainingTime(Order order, String time) {
     }
   } else {
     result = '${AppStringValues.pickUp30} min';
-    color = Colors.black;
+    color = themeProvider.themeAdditionalData().textColor!;
   }
 
   return [result, color];
 }
 
-// OBJECT TO LIST CONVERTER
-// List<String> objectToList(Object object){
-//   List<String> array = [];
-//   for (var entry in object) {
-//     if(entry is String){
-//       array.add(entry);
-//     }
-//   }
-//   return array;
-// }
-
 // CURRENCY PARSING METHOD
-String moneyFormatter(double amount) {
+String moneyFormatter(double amount, {bool cents = false}) {
   List<String> stringNumber = amount.toStringAsFixed(2).split('.');
   String result;
   String temp;
@@ -190,11 +248,20 @@ String moneyFormatter(double amount) {
       temp = temp.substring(3);
     }
 
-    // add remaining triplet and decimal numbers
-    result = result + temp + ',' + stringNumber[1];
+    // add remaining triplet
+    result = result + temp;
+
+    if (cents) {
+      // add decimal numbers
+      result = ',' + stringNumber[1];
+    }
   } else {
     // number smaller than 999
-    result = stringNumber[0] + ',' + stringNumber[1];
+    result = stringNumber[0];
+    if (cents) {
+      // add decimal numbers
+      result = ',' + stringNumber[1];
+    }
   }
 
   if (sign) {

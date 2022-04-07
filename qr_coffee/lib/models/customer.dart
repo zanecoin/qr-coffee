@@ -6,25 +6,25 @@ class Customer extends UserData {
     required this.name,
     required this.surname,
     required this.email,
-    required this.tokens,
+    required this.credits,
     required String userID,
-    String role = 'customer',
+    UserRole role = UserRole.customer,
   }) : super(userID: userID, role: role);
 
   final String name;
   final String surname;
   final String email;
-  final int tokens;
+  final int credits;
 
   updateName(String name, String surname) {
     CustomerDatabase(userID: this.userID).updateName(name, surname);
   }
 
-  updateTokens(int tokens) {
-    CustomerDatabase(userID: this.userID).updateTokens(tokens);
+  updateCredits(int credits) {
+    CustomerDatabase(userID: this.userID).updateCredits(credits);
   }
 
   factory Customer.initialData() {
-    return Customer(name: '', surname: '', email: '', tokens: 0, userID: '');
+    return Customer(name: '', surname: '', email: '', credits: 0, userID: '');
   }
 }

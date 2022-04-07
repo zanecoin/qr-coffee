@@ -8,7 +8,7 @@ import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/authenticate/authenticate.dart';
 import 'package:qr_coffee/service/database_service/user_database.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 // Checks internet connection and decides beetween admin worker and customer screen.
 class Wrapper extends StatefulWidget {
@@ -51,9 +51,9 @@ class _WrapperState extends State<Wrapper> {
             if (snapshot.hasData) {
               UserData userData = snapshot.data!;
 
-              if (userData.role == 'worker') {
+              if (userData.role == UserRole.worker) {
                 return WorkerHome(databaseImages: widget.databaseImages);
-              } else if (userData.role == 'admin') {
+              } else if (userData.role == UserRole.admin) {
                 return AdminHome(databaseImages: widget.databaseImages);
               } else {
                 return CustomerHome(databaseImages: widget.databaseImages);

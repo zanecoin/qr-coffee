@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/shop.dart';
+import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/app_company/common/shop_tile.dart';
 import 'package:qr_coffee/service/database_service/shop_database.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class ShopSelection extends StatefulWidget {
-  const ShopSelection({Key? key, required this.databaseImages}) : super(key: key);
-  final List<Map<String, dynamic>> databaseImages;
-
+  const ShopSelection({Key? key}) : super(key: key);
   @override
   _ShopSelectionState createState() => _ShopSelectionState();
 }
@@ -16,16 +17,22 @@ class ShopSelection extends StatefulWidget {
 class _ShopSelectionState extends State<ShopSelection> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return StreamBuilder<List<Shop>>(
-      stream: ShopDatabase(companyID: 'c9wzSTR2HEnYxmgEC8Wl').shopList,
+      stream: ShopDatabase().fullShopList,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Shop> shopList = snapshot.data!;
 
           return Scaffold(
+            backgroundColor: themeProvider.themeData().backgroundColor,
             appBar: customAppBar(
               context,
-              title: Text(AppStringValues.orderPlace, style: TextStyle(fontSize: 16)),
+              title: Text(AppStringValues.orderPlace,
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    color: themeProvider.themeAdditionalData().textColor,
+                  )),
               type: 1,
             ),
             body: SingleChildScrollView(
@@ -55,8 +62,7 @@ class _ShopSelectionState extends State<ShopSelection> {
       child: ListView.builder(
         itemBuilder: (context, index) => ShopTile(
           shop: shopList[index],
-          role: 'customer',
-          databaseImages: widget.databaseImages,
+          role: UserRole.customer,
         ),
         itemCount: shopList.length,
         shrinkWrap: true,

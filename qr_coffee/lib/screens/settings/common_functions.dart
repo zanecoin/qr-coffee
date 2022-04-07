@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/auth.dart';
+import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
-String extractUserRole(String role) {
+String extractUserRole(UserRole role) {
   String result = '';
-  if (role == 'admin') {
+  if (role == UserRole.admin) {
     result = AppStringValues.admin;
-  } else if (role == 'worker') {
+  } else if (role == UserRole.worker) {
     result = AppStringValues.worker;
   } else {
     result = AppStringValues.customer;
@@ -24,13 +25,14 @@ class SettingsButtons extends StatelessWidget {
     required this.userID,
   }) : super(key: key);
 
-  final String role;
+  final UserRole role;
   final BuildContext generalContext;
   final String userID;
   late BuildContext thisContext;
 
   @override
   Widget build(BuildContext context) {
+    final double deviceWidth = Responsive.deviceWidth(context);
     thisContext = context;
     return Column(
       children: [
@@ -42,8 +44,10 @@ class SettingsButtons extends StatelessWidget {
           iconColor: Colors.blue,
         ),
         SizedBox(height: 10.0),
-        CustomDivider(indent: 30.0),
-        SizedBox(height: 5.0),
+        CustomDivider(
+            indent:
+                deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(20.0, context) : 30.0),
+        SizedBox(height: 2.0),
         CustomOptionButton(
           title: AppStringValues.role,
           current: extractUserRole(role),
@@ -57,47 +61,36 @@ class SettingsButtons extends StatelessWidget {
           previousRole: role,
           userID: userID,
         ),
-        CustomOptionButton(
-          title: AppStringValues.mode,
-          current: AppStringValues.lightmode,
-          function: _callbackTheme,
-          options: [
-            AppStringValues.lightmode,
-            AppStringValues.darkmode,
-            AppStringValues.adaptToDevice,
-          ],
-          generalContext: generalContext,
-          previousRole: role,
-          userID: userID,
-        ),
-        SizedBox(height: 5.0),
-        CustomDivider(indent: 30.0),
+        SizedBox(height: 2.0),
+        CustomDivider(
+            indent:
+                deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(20.0, context) : 30.0),
       ],
     );
   }
 
   void _signOut() {
     AuthService().userSignOut();
-    if (role == 'customer') {
+    if (role == UserRole.customer) {
       Navigator.pop(thisContext);
     }
   }
 }
 
-_updateUserRole(String futureRole, String previousRole, BuildContext context, String userID) {
-  String role = '';
+_updateUserRole(String futureRole, UserRole previousRole, BuildContext context, String userID) {
+  UserRole role;
   if (futureRole == AppStringValues.admin) {
-    role = 'admin';
+    role = UserRole.admin;
   } else if (futureRole == AppStringValues.worker) {
-    role = 'worker';
+    role = UserRole.worker;
   } else {
-    role = 'customer';
+    role = UserRole.customer;
   }
-  if (previousRole == 'customer') {
+  if (previousRole == UserRole.customer) {
     Navigator.pop(context);
   }
 
-  UserData(userID: userID, role: '').updateRole(role);
+  UserData(userID: userID, role: UserRole.customer).updateRole(role);
 }
 
 // Empty Strings are there bcs it must match with parameters of [_updateUserRole()] bcs they are

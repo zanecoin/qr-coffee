@@ -1,6 +1,8 @@
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/shared/strings.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
 class CustomTextField extends StatelessWidget {
   CustomTextField(
@@ -23,20 +25,28 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       height: 50,
       margin: EdgeInsets.symmetric(vertical: Responsive.height(1, context)),
       child: TextFormField(
         initialValue: initVal,
+        style: TextStyle(color: themeProvider.themeAdditionalData().textColor),
         decoration: InputDecoration(
           hintText: label,
           prefixIcon: hasIcon ? Icon(icon) : null,
-          fillColor: Colors.white,
+          iconColor: themeProvider.themeAdditionalData().unselectedColor,
+          prefixIconColor: themeProvider.themeAdditionalData().unselectedColor,
+          fillColor: themeProvider.themeData().backgroundColor,
+          focusColor: themeProvider.themeAdditionalData().textColor,
           filled: true,
           contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: Colors.grey, width: 1.0),
+            borderSide: BorderSide(
+              color: themeProvider.themeAdditionalData().FlBorderColor!,
+              width: 1.0,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),

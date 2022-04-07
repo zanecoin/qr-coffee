@@ -32,7 +32,7 @@ class _LoadingState extends State<Loading> {
     });
 
     return Container(
-      color: themeProvider.themeMode().toggleBackgroundColor,
+      color: themeProvider.themeData().backgroundColor,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -52,7 +52,7 @@ class LoadingInternet extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            color: themeProvider.themeMode().toggleBackgroundColor,
+            color: themeProvider.themeData().backgroundColor,
             child: SpinKitSpinningLines(
               color: themeProvider.isLightTheme ? Colors.blue : Colors.indigo,
               size: 50.0,

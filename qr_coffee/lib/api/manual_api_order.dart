@@ -87,7 +87,7 @@ launchPaymentGateway(BuildContext context, int price, List<Product> items, Order
       'description': 'QR Coffee',
       'currencyCode': 'PLN',
       'totalAmount': '${price * 100}',
-      'extorderID': '${order.orderID}_${order.companyID}_${order.userID}',
+      'extOrderId': '${order.orderID}_${order.companyID}_${order.userID}',
       'products': [
         {'name': 'Wireless mouse', 'unitPrice': '15000', 'quantity': '1'},
         {'name': 'HDMI cable', 'unitPrice': '6000', 'quantity': '1'}
@@ -179,7 +179,8 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                 onProgress: (progress) => setState(() => this.progress = progress / 100),
               ),
             ),
-            if (progress != 1) LinearProgressIndicator(value: progress, color: Colors.green),
+            if (progress != 1)
+              LinearProgressIndicator(value: progress, color: Color.fromARGB(255, 166, 195, 7)),
           ],
         ),
       ),

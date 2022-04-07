@@ -4,8 +4,8 @@ import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/order_details_customer.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 
-Future moveOrderToPassive(Order order, String status, Customer customer) async {
-  await CompanyOrderDatabase().createPassiveOrder(
+Future moveOrderToPassive(Order order, OrderStatus status, Customer customer) async {
+  await CompanyOrderDatabase(companyID: order.companyID).createPassiveOrder(
     status,
     order.items,
     order.price,
@@ -34,16 +34,18 @@ Future moveOrderToPassive(Order order, String status, Customer customer) async {
     order.day,
   );
 
-  await CompanyOrderDatabase().deleteActiveOrder(order.orderID);
+  await CompanyOrderDatabase(companyID: order.companyID).deleteActiveOrder(order.orderID);
   await CustomerOrderDatabase(userID: order.userID).deleteActiveOrder(order.orderID);
 
-  // Refund order with QR Tokens.
-  customer.updateTokens(customer.tokens + order.price);
+  // Refund order with Credits.
+  if (status == OrderStatus.aborted) {
+    customer.updateCredits(customer.credits + order.price);
+  }
 }
 
 // Move order back to active orders.
-Future repeatOrder(Order order, String status, BuildContext previousContext) async {
-  await CompanyOrderDatabase().createActiveOrder(
+Future repeatOrder(Order order, OrderStatus status, BuildContext previousContext) async {
+  await CompanyOrderDatabase(companyID: order.companyID).createActiveOrder(
     status,
     order.items,
     order.price,
@@ -83,8 +85,8 @@ Future repeatOrder(Order order, String status, BuildContext previousContext) asy
   );
 }
 
-// Update order from 'active' to 'ready'.
-Future updateOrderStatus(Order order, String status) async {
-  await CompanyOrderDatabase().updateOrderStatus(order.orderID, status);
+// Update order from OrderStatus.waiting to OrderStatus.ready.
+Future updateOrderStatus(Order order, OrderStatus status) async {
+  await CompanyOrderDatabase(companyID: order.companyID).updateOrderStatus(order.orderID, status);
   await CustomerOrderDatabase(userID: order.userID).updateOrderStatus(order.orderID, status);
 }

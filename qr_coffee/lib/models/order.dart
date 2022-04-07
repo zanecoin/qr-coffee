@@ -1,6 +1,6 @@
 class Order {
-  String status;
-  List items;
+  OrderStatus status;
+  Map<dynamic, dynamic> items;
   int price;
   String pickUpTime;
   String username;
@@ -27,3 +27,5 @@ class Order {
     required this.day,
   });
 }
+
+enum OrderStatus { pending, waiting, ready, completed, aborted, abandoned }

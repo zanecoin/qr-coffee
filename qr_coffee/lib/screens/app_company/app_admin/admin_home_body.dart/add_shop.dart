@@ -1,10 +1,12 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
-import 'package:qr_coffee/shared/widgets/widget_imports.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
+import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
 class AddShop extends StatefulWidget {
   const AddShop({Key? key, required this.company}) : super(key: key);
@@ -25,10 +27,19 @@ class _AddShopState extends State<AddShop> {
   @override
   Widget build(BuildContext context) {
     double deviceWidth = Responsive.deviceWidth(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     company = widget.company;
 
     return Scaffold(
-      appBar: customAppBar(context, title: Text(AppStringValues.addNewShop)),
+      backgroundColor: themeProvider.themeData().backgroundColor,
+      appBar: customAppBar(context,
+          title: Text(
+            AppStringValues.addNewShop,
+            style: TextStyle(
+              color: themeProvider.themeAdditionalData().textColor,
+              fontSize: 14.0,
+            ),
+          )),
       body: SingleChildScrollView(
         child: Center(
           child: Container(
@@ -42,13 +53,16 @@ class _AddShopState extends State<AddShop> {
                   SizedBox(height: Responsive.height(2, context)),
                   Text(
                       '${AppStringValues.openingHours} (${AppStringValues.from}/${AppStringValues.to})',
-                      style: TextStyle(fontSize: 16)),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: themeProvider.themeAdditionalData().textColor,
+                      )),
                   SizedBox(height: Responsive.height(1, context)),
                   _openingHoursTile(),
                   SizedBox(height: Responsive.height(1, context)),
                   Text(
                     errorMessage,
-                    style: TextStyle(color: Colors.red, fontSize: 14),
+                    style: TextStyle(color: Colors.red, fontSize: 12),
                     textAlign: TextAlign.center,
                   ),
                   CustomOutlinedIconButton(

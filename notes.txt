@@ -5,7 +5,7 @@
 - kriticka cesta
 
 FORMAT:
-- komentáře psát jako věty
+- komentáře psát jako věty ///
 - nepoužívat =?: ve widgetech
 - používat =>
 - pro double použit 1.0
@@ -19,27 +19,33 @@ BRÁNA
 - platba jedním tlačítkem/google pay
 
 MINI PROJEKTY
-- zobrazovat pending objednávky? Jak s nimi vynaložit v databázi?
+- zobrazovat pending objednávky? Jak s nimi vynaložit v databázi? Po šipce zpět z webview objednávku smazat?
 - pending objednávky po platební bráně?
-- počítání prodaných položek
 - sekundový trigger na checkování internet connection
 - no internet během prvotního loadingu
-- loading obrázků
+- cachovani obrázků
 - error check u platební brány
-- přidat pro usera registerDate, status
-+ práce s companies, jejich ids
 - přidat try/catch k operacím s databází
-- admin home - stringy
 - vytvořit pro pracovníka časový filtr na objednávky
 + nevolat přímo databázové metody jako např. updateCompanyShopNum
 - rozbít order screen na mensi funkce
 - při tvorbě objednávky může být customer null??
+- seskupit vsechny stringy
+- custom text field darkmode, alert dialog moc velký na tabletu
+- pull to refresh / refresh button charts
+- RangeSlider.adaptive
+- pouze dnesni objednavky u workera
+- grafy - dny v týdnu
+- vyhledávání podle id
+- p5idat stav objednavky - generated
+- opravit darkmode filter u objednávek, filtr objednávek podle času, upravit design
+- promo codes
+
 
 GIGA PROJEKTY
 - statistiky
 - u položek nastavit možnost vyprodáno
 - zabezpečení databáze
-- tmavý režim
 - pop-up při zadávání produktu (každá položka musí mít suroviny a pole featur)
 + mapa zobrazující polohu stánků
 - obrazovka s tutoriálem bezprostředně po registraci
