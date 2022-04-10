@@ -71,7 +71,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final userFromAuth = Provider.of<UserFromAuth?>(context);
-    final double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return StreamBuilder3<List<Product>, UserData, Customer>(
@@ -132,9 +131,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
               body: Column(
                 children: [
                   Expanded(
-                      child: screenNum == 1
-                          ? _orderMenu()
-                          : _orderDelivery(deviceWidth, customer, themeProvider)),
+                      child:
+                          screenNum == 1 ? _orderMenu() : _orderDelivery(customer, themeProvider)),
                   _bottomBar(themeProvider),
                 ],
               ),
@@ -148,7 +146,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   }
 
   void _appendItem(item) {
-    //_selectedItems.value.insert(0, item);
     _selectedItemNotifier.addItem(item);
   }
 
@@ -227,7 +224,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   }
 
   Widget _bottomBar(ThemeProvider themeProvider) {
-    print('lol');
     return Container(
       padding: EdgeInsets.fromLTRB(0.0, 25.0, 0.0, 0.0),
       decoration: BoxDecoration(
@@ -330,7 +326,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
     );
   }
 
-  Widget _orderDelivery(double deviceWidth, Customer customer, ThemeProvider themeProvider) {
+  Widget _orderDelivery(Customer customer, ThemeProvider themeProvider) {
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -340,7 +336,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
           SizedBox(height: Responsive.height(1.0, context)),
           Container(
             margin: EdgeInsets.symmetric(horizontal: 20.0),
-            width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
+            width: Responsive.isLargeDevice(context) ? Responsive.width(60.0, context) : null,
             child: Slider.adaptive(
               value: plusTime,
               onChanged: (val) => setState(() => plusTime = val),

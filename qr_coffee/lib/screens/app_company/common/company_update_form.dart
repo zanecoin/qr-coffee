@@ -31,7 +31,6 @@ class _CompanyUpdateFormState extends State<CompanyUpdateForm> {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
@@ -41,7 +40,7 @@ class _CompanyUpdateFormState extends State<CompanyUpdateForm> {
         child: Center(
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 30),
-            width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60, context) : null,
+            width: Responsive.isLargeDevice(context) ? Responsive.width(60, context) : null,
             child: Form(
               key: _key,
               child: Column(

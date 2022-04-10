@@ -2,9 +2,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/models/worker.dart';
-import 'package:qr_coffee/screens/app_company/common/company_products.dart';
 import 'package:qr_coffee/screens/app_company/common/company_shops.dart';
-import 'package:qr_coffee/screens/settings/admin_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/screens/settings/worker_settings.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
@@ -26,7 +24,7 @@ class _WorkerHomeState extends State<WorkerHome> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [WorkerSettings(), CompanyShops(), CompanyProducts()];
+    final List<Widget> screens = [WorkerSettings(), CompanyShops()];
 
     final themeProvider = Provider.of<ThemeProvider>(context);
     final userFromAuth = Provider.of<UserFromAuth?>(context);
@@ -72,7 +70,6 @@ class _WorkerHomeState extends State<WorkerHome> {
           BottomNavigationBarItem(
               icon: Icon(Icons.settings_outlined), label: AppStringValues.settings),
           BottomNavigationBarItem(icon: Icon(Icons.store_outlined), label: AppStringValues.shops),
-          BottomNavigationBarItem(icon: Icon(Icons.coffee), label: AppStringValues.products),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/dayCell.dart';
+import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/statistics/common_functions.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/statistics/common_widgets.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
@@ -9,22 +10,31 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 
 class OrderChart extends StatefulWidget {
-  const OrderChart({Key? key, required this.cells}) : super(key: key);
+  const OrderChart({Key? key, required this.cells, required this.dates}) : super(key: key);
   final List<DayCell> cells;
+  final List<String> dates;
   @override
-  _OrderChartState createState() => _OrderChartState(dayCells: cells);
+  _OrderChartState createState() => _OrderChartState(dayCells: cells, dates: dates);
 }
 
 class _OrderChartState extends State<OrderChart> {
-  _OrderChartState({required this.dayCells});
+  _OrderChartState({required this.dayCells, required this.dates});
   final List<DayCell> dayCells;
+  final List<String> dates;
 
-  List<Color> gradientColors = [const Color(0xff23b6e6), const Color(0xff02d39a)];
+  List<Color> gradientColors = [
+    const Color(0xff23b6e6),
+    const Color(0xff02d39a),
+  ];
+  List<Color> gradientColors2 = [
+    Color.fromARGB(255, 155, 2, 211),
+    Color.fromARGB(255, 230, 35, 35),
+  ];
 
   List<FlSpot> earningSpots = [];
   List<FlSpot> amountSpots = [];
-  List<String> dates = [];
-  List<DayCell> syncedCells = [];
+  List<String> foramttedDates = [];
+
   double earningScaleConst = 1;
   double amountScaleConst = 1;
   double maxEarningValue = 0;
@@ -39,20 +49,16 @@ class _OrderChartState extends State<OrderChart> {
     amountScaleConst = _getScaleConst(maxAmountValue);
     maxEarningValue = maxEarningValue / earningScaleConst;
     maxAmountValue = maxAmountValue / amountScaleConst;
-    dates = _getRawDates(dayCells);
-    syncedCells = _syncCells(dayCells, dates);
-    earningSpots = _getEarningSpots(syncedCells, earningScaleConst);
-    amountSpots = _getAmountSpots(syncedCells, amountScaleConst);
-    dates = _getFormattedDates(dates);
+    earningSpots = _getEarningSpots(dayCells, earningScaleConst);
+    amountSpots = _getAmountSpots(dayCells, amountScaleConst);
+    foramttedDates = getFormattedDates(dates);
     numOfCells = dates.length;
-    print(maxAmountValue);
   }
 
   @override
   void initState() {
     super.initState();
     _refreshValues();
-    refreshState();
   }
 
   @override
@@ -77,9 +83,8 @@ class _OrderChartState extends State<OrderChart> {
                   ? '${AppStringValues.totalEarnings}: ${moneyFormatter(_getTotal(dayCells).toDouble())} ${AppStringValues.currency}'
                   : '${AppStringValues.totalAmounts}: ${moneyFormatter(_getTotal(dayCells).toDouble())}',
               style: TextStyle(
-                  fontSize: Responsive.deviceWidth(context) > kDeviceUpperWidthTreshold
-                      ? 14.0
-                      : Responsive.width(3.65, context),
+                  fontSize:
+                      Responsive.isLargeDevice(context) ? 14.0 : Responsive.width(3.65, context),
                   color: textColor),
             ),
             callback: _callback,
@@ -98,6 +103,8 @@ class _OrderChartState extends State<OrderChart> {
                         earningSpots,
                         maxEarningValue,
                         earningScaleConst,
+                        gradientColors,
+                        themeProvider.themeAdditionalData().FlTouchBarColor!,
                       )
                     : lineChart(
                         textColor,
@@ -105,6 +112,8 @@ class _OrderChartState extends State<OrderChart> {
                         amountSpots,
                         maxAmountValue,
                         amountScaleConst,
+                        gradientColors2,
+                        themeProvider.themeAdditionalData().FlEvilTouchBarColor!,
                       ),
                 swapAnimationDuration: Duration(milliseconds: 1000),
                 swapAnimationCurve: Curves.easeInOutExpo,
@@ -118,28 +127,6 @@ class _OrderChartState extends State<OrderChart> {
 
   _callback() {
     setState(() => showMoney = !showMoney);
-  }
-
-  List<String> _getRawDates(List<DayCell> dayCells) {
-    String firstDay = dayCells[0].date;
-    String lastDay = dayCells.last.date;
-    List<String> dates = getDateList(
-      firstDay.substring(8, 10),
-      firstDay.substring(5, 7),
-      lastDay.substring(8, 10),
-      lastDay.substring(5, 7),
-      firstDay.substring(0, 4),
-    );
-
-    return dates;
-  }
-
-  List<String> _getFormattedDates(List<String> dates) {
-    for (int i = 0; i < dates.length; i++) {
-      dates[i] = '${dates[i].substring(8, 10)}. ${dates[i].substring(5, 7)}. ';
-    }
-
-    return dates;
   }
 
   List<FlSpot> _getEarningSpots(List<DayCell> dayCells, double scaleConst) {
@@ -187,8 +174,16 @@ class _OrderChartState extends State<OrderChart> {
   double _getScaleConst(double maxValue) {
     double scaleConst = 1;
 
-    if (maxValue > 1000) {
+    if (maxValue > 100 && maxValue < 1000) {
+      scaleConst = 10;
+    } else if (maxValue > 1000 && maxValue < 10000) {
+      scaleConst = 100;
+    } else if (maxValue > 10000 && maxValue < 100000) {
       scaleConst = 1000;
+    } else if (maxValue > 100000 && maxValue < 1000000) {
+      scaleConst = 10000;
+    } else if (maxValue > 1000000 && maxValue < 10000000) {
+      scaleConst = 100000;
     }
 
     return scaleConst;
@@ -206,36 +201,13 @@ class _OrderChartState extends State<OrderChart> {
     return total;
   }
 
-  List<DayCell> _syncCells(List<DayCell> dayCells, List<String> dates) {
-    List<DayCell> syncedCells = [];
-    bool included;
-    DayCell includedCell = DayCell.initialData();
-
-    for (String date in dates) {
-      included = false;
-      for (DayCell dayCell in dayCells) {
-        if (date == dayCell.date) {
-          included = true;
-          includedCell = dayCell;
-        }
-      }
-      if (included) {
-        syncedCells.add(includedCell);
-      } else {
-        syncedCells.add(DayCell.initialData());
-      }
-    }
-
-    return syncedCells;
-  }
-
   LineChartData lineChart(Color? textColor, ThemeProvider themeProvider, List<FlSpot> spots,
-      double maxValue, double scaleConst) {
+      double maxValue, double scaleConst, List<Color> gradColors, Color tooltipBgColor) {
     return LineChartData(
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval: maxValue / 5,
+        horizontalInterval: maxValue / 5 > 0 ? maxValue / 5 : 1.0,
         verticalInterval: 1.0,
         getDrawingHorizontalLine: (value) {
           return FlLine(
@@ -264,7 +236,7 @@ class _OrderChartState extends State<OrderChart> {
               titleCond = value.toInt() % (numOfCells ~/ 10) == 0;
             }
             if (value == value.roundToDouble() && titleCond) {
-              return '${dates[value.toInt()]}';
+              return '${foramttedDates[value.toInt()]}';
             }
             return '';
           },
@@ -279,34 +251,30 @@ class _OrderChartState extends State<OrderChart> {
             fontSize: 9.0,
           ),
           getTitles: (value) {
-            if (scaleConst == 1.0) {
-              if (value == 1 * maxValue ~/ 5) {
-                return '${1 * maxValue ~/ 5}';
-              } else if (value == 2 * maxValue ~/ 5) {
-                return '${2 * maxValue ~/ 5}';
-              } else if (value == 3 * maxValue ~/ 5) {
-                return '${3 * maxValue ~/ 5}';
-              } else if (value == 4 * maxValue ~/ 5) {
-                return '${4 * maxValue ~/ 5}';
-              } else {
-                return '';
-              }
+            String thousands = '';
+            double newMaxValue = (maxValue / 5).roundToDouble();
+            double printValue = (10 * maxValue / 5).roundToDouble() / 10;
+
+            if (scaleConst >= 100.0) {
+              thousands = 'k';
+            }
+            if (scaleConst == 100.0) {
+              printValue = newMaxValue / 10;
+            }
+            if (scaleConst == 10.0 || scaleConst == 10000.0) {
+              printValue = newMaxValue * 10;
+            }
+
+            if (value == 1 * newMaxValue) {
+              return '${(1 * printValue).toStringAsFixed(1)}$thousands';
+            } else if (value == 2 * newMaxValue) {
+              return '${(2 * printValue).toStringAsFixed(1)}$thousands';
+            } else if (value == 3 * newMaxValue) {
+              return '${(3 * printValue).toStringAsFixed(1)}$thousands';
+            } else if (value == 4 * newMaxValue) {
+              return '${(4 * printValue).toStringAsFixed(1)}$thousands';
             } else {
-              if ((value * scaleConst).toInt() ==
-                  (1 * maxValue * scaleConst / 5000).round() * 1000) {
-                return '${(1 * maxValue * scaleConst / 5000).toStringAsFixed(1)}k';
-              } else if ((value * scaleConst).toInt() ==
-                  (2 * maxValue * scaleConst / 5000).round() * 1000) {
-                return '${(2 * maxValue * scaleConst / 5000).toStringAsFixed(1)}k';
-              } else if ((value * scaleConst).toInt() ==
-                  (3 * maxValue * scaleConst / 5000).round() * 1000) {
-                return '${(3 * maxValue * scaleConst / 5000).toStringAsFixed(1)}k';
-              } else if ((value * scaleConst).toInt() ==
-                  (4 * maxValue * scaleConst / 5000).round() * 1000) {
-                return '${(4 * maxValue * scaleConst / 5000).toStringAsFixed(1)}k';
-              } else {
-                return '';
-              }
+              return '';
             }
           },
           reservedSize: 32,
@@ -324,25 +292,25 @@ class _OrderChartState extends State<OrderChart> {
         LineChartBarData(
           spots: spots,
           isCurved: false,
-          colors: gradientColors.map((color) => color.withOpacity(0.5)).toList(),
+          colors: gradColors.map((color) => color.withOpacity(0.5)).toList(),
           barWidth: 2,
           isStrokeCapRound: true,
           dotData: FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
-            colors: gradientColors.map((color) => color.withOpacity(0.15)).toList(),
+            colors: gradColors.map((color) => color.withOpacity(0.15)).toList(),
           ),
         ),
       ],
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: themeProvider.themeAdditionalData().FlTouchBarColor,
+          tooltipBgColor: tooltipBgColor,
           getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
             return touchedBarSpots.map((barSpot) {
               final flSpot = barSpot;
 
               return LineTooltipItem(
-                '${dates[flSpot.x.toInt()]} \n',
+                '${foramttedDates[flSpot.x.toInt()]} \n',
                 TextStyle(
                   color: textColor,
                   fontSize: 16.0,
@@ -367,6 +335,7 @@ class _OrderChartState extends State<OrderChart> {
     );
   }
 
+  // Should refresh chart values, but it does not seem to work.
   Future<dynamic> refreshState() async {
     if (!mounted) return;
     _refreshValues();

@@ -59,13 +59,21 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
               appBar: AppBar(
                 backgroundColor: themeProvider.themeData().backgroundColor,
                 title: Text(
-                  AppStringValues.app_name,
-                  style: TextStyle(
-                    fontFamily: 'Galada',
-                    fontSize: 30,
-                    color: themeProvider.themeAdditionalData().textColor,
-                  ),
+                  userData.role == UserRole.worker
+                      ? AppStringValues.markSoldout
+                      : AppStringValues.app_name,
+                  style: userData.role == UserRole.worker
+                      ? TextStyle(
+                          fontSize: 13.0,
+                          color: themeProvider.themeAdditionalData().textColor,
+                        )
+                      : TextStyle(
+                          fontFamily: 'Galada',
+                          fontSize: 30.0,
+                          color: themeProvider.themeAdditionalData().textColor,
+                        ),
                 ),
+                leading: userData.role == UserRole.worker ? _backArrow(themeProvider) : null,
                 centerTitle: true,
                 elevation: 0,
                 bottom: TabBar(
@@ -113,6 +121,17 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
   _tempFunc(Product product) {
     customSnackbar(
         context: context, text: 'Funkce "položka vyprodána" ještě není implementovaná.*');
+  }
+
+  Widget _backArrow(ThemeProvider themeProvider) {
+    return IconButton(
+      icon: Icon(
+        Icons.arrow_back_ios,
+        size: 22,
+        color: themeProvider.themeAdditionalData().textColor,
+      ),
+      onPressed: () => Navigator.pop(context),
+    );
   }
 
   Widget _orderGrid(UserData userData, List<Product> items, choice, databaseImages) {

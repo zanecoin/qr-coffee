@@ -90,6 +90,15 @@ class ResultWindowChooser extends StatelessWidget {
             color: themeProvider.themeAdditionalData().blueBannerColor!,
             icon: waitingIcon(),
           ),
+        if (order.status == OrderStatus.withdraw)
+          ResultWindow(
+            text: role == UserRole.customer
+                ? AppStringValues.withdrawPlease
+                : AppStringValues.withdrawUser,
+            color: themeProvider.themeAdditionalData().blueBannerColor!,
+            icon: infoIcon(),
+            fontSize: 13.0,
+          ),
         if (order.status == OrderStatus.ready)
           ResultWindow(
             text: AppStringValues.orderReady,

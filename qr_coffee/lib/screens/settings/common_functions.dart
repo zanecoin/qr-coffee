@@ -32,7 +32,6 @@ class SettingsButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = Responsive.deviceWidth(context);
     thisContext = context;
     return Column(
       children: [
@@ -45,8 +44,7 @@ class SettingsButtons extends StatelessWidget {
         ),
         SizedBox(height: 10.0),
         CustomDivider(
-            indent:
-                deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(20.0, context) : 30.0),
+            indent: Responsive.isLargeDevice(context) ? Responsive.width(20.0, context) : 30.0),
         SizedBox(height: 2.0),
         CustomOptionButton(
           title: AppStringValues.role,
@@ -63,8 +61,7 @@ class SettingsButtons extends StatelessWidget {
         ),
         SizedBox(height: 2.0),
         CustomDivider(
-            indent:
-                deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(20.0, context) : 30.0),
+            indent: Responsive.isLargeDevice(context) ? Responsive.width(20.0, context) : 30.0),
       ],
     );
   }
@@ -91,10 +88,4 @@ _updateUserRole(String futureRole, UserRole previousRole, BuildContext context, 
   }
 
   UserData(userID: userID, role: UserRole.customer).updateRole(role);
-}
-
-// Empty Strings are there bcs it must match with parameters of [_updateUserRole()] bcs they are
-// sent to same widget [CustomOptionButton()]
-void _callbackTheme(String x, String y, BuildContext context, String z) {
-  customSnackbar(context: context, text: AppStringValues.notImplemented);
 }

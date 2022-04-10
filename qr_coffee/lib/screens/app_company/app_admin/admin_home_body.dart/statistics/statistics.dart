@@ -6,6 +6,7 @@ import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/dayCell.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/product.dart';
+import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/statistics/common_functions.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/statistics/order_chart.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/statistics/product_chart.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/statistics/states_chart.dart';
@@ -14,6 +15,31 @@ import 'package:qr_coffee/shared/functions.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/export_widgets.dart';
+
+class RangeNotifier extends ChangeNotifier {
+  double normalRangeStart = 0.0;
+  double normalRangeEnd = 0.0;
+  double virtualRangeStart = 0.0;
+  double virtualRangeEnd = 0.0;
+  bool valuesInit = false;
+
+  void changeNormalRange(double rangeStart, double rangeEnd) {
+    this.normalRangeStart = rangeStart;
+    this.normalRangeEnd = rangeEnd;
+    notifyListeners();
+  }
+
+  void changeVirtualRange(double rangeStart, double rangeEnd) {
+    this.virtualRangeStart = rangeStart;
+    this.virtualRangeEnd = rangeEnd;
+    notifyListeners();
+  }
+
+  void changeInitState(bool valuesInit) {
+    this.valuesInit = valuesInit;
+    notifyListeners();
+  }
+}
 
 class Statistics extends StatefulWidget {
   const Statistics({Key? key}) : super(key: key);
@@ -24,9 +50,17 @@ class Statistics extends StatefulWidget {
 
 class _StatisticsState extends State<Statistics> {
   List<Product> products = [];
+  List<String> normalDates = [];
+  List<String> virtualDates = [];
+  List<String> normalDatesSublist = [];
+  List<String> virtualDatesSublist = [];
   late String companyID;
-
+  bool showSettings = false;
   int virtualMode = 0;
+  bool refreshValue = false;
+  double numOfNormalCells = 0;
+  double numOfVirtualCells = 0;
+  final _rangeNotifier = RangeNotifier();
 
   _getBool() {
     if (virtualMode == 0) {
@@ -49,10 +83,55 @@ class _StatisticsState extends State<Statistics> {
         ),
         builder: (context, snapshots) {
           if (snapshots.item1.hasData && snapshots.item2.hasData && snapshots.item3.hasData) {
-            List<DayCell> virtualCells = snapshots.item1.data!.sublist(0, 364);
-            List<DayCell> normalCells = snapshots.item2.data!;
+            List<String> borderDates = ['', ''];
             products = snapshots.item3.data!;
             companyID = company.companyID;
+
+            List<DayCell> normalCells = snapshots.item2.data!;
+            normalDates = getRawDates(normalCells);
+            normalCells = syncCells(normalCells, normalDates);
+            numOfNormalCells = normalCells.length.toDouble();
+
+            List<DayCell> virtualCells = snapshots.item1.data!;
+            virtualDates = getRawDates(virtualCells);
+            virtualCells = syncCells(virtualCells, virtualDates);
+            numOfVirtualCells = virtualCells.length.toDouble();
+
+            /// Initialize only once, [refreshValue] does not have any impact.
+            if (!_rangeNotifier.valuesInit) {
+              resetNormalRange();
+              resetVirtualRange();
+              _rangeNotifier.changeInitState(true);
+            }
+
+            if (virtualMode == 0) {
+              normalCells = normalCells.sublist(
+                _rangeNotifier.normalRangeStart.toInt(),
+                _rangeNotifier.normalRangeEnd.toInt(),
+              );
+              normalDatesSublist = normalDates.sublist(
+                _rangeNotifier.normalRangeStart.toInt(),
+                _rangeNotifier.normalRangeEnd.toInt(),
+              );
+              borderDates = [
+                getFormattedDates([normalDates.first]).first,
+                getFormattedDates([normalDates.last]).first,
+              ];
+            } else if (virtualMode == 1) {
+              virtualCells = virtualCells.sublist(
+                _rangeNotifier.virtualRangeStart.toInt(),
+                _rangeNotifier.virtualRangeEnd.toInt(),
+              );
+              virtualDatesSublist = virtualDates.sublist(
+                _rangeNotifier.virtualRangeStart.toInt(),
+                _rangeNotifier.virtualRangeEnd.toInt(),
+              );
+              borderDates = [
+                getFormattedDates([virtualDates.first]).first,
+                getFormattedDates([virtualDates.last]).first,
+              ];
+            }
+
             return Scaffold(
               backgroundColor: themeProvider.themeData().backgroundColor,
               appBar: customAppBar(
@@ -72,32 +151,9 @@ class _StatisticsState extends State<Statistics> {
                   child: Column(
                     children: [
                       const SizedBox(height: 10.0),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 10.0),
-                        padding: const EdgeInsets.all(20.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(18.0),
-                          ),
-                          boxShadow: themeProvider.themeAdditionalData().shadow,
-                          color: themeProvider.themeAdditionalData().containerColor,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              AppStringValues.virtualMode,
-                              style: TextStyle(
-                                color: themeProvider.themeAdditionalData().textColor,
-                              ),
-                            ),
-                            animatedToggle(_getBool(), _toggleCallback, themeProvider)
-                          ],
-                        ),
-                      ),
+                      _settings(themeProvider, borderDates),
                       const SizedBox(height: 5.0),
-                      if (virtualMode == 1) _charts(virtualCells),
-                      if (virtualMode == 0) _charts(normalCells),
+                      _charts(normalCells, virtualCells, normalDatesSublist, virtualDatesSublist),
                       const SizedBox(height: 10.0),
                       //CustomOutlinedButton(function: reload, label: 'Generovat'),
                     ],
@@ -117,35 +173,216 @@ class _StatisticsState extends State<Statistics> {
 
   _toggleCallback() {
     int tempMode = 0;
-    setState(() {
-      tempMode = virtualMode;
-      virtualMode = 2;
-    });
-    Future.delayed(const Duration(milliseconds: 50), () {
+    if ((_rangeNotifier.normalRangeStart == _rangeNotifier.normalRangeEnd) ||
+        (_rangeNotifier.virtualRangeStart == _rangeNotifier.virtualRangeEnd)) {
+      customSnackbar(context: context, text: AppStringValues.rangeError);
+    } else {
       setState(() {
-        if (tempMode == 0) {
-          virtualMode = 1;
-        } else {
-          virtualMode = 0;
-        }
+        tempMode = virtualMode;
+        virtualMode = 2;
       });
-    });
+      Future.delayed(const Duration(milliseconds: 50), () {
+        setState(() {
+          if (tempMode == 0) {
+            virtualMode = 1;
+          } else {
+            virtualMode = 0;
+          }
+        });
+      });
+    }
+  }
+
+  resetNormalRange() {
+    if (numOfNormalCells - 7 > 0) {
+      _rangeNotifier.changeNormalRange(numOfNormalCells - 7, numOfNormalCells);
+    } else {
+      _rangeNotifier.changeNormalRange(0, numOfNormalCells);
+    }
+  }
+
+  resetVirtualRange() {
+    if (numOfVirtualCells - 31 > 0) {
+      _rangeNotifier.changeVirtualRange(numOfVirtualCells - 31, numOfVirtualCells);
+    } else {
+      _rangeNotifier.changeVirtualRange(0, numOfVirtualCells);
+    }
   }
 
   callback() {
     generateData();
   }
 
-  Future reload() async {
-    setState(() {});
+  Future refresh() async {
+    if ((_rangeNotifier.normalRangeStart == _rangeNotifier.normalRangeEnd) ||
+        (_rangeNotifier.virtualRangeStart == _rangeNotifier.virtualRangeEnd)) {
+      customSnackbar(context: context, text: AppStringValues.rangeError);
+    } else {
+      setState(() => refreshValue = !refreshValue);
+      Future.delayed(const Duration(milliseconds: 50), () {
+        setState(() => refreshValue = !refreshValue);
+      });
+    }
   }
 
-  Widget _charts(List<DayCell> cells) {
+  Widget _charts(
+    List<DayCell> normalCells,
+    List<DayCell> virtualCells,
+    List<String> normalDates,
+    List<String> virtualDates,
+  ) {
+    if (refreshValue == false && virtualMode == 1) {
+      return Column(
+        children: [
+          OrderChart(cells: virtualCells, dates: virtualDates),
+          ProductChart(cells: virtualCells, products: products),
+          StatesChart(cells: virtualCells),
+        ],
+      );
+    } else if (refreshValue == false && virtualMode == 0) {
+      return Column(
+        children: [
+          OrderChart(cells: normalCells, dates: normalDates),
+          ProductChart(cells: normalCells, products: products),
+          StatesChart(cells: normalCells),
+        ],
+      );
+    } else {
+      return Column();
+    }
+  }
+
+  Widget _settings(ThemeProvider themeProvider, List<String> borderDates) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10.0),
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(18.0),
+        ),
+        boxShadow: themeProvider.themeAdditionalData().shadow,
+        color: themeProvider.themeAdditionalData().containerColor,
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () => setState(() => showSettings = !showSettings),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppStringValues.settings,
+                  style: TextStyle(
+                    color: themeProvider.themeAdditionalData().textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+                if (!showSettings)
+                  Icon(Icons.expand_more,
+                      color: themeProvider.themeAdditionalData().textColor, size: 30),
+                if (showSettings)
+                  Icon(Icons.expand_less,
+                      color: themeProvider.themeAdditionalData().textColor, size: 30),
+              ],
+            ),
+          ),
+          if (showSettings) SizedBox(height: 15.0),
+          if (showSettings) _settingButtons(themeProvider, borderDates),
+        ],
+      ),
+    );
+  }
+
+  Widget _settingButtons(ThemeProvider themeProvider, List<String> borderDates) {
     return Column(
       children: [
-        OrderChart(cells: cells),
-        ProductChart(cells: cells, products: products),
-        StatesChart(cells: cells),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              AppStringValues.virtualMode,
+              style: TextStyle(
+                color: themeProvider.themeAdditionalData().textColor,
+              ),
+            ),
+            animatedToggle(_getBool(), _toggleCallback, themeProvider)
+          ],
+        ),
+        SizedBox(height: 15.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              AppStringValues.refreshData,
+              style: TextStyle(
+                color: themeProvider.themeAdditionalData().textColor,
+              ),
+            ),
+            InkWell(
+              child: Container(
+                  height: 30.0,
+                  width: 70.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20.0),
+                    color: themeProvider.themeAdditionalData().FlBorderColor,
+                  ),
+                  child: Icon(Icons.refresh)),
+              onTap: () => refresh(),
+            )
+          ],
+        ),
+        SizedBox(height: 15.0),
+        AnimatedBuilder(
+          animation: _rangeNotifier,
+          builder: (_, __) => Text(
+            virtualMode == 1
+                ? '${getFormattedDates([
+                        virtualDates[_rangeNotifier.virtualRangeStart.toInt()]
+                      ]).first} - ${getFormattedDates([
+                        virtualDates[_rangeNotifier.virtualRangeEnd.toInt() - 1]
+                      ]).first}'
+                : '${getFormattedDates([
+                        normalDates[_rangeNotifier.normalRangeStart.toInt()]
+                      ]).first} - ${getFormattedDates([
+                        normalDates[_rangeNotifier.normalRangeEnd.toInt() - 1]
+                      ]).first}',
+            style: TextStyle(
+              color: themeProvider.themeAdditionalData().textColor,
+            ),
+          ),
+        ),
+        AnimatedBuilder(
+          animation: _rangeNotifier,
+          builder: (_, __) => RangeSlider(
+            values: virtualMode == 1
+                ? RangeValues(_rangeNotifier.virtualRangeStart, _rangeNotifier.virtualRangeEnd)
+                : RangeValues(_rangeNotifier.normalRangeStart, _rangeNotifier.normalRangeEnd),
+            min: 0,
+            max: virtualMode == 1 ? numOfVirtualCells : numOfNormalCells,
+            divisions: virtualMode == 1 ? numOfVirtualCells.toInt() : numOfNormalCells.toInt(),
+            onChanged: (value) {
+              if (virtualMode == 1) {
+                if (value.start == value.end && value.start == 0) {
+                  _rangeNotifier.changeVirtualRange(value.start, value.end + 1);
+                } else if (value.start == value.end && value.end == numOfVirtualCells) {
+                  _rangeNotifier.changeVirtualRange(value.start - 1, value.end);
+                } else {
+                  _rangeNotifier.changeVirtualRange(value.start, value.end);
+                }
+              } else {
+                if (value.start == value.end && value.start == 0) {
+                  _rangeNotifier.changeNormalRange(value.start, value.end + 1);
+                } else if (value.start == value.end && value.end == numOfNormalCells) {
+                  _rangeNotifier.changeNormalRange(value.start - 1, value.end);
+                } else {
+                  _rangeNotifier.changeNormalRange(value.start, value.end);
+                }
+              }
+            },
+            activeColor: themeProvider.themeAdditionalData().textColor,
+          ),
+        ),
       ],
     );
   }

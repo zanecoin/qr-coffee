@@ -7,7 +7,7 @@ class CompanyOrderDatabase {
   CompanyOrderDatabase({required this.companyID});
   final String? companyID;
 
-  CollectionReference _getPassiveOrderCollection() {
+  CollectionReference _getTodayPassiveOrderCollection() {
     String date = DateFormat('yyyy_MM_dd').format(DateTime.now());
     return FirebaseFirestore.instance
         .collection('companies')
@@ -15,6 +15,10 @@ class CompanyOrderDatabase {
         .collection('passive_orders')
         .doc('$date')
         .collection('orders');
+  }
+
+  Query _getAllPassiveOrderCollection() {
+    return FirebaseFirestore.instance.collectionGroup('orders');
   }
 
   CollectionReference _getActiveOrderCollection() {
@@ -84,7 +88,7 @@ class CompanyOrderDatabase {
     String companyID,
     String day,
   ) async {
-    CollectionReference passiveOrderCollection = _getPassiveOrderCollection();
+    CollectionReference passiveOrderCollection = _getTodayPassiveOrderCollection();
     if (orderID == '') {
       DocumentReference _docRef = await passiveOrderCollection.add({
         'status': CommonDatabaseFunctions().getStrStatus(status),
@@ -160,8 +164,7 @@ class CompanyOrderDatabase {
     if (status == OrderStatus.waiting || status == OrderStatus.pending) {
       return await _getActiveOrderCollection().doc(orderID).update({'orderID': orderID});
     } else {
-      CollectionReference passiveOrderCollection = _getPassiveOrderCollection();
-      return await passiveOrderCollection.doc(orderID).update({'orderID': orderID});
+      return await _getTodayPassiveOrderCollection().doc(orderID).update({'orderID': orderID});
     }
   }
 
@@ -198,9 +201,13 @@ class CompanyOrderDatabase {
   }
 
   // Get passive orders list stream.
-  Stream<List<Order>> get passiveOrderList {
-    CollectionReference passiveOrderCollection = _getPassiveOrderCollection();
-    return passiveOrderCollection.snapshots().map(_OrderListFromSnapshot);
+  Stream<List<Order>> get passiveTodayOrderList {
+    return _getTodayPassiveOrderCollection().snapshots().map(_OrderListFromSnapshot);
+  }
+
+  // Get passive orders list stream.
+  Stream<List<Order>> get passiveAllOrderList {
+    return _getAllPassiveOrderCollection().snapshots().map(_OrderListFromSnapshot);
   }
 
   // Get virtual orders list stream.

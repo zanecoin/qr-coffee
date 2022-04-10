@@ -88,9 +88,12 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
             );
           } else {
             // Header format chooser.
-            if (order.status == OrderStatus.waiting || order.status == OrderStatus.ready) {
-              List returnArray =
-                  time == '' ? ['?', textColor] : getRemainingTime(order, time, themeProvider);
+            if (order.status == OrderStatus.waiting ||
+                order.status == OrderStatus.ready ||
+                order.status == OrderStatus.withdraw) {
+              List returnArray = time == ''
+                  ? ['?', textColor]
+                  : getRemainingTime(order, time, themeProvider, false);
               remainingTime = returnArray[0];
               textColor = returnArray[1];
             } else {
@@ -105,7 +108,7 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
                 type: 1,
                 function: mode == 'qr' ? _doublePop : null,
               ),
-              body: customer == null && order.userID != 'generated-order^^'
+              body: customer == null && order.status != OrderStatus.generated
                   ? Center(child: Text(AppStringValues.userNotFound))
                   : SingleChildScrollView(
                       child: Column(
@@ -165,7 +168,6 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
   }
 
   Widget _header(Order order, ThemeProvider themeProvider) {
-    final double deviceWidth = Responsive.deviceWidth(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -188,7 +190,7 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
         ),
         CustomDividerWithText(text: AppStringValues.items),
         SizedBox(
-          width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
+          width: Responsive.isLargeDevice(context) ? Responsive.width(60.0, context) : null,
           child: ListView.builder(
             itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),

@@ -191,9 +191,7 @@ class _MyOrdersState extends State<MyOrders> {
         string,
         style: TextStyle(
           color: themeProvider.themeAdditionalData().textColor,
-          fontSize: Responsive.deviceWidth(context) > kDeviceUpperWidthTreshold
-              ? 16
-              : Responsive.width(4.2, context),
+          fontSize: Responsive.isLargeDevice(context) ? 16 : Responsive.width(4.2, context),
           fontWeight: FontWeight.normal,
         ),
         textAlign: TextAlign.left,

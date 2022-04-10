@@ -18,12 +18,11 @@ class CustomTextBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 30.0),
-      width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
+      width: Responsive.isLargeDevice(context) ? Responsive.width(60.0, context) : null,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 12.0),
         decoration: BoxDecoration(

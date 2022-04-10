@@ -133,8 +133,8 @@ class Splash extends StatelessWidget {
                     if (isPortrait)
                       ImageBanner(
                         path: themeProvider.isLightMode()
-                            ? 'assets/cafe.jpg'
-                            : 'assets/cafe_black.png',
+                            ? 'assets/cafe_transparent_black_border.png'
+                            : 'assets/cafe_transparent_white_border.png',
                         size: 'large',
                         color: themeProvider.themeAdditionalData().backgroundColor!,
                       ),

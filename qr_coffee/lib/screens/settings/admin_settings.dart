@@ -4,7 +4,6 @@ import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/app_company/common/company_update_form.dart';
 import 'package:qr_coffee/screens/settings/common_functions.dart';
-import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

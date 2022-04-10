@@ -98,38 +98,11 @@ class _QRScanScreenState extends State<QRScanScreen> {
 
       if (barcode.code == 'QR Coffee') {
         if (order.status == OrderStatus.ready) {
-          OrderStatus status = OrderStatus.completed;
-          await CompanyOrderDatabase(companyID: order.companyID).createPassiveOrder(
-            status,
-            order.items,
-            order.price,
-            order.pickUpTime,
-            order.username,
-            order.shop,
-            order.company,
-            order.orderID,
-            order.userID,
-            order.shopID,
-            order.companyID,
-            order.day,
-          );
-
-          await CustomerOrderDatabase(userID: order.userID).createPassiveOrder(
-            status,
-            order.items,
-            order.price,
-            order.pickUpTime,
-            order.username,
-            order.shop,
-            order.company,
-            order.orderID,
-            order.shopID,
-            order.companyID,
-            order.day,
-          );
-
-          await CompanyOrderDatabase(companyID: order.companyID).deleteActiveOrder(order.orderID);
-          await CustomerOrderDatabase(userID: order.userID).deleteActiveOrder(order.orderID);
+          OrderStatus status = OrderStatus.withdraw;
+          await CompanyOrderDatabase(companyID: order.companyID)
+              .updateOrderStatus(order.orderID, status);
+          await CustomerOrderDatabase(userID: order.userID)
+              .updateOrderStatus(order.orderID, status);
         }
 
         if (!mounted) return;

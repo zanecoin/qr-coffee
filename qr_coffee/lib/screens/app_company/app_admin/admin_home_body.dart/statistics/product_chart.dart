@@ -51,7 +51,6 @@ class _ProductChartState extends State<ProductChart> {
   void initState() {
     super.initState();
     _refreshValues();
-    refreshState();
   }
 
   @override
@@ -76,9 +75,8 @@ class _ProductChartState extends State<ProductChart> {
                 text: Text(
                   showMoney ? AppStringValues.productEarnings : AppStringValues.productAmounts,
                   style: TextStyle(
-                    fontSize: Responsive.deviceWidth(context) > kDeviceUpperWidthTreshold
-                        ? 14.0
-                        : Responsive.width(3.45, context),
+                    fontSize:
+                        Responsive.isLargeDevice(context) ? 14.0 : Responsive.width(3.45, context),
                     color: textColor,
                   ),
                 ),
@@ -325,13 +323,5 @@ class _ProductChartState extends State<ProductChart> {
       barGroups: showingGroups(amounts),
       gridData: FlGridData(show: false),
     );
-  }
-
-  Future<dynamic> refreshState() async {
-    if (!mounted) return;
-    _refreshValues();
-    setState(() {});
-    await Future<dynamic>.delayed(Duration(milliseconds: 3000));
-    await refreshState();
   }
 }

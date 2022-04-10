@@ -28,4 +28,4 @@ class Order {
   });
 }
 
-enum OrderStatus { pending, waiting, ready, completed, aborted, abandoned }
+enum OrderStatus { pending, waiting, ready, completed, aborted, abandoned, generated, withdraw }

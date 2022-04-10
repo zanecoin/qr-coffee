@@ -1,9 +1,5 @@
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
-import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
-import 'package:qr_coffee/shared/widgets/custom_button.dart';
-import 'package:qr_coffee/shared/widgets/custom_text_field.dart';
-import 'package:qr_coffee/shared/widgets/image_banner.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/service/auth.dart';
@@ -26,7 +22,6 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
@@ -45,14 +40,14 @@ class _SignInState extends State<SignIn> {
                 ),
               ),
               ImageBanner(
-                path: themeProvider.isLightMode() ? 'assets/cafe.jpg' : 'assets/cafe_black.png',
+                path: themeProvider.isLightMode()
+                    ? 'assets/cafe_transparent_black_border.png'
+                    : 'assets/cafe_transparent_white_border.png',
                 size: 'medium',
                 color: themeProvider.themeAdditionalData().backgroundColor!,
               ),
               Container(
-                width: deviceWidth > kDeviceUpperWidthTreshold
-                    ? 400.0
-                    : Responsive.width(70.0, context),
+                width: Responsive.isLargeDevice(context) ? 400.0 : Responsive.width(70.0, context),
                 child: Form(
                   key: _key,
                   child: Column(

@@ -55,7 +55,12 @@ class ShopTile extends StatelessWidget {
               Navigator.push(
                 context,
                 new MaterialPageRoute(
-                  builder: (context) => WorkerHomeBody(shop: shop),
+                  builder: (context) => StreamProvider(
+                    create: (context) => CompanyDatabase(companyID: company!.companyID).company,
+                    initialData: Company.initialData(),
+                    catchError: (_, __) => Company.initialData(),
+                    child: WorkerHomeBody(shop: shop),
+                  ),
                 ),
               );
             } else {

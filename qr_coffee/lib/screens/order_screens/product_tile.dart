@@ -47,23 +47,17 @@ class ProductTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-
-    double opacity = themeProvider.isLightMode() ? 1 : 0.8;
+    double opacity = themeProvider.isLightMode() ? 1.0 : 0.8;
 
     return Container(
       margin: EdgeInsets.all(7),
       height: 200.0,
       width: 150.0,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(20),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(20.0)),
         color: themeProvider.themeData().backgroundColor,
         image: DecorationImage(
-          colorFilter: new ColorFilter.mode(
-            Colors.black.withOpacity(opacity),
-            BlendMode.dstATop,
-          ),
+          colorFilter: new ColorFilter.mode(Colors.black.withOpacity(opacity), BlendMode.dstATop),
           image: image().image,
           fit: BoxFit.cover,
         ),
@@ -88,7 +82,7 @@ class ProductTile extends StatelessWidget {
       bottom: 12.0,
       child: Container(
         width: Responsive.width(37.0, context),
-        padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15.0),
           color: themeProvider.themeData().backgroundColor,
@@ -101,11 +95,11 @@ class ProductTile extends StatelessWidget {
   Widget _textContainerB(BuildContext context, ThemeProvider themeProvider) {
     return Container(
       width: Responsive.width(100, context),
-      padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
+      padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
       decoration: BoxDecoration(
         border: Border.fromBorderSide(BorderSide(
             width: 1.5, color: themeProvider.isLightMode() ? Colors.white : Colors.grey.shade800)),
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(20.0),
           bottomRight: Radius.circular(20.0),
         ),

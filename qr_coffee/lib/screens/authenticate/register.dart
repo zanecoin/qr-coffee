@@ -23,7 +23,6 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     final double deviceHeight = Responsive.deviceHeight(context);
-    final double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
@@ -43,14 +42,14 @@ class _RegisterState extends State<Register> {
               ),
               if (deviceHeight > kDeviceLowerHeightTreshold)
                 ImageBanner(
-                  path: themeProvider.isLightMode() ? 'assets/cafe.jpg' : 'assets/cafe_black.png',
+                  path: themeProvider.isLightMode()
+                      ? 'assets/cafe_transparent_black_border.png'
+                      : 'assets/cafe_transparent_white_border.png',
                   size: 'medium',
                   color: themeProvider.themeAdditionalData().backgroundColor!,
                 ),
               Container(
-                width: deviceWidth > kDeviceUpperWidthTreshold
-                    ? 400.0
-                    : Responsive.width(70.0, context),
+                width: Responsive.isLargeDevice(context) ? 400.0 : Responsive.width(70.0, context),
                 child: Form(
                   key: _key,
                   child: Column(

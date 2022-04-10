@@ -40,7 +40,9 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
   @override
   void initState() {
     super.initState();
-    if (staticOrder.status != OrderStatus.waiting && staticOrder.status != OrderStatus.ready) {
+    if (staticOrder.status != OrderStatus.waiting &&
+        staticOrder.status != OrderStatus.ready &&
+        staticOrder.status != OrderStatus.withdraw) {
       _static = true;
     }
   }
@@ -52,7 +54,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
       streams: Tuple4(
         UserDatabase(userID: staticOrder.userID).userData,
         CompanyOrderDatabase(companyID: staticOrder.companyID).activeOrderList,
-        CompanyOrderDatabase(companyID: staticOrder.companyID).passiveOrderList,
+        CompanyOrderDatabase(companyID: staticOrder.companyID).passiveTodayOrderList,
         Stream.periodic(const Duration(milliseconds: 1000)),
       ),
       builder: (context, snapshots) {
@@ -81,9 +83,12 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
             );
           } else {
             // Header format chooser.
-            if (order.status == OrderStatus.waiting || order.status == OrderStatus.ready) {
-              List returnArray =
-                  time == '' ? ['?', textColor] : getRemainingTime(order, time, themeProvider);
+            if (order.status == OrderStatus.waiting ||
+                order.status == OrderStatus.ready ||
+                order.status == OrderStatus.withdraw) {
+              List returnArray = time == ''
+                  ? ['?', textColor]
+                  : getRemainingTime(order, time, themeProvider, false);
               remainingTime = returnArray[0];
               textColor = returnArray[1];
             } else {
@@ -99,7 +104,7 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                   style: TextStyle(color: textColor, fontSize: 14),
                 ),
               ),
-              body: userData == null && order.userID != 'generated-order^^'
+              body: userData == null && order.status != OrderStatus.generated
                   ? Center(child: Text(AppStringValues.userNotFound))
                   : SingleChildScrollView(
                       child: Column(
@@ -136,12 +141,11 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
   }
 
   Widget _header(Order order) {
-    final double deviceWidth = Responsive.deviceWidth(context);
     return Column(
       children: [
         CustomDividerWithText(text: AppStringValues.items),
         SizedBox(
-          width: deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
+          width: Responsive.isLargeDevice(context) ? Responsive.width(60.0, context) : null,
           child: ListView.builder(
             itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
@@ -215,6 +219,15 @@ class _OrderDetailsWorkerState extends State<OrderDetailsWorker> {
                 ),
               ),
             ],
+          ),
+        if (order.status == OrderStatus.withdraw)
+          ResultButton(
+            text: AppStringValues.collected,
+            icon: Icons.done,
+            color: Colors.green,
+            order: order,
+            status: OrderStatus.completed,
+            previousContext: context,
           ),
       ],
     );

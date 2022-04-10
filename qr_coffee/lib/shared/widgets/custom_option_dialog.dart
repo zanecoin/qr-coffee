@@ -1,33 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/user.dart';
-import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 
-Future<dynamic> customOptionDialog(
-  Function function,
-  List<String> options,
-  BuildContext context,
-  BuildContext generalContext,
-  UserRole previousRole,
-  String userID,
-) {
-  final double deviceWidth = Responsive.deviceWidth(context);
+Future<dynamic> customOptionDialog(Function function, List<String> options, BuildContext context,
+    BuildContext generalContext, UserRole previousRole, String userID) {
   return showDialog(
     context: context,
     barrierDismissible: true,
     builder: (BuildContext context) {
       final themeProvider = Provider.of<ThemeProvider>(context);
       return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         child: AspectRatio(
           aspectRatio: 1.4,
           child: Container(
             height: 50,
-            // deviceWidth > kDeviceUpperWidthTreshold ? Responsive.width(60.0, context) : null,
-            padding: EdgeInsets.all(10),
+            // Responsive.isLargeDevice(context) ? Responsive.width(60.0, context) : null,
+            padding: EdgeInsets.all(10.0),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.0),
               color: themeProvider.themeAdditionalData().blendedColor,
             ),
             child: Column(
@@ -49,15 +41,8 @@ Future<dynamic> customOptionDialog(
   );
 }
 
-Widget _textButton(
-  Function function,
-  BuildContext context,
-  BuildContext generalContext,
-  String futureRole,
-  UserRole previousRole,
-  String userID,
-  ThemeProvider themeProvider,
-) {
+Widget _textButton(Function function, BuildContext context, BuildContext generalContext,
+    String futureRole, UserRole previousRole, String userID, ThemeProvider themeProvider) {
   return TextButton(
     style: TextButton.styleFrom(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),

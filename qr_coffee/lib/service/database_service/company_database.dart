@@ -1,6 +1,5 @@
 import 'package:qr_coffee/models/company.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:qr_coffee/models/shop.dart';
 
 class CompanyDatabase {
   final String? companyID;

@@ -32,7 +32,6 @@ class CustomDividerWithText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Row(
@@ -41,8 +40,7 @@ class CustomDividerWithText extends StatelessWidget {
         Expanded(
           child: CustomDivider(
             padding: 10.0,
-            leftIndent:
-                deviceWidth < kDeviceUpperWidthTreshold ? 30.0 : Responsive.width(25.0, context),
+            leftIndent: Responsive.isLargeDevice(context) ? Responsive.width(25.0, context) : 30.0,
           ),
         ),
         Text(text,
@@ -50,8 +48,7 @@ class CustomDividerWithText extends StatelessWidget {
                 TextStyle(fontSize: 12, color: themeProvider.themeAdditionalData().dividerColor)),
         Expanded(
           child: CustomDivider(
-            rightIndent:
-                deviceWidth < kDeviceUpperWidthTreshold ? 30.0 : Responsive.width(25.0, context),
+            rightIndent: Responsive.isLargeDevice(context) ? Responsive.width(25.0, context) : 30.0,
           ),
         ),
       ],

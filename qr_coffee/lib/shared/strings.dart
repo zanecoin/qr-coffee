@@ -9,6 +9,10 @@ class AppStringValues {
   static const String scanQr = 'Naskenujte QR kód';
   static const String back = 'Zpět';
   static const String notImplemented = 'Tato funkce ještě není implementována.';
+  static const String promoCode = 'Promo kód';
+  static const String applyCode = 'Uplatnit kód';
+  static const String codeInvalid = 'Zadaný kód je neplatný.';
+  static const String filter = 'Filtrovat';
 
   // PAYMENT GATEWAY
   static const String paymentError = 'Nepoadařilo se otevřít platební bránu. Error: ';
@@ -19,6 +23,7 @@ class AppStringValues {
   static const String food = 'Jídlo';
   static const String continueOn = 'Pokračovat';
   static const String shopClosed = 'Tato kavárna má bohužel zavřeno.';
+  static const String markSoldout = 'Označit položku jako vyprodanou';
 
   static const String orderItems = 'Co si chcete přidat do objednávky?';
   static const String orderPlace = 'Kde si chcete převzít občerstvení?';
@@ -28,6 +33,7 @@ class AppStringValues {
   static const String orderNow = 'Objednat nyní!';
   static const String createOrder = 'Vytvořit objednávku!';
   static const String orderCreationSuccess = 'Objednávka úspěšně vytvořena!';
+  static const String noApp = 'Mimo aplikaci.';
 
   static const String chooseItems = 'Přidejte položky do objednávky';
   static const String choosePlace = 'Vyberte odběrové místo';
@@ -69,6 +75,9 @@ class AppStringValues {
   static const String aborted = 'Zrušené';
 
   // ORDER TILE
+  static const String withdrawOngoing = 'Probíhá vyzvednutí';
+  static const String withdrawUser = 'Zákazník se snaží vyzvednout';
+  static const String withdrawPlease = 'Vyzvedněte si prosím objednávku';
   static const String pickUpIn = 'Vyzvednutí za';
   static const String pickUpBefore = 'Vyzvednutí před';
   static const String pickUp30 = 'Vyzvednutí před více než 30';
@@ -180,4 +189,6 @@ class AppStringValues {
   static const String productEarnings = 'Tržba za jednotlivé produkty';
   static const String productAmounts = 'Množství objednaných produktů';
   static const String orderEndingState = 'Zakončení objednávek';
+  static const String refreshData = 'Obnovit data';
+  static const String rangeError = 'Délka intervalu nesmí být nulová.';
 }

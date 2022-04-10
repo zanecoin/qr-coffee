@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 
 class CustomTimeDropdown extends StatefulWidget {
@@ -40,7 +39,6 @@ class _CustomTimeDropdownState extends State<CustomTimeDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     String? currentValue;
     return Container(

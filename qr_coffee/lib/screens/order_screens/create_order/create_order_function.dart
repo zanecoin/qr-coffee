@@ -42,9 +42,9 @@ Future<int> createOrderFunction(
   } else {
     // Create order parameters.
 
-    OrderStatus status = OrderStatus.completed;
-    String username = 'generated-order';
-    String userID = 'generated-order^^';
+    OrderStatus status = OrderStatus.generated;
+    String username = AppStringValues.noApp;
+    String userID = 'GENERATED';
     String pickUpTime = getPickUpTime(0);
     String shop = currentShop.address;
     String shopID = currentShop.shopID;

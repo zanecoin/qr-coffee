@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 
 // 4' phone: 533x320
 // 5' phone: 683x411
@@ -58,6 +59,12 @@ Widget waitingIcon({double size = icon_size}) => Icon(
       size: size,
     );
 
+Widget infoIcon({double size = icon_size}) => Icon(
+      CommunityMaterialIcons.information,
+      color: Colors.blue.shade300,
+      size: size,
+    );
+
 Widget questionIcon({double size = icon_size}) => Icon(
       Icons.help,
       color: Colors.orange.shade400,
@@ -76,17 +83,51 @@ Widget checkIcon({double size = icon_size, required Color color}) => Icon(
       size: size,
     );
 
-Widget allIcon({double size = icon_size}) => Icon(
-      Icons.view_module,
-      color: Colors.black,
+Widget fireIcon({double size = icon_size}) => Icon(
+      Icons.local_fire_department,
+      color: Colors.orange.shade400,
       size: size,
     );
 
-Widget thumbIcon({double size = icon_size}) => Icon(
-      Icons.thumb_up_alt_outlined,
-      color: Colors.black,
+Widget allIcon({double size = icon_size, required ThemeProvider themeProvider}) => Icon(
+      Icons.view_module,
+      color: themeProvider.themeAdditionalData().textColor,
       size: size,
     );
+
+Widget thumbIcon({double size = icon_size, required ThemeProvider themeProvider}) => Icon(
+      Icons.thumb_up_alt_outlined,
+      color: themeProvider.themeAdditionalData().textColor,
+      size: size,
+    );
+
+final List<Color> kGold = [
+  Colors.amber.shade50,
+  Colors.amber.shade200,
+  Colors.amber.shade600,
+  Colors.amber.shade700,
+];
+
+final List<Color> kLightGold = [
+  Colors.amber.shade100,
+  Colors.amber.shade200,
+  Colors.amber.shade500,
+  Colors.amber.shade600,
+];
+
+final List<Color> kSilver = [
+  Colors.grey.shade50,
+  Colors.grey.shade200,
+  Colors.grey.shade600,
+  Colors.grey.shade700,
+];
+
+final List<Color> kLightSilver = [
+  Colors.grey.shade100,
+  Colors.grey.shade200,
+  Colors.grey.shade500,
+  Colors.grey.shade600,
+];
 
 List<String> kHours = [
   '00:00',

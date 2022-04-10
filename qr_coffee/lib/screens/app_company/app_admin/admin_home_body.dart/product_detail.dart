@@ -79,10 +79,15 @@ Widget _fancyInfoCard(Product coffee, ThemeProvider themeProvider, BuildContext 
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   image: DecorationImage(
-                    colorFilter:
-                        new ColorFilter.mode(Colors.black.withOpacity(0.2), BlendMode.dstATop),
+                    colorFilter: new ColorFilter.mode(
+                        themeProvider.isLightMode()
+                            ? Colors.white.withOpacity(0.2)
+                            : themeProvider.themeAdditionalData().containerColor!.withOpacity(0.2),
+                        BlendMode.dstATop),
                     image: AssetImage(
-                      themeProvider.isLightMode() ? 'assets/cafe.jpg' : 'assets/cafe_darkmode.png',
+                      themeProvider.isLightMode()
+                          ? 'assets/cafe_transparent_black_border.png'
+                          : 'assets/cafe_transparent_white_border.png',
                     ),
                     fit: BoxFit.cover,
                   ),

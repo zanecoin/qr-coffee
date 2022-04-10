@@ -9,12 +9,16 @@ class CommonDatabaseFunctions {
         return OrderStatus.waiting;
       case 'READY':
         return OrderStatus.ready;
+      case 'WITHDRAW':
+        return OrderStatus.withdraw;
       case 'COMPLETED':
         return OrderStatus.completed;
       case 'ABORTED':
         return OrderStatus.aborted;
       case 'ABANDONED':
         return OrderStatus.abandoned;
+      case 'GENERATED':
+        return OrderStatus.generated;
       default:
         return OrderStatus.pending;
     }
@@ -28,12 +32,16 @@ class CommonDatabaseFunctions {
         return 'WAITING';
       case OrderStatus.ready:
         return 'READY';
+      case OrderStatus.withdraw:
+        return 'WITHDRAW';
       case OrderStatus.completed:
         return 'COMPLETED';
       case OrderStatus.aborted:
         return 'ABORTED';
       case OrderStatus.abandoned:
         return 'ABANDONED';
+      case OrderStatus.generated:
+        return 'GENERATED';
       default:
         return 'PENDING';
     }

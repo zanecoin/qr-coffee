@@ -90,8 +90,9 @@ class ThemeProvider with ChangeNotifier {
       FlBorderColor:
           isLightMode() ? Color.fromARGB(255, 220, 224, 228) : Color.fromARGB(255, 59, 59, 74),
       FlTouchBarColor:
-          isLightMode() ? Color.fromARGB(255, 191, 234, 248) : Color.fromARGB(255, 59, 59, 74),
-
+          isLightMode() ? Color.fromARGB(255, 216, 246, 244) : Color.fromARGB(255, 59, 59, 74),
+      FlEvilTouchBarColor:
+          isLightMode() ? Color.fromARGB(255, 240, 210, 234) : Color.fromARGB(255, 59, 59, 74),
       shadow: [
         if (isLightMode())
           BoxShadow(
@@ -113,6 +114,7 @@ class ThemeColor {
   Color? bannerColor;
   Color? FlBorderColor;
   Color? FlTouchBarColor;
+  Color? FlEvilTouchBarColor;
   Color? textColor;
   Color? dividerColor;
   Color? chipColor;
@@ -134,6 +136,7 @@ class ThemeColor {
     this.bannerColor,
     this.FlBorderColor,
     this.FlTouchBarColor,
+    this.FlEvilTouchBarColor,
     this.textColor,
     this.dividerColor,
     this.chipColor,

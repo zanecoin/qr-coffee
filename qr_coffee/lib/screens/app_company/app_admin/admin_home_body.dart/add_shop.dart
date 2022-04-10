@@ -26,7 +26,6 @@ class _AddShopState extends State<AddShop> {
 
   @override
   Widget build(BuildContext context) {
-    double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     company = widget.company;
 
@@ -43,7 +42,7 @@ class _AddShopState extends State<AddShop> {
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            width: deviceWidth > kDeviceUpperWidthTreshold ? 400 : Responsive.width(80, context),
+            width: Responsive.isLargeDevice(context) ? 400 : Responsive.width(80, context),
             child: Form(
               key: _key,
               child: Column(

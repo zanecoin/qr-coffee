@@ -26,7 +26,6 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
 
   @override
   Widget build(BuildContext context) {
-    double deviceWidth = Responsive.deviceWidth(context);
     company = Provider.of<Company>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
@@ -50,9 +49,7 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
               body: SingleChildScrollView(
                 child: Center(
                   child: Container(
-                    width: deviceWidth > kDeviceUpperWidthTreshold
-                        ? 400
-                        : Responsive.width(80, context),
+                    width: Responsive.isLargeDevice(context) ? 400 : Responsive.width(80, context),
                     child: Column(
                       children: [
                         SizedBox(height: Responsive.height(3, context)),

@@ -16,7 +16,6 @@ class Authenticate extends StatefulWidget {
 class _AuthenticateState extends State<Authenticate> {
   @override
   Widget build(BuildContext context) {
-    double deviceWidth = Responsive.deviceWidth(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Container(
@@ -38,15 +37,16 @@ class _AuthenticateState extends State<Authenticate> {
                     ),
                   ),
                   ImageBanner(
-                    path: themeProvider.isLightMode() ? 'assets/cafe.jpg' : 'assets/cafe_black.png',
+                    path: themeProvider.isLightMode()
+                        ? 'assets/cafe_transparent_black_border.png'
+                        : 'assets/cafe_transparent_white_border.png',
                     size: 'large',
                     color: themeProvider.themeAdditionalData().backgroundColor!,
                   ),
                   SizedBox(height: Responsive.height(4.0, context)),
                   Container(
-                    width: deviceWidth > kDeviceUpperWidthTreshold
-                        ? 400
-                        : Responsive.width(60.0, context),
+                    width:
+                        Responsive.isLargeDevice(context) ? 400 : Responsive.width(60.0, context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[

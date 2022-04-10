@@ -36,7 +36,6 @@ class _StatesChartState extends State {
   void initState() {
     super.initState();
     _refreshValues();
-    refreshState();
   }
 
   @override
@@ -188,13 +187,5 @@ class _StatesChartState extends State {
           throw Error();
       }
     });
-  }
-
-  Future<dynamic> refreshState() async {
-    if (!mounted) return;
-    _refreshValues();
-    setState(() {});
-    await Future<dynamic>.delayed(Duration(milliseconds: 3000));
-    await refreshState();
   }
 }

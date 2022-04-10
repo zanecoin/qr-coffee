@@ -58,10 +58,11 @@ flutter:
   uses-material-design: true
   assets:
     - assets/cafe.jpg
-    - assets/cafe_darkmode.png
     - assets/cafe_black.png
     - assets/map.jpg
     - assets/blank.png
+    - assets/cafe_transparent_black_border.png
+    - assets/cafe_transparent_white_border.png
   fonts:
     - family: Galada
       fonts:

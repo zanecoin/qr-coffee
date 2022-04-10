@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:provider/provider.dart';
+import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/models/user.dart';
+import 'package:qr_coffee/screens/app_company/common/company_products.dart';
 import 'package:qr_coffee/screens/order_screens/create_order/create_order_screen.dart';
 import 'package:qr_coffee/screens/order_screens/order_tile.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
@@ -31,21 +33,25 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    return StreamBuilder3<List<Order>, List<Order>, dynamic>(
-      streams: Tuple3(
-        CompanyOrderDatabase(companyID: shop.companyID).passiveOrderList,
+    final company = Provider.of<Company>(context);
+    return StreamBuilder4<List<Order>, List<Order>, List<Order>, dynamic>(
+      streams: Tuple4(
+        CompanyOrderDatabase(companyID: shop.companyID).passiveTodayOrderList,
+        CompanyOrderDatabase(companyID: shop.companyID).passiveAllOrderList,
         CompanyOrderDatabase(companyID: shop.companyID).activeOrderList,
         Stream.periodic(const Duration(seconds: 1)),
       ),
       builder: (context, snapshots) {
-        if (snapshots.item1.hasData && snapshots.item2.hasData) {
+        if (snapshots.item1.hasData && snapshots.item2.hasData && snapshots.item3.hasData) {
           String time = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
 
           List<Order> passiveOrderList = snapshots.item1.data!;
           passiveOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
           passiveOrderList = passiveOrderList.reversed.toList();
 
-          List<Order> activeOrderList = _filterOutPending(snapshots.item2.data!);
+          List<Order> passiveAllOrderList = snapshots.item3.data!;
+
+          List<Order> activeOrderList = _filterOutPending(snapshots.item3.data!);
           activeOrderList.sort((a, b) => a.pickUpTime.compareTo(b.pickUpTime));
 
           List<Order> orderList = activeOrderList + passiveOrderList;
@@ -57,20 +63,19 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
             appBar: customAppBar(context,
                 title: Text(shop.address,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.0,
                       color: themeProvider.themeAdditionalData().textColor,
                     )),
                 type: 1,
-                actions: [_add(themeProvider)]),
+                actions: [_add(themeProvider), _products(themeProvider, company)]),
             body: SingleChildScrollView(
               child: Container(
-                margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _filterDropDown(themeProvider),
-                    CustomDivider(),
                     if (orderList.isNotEmpty) _orderList(orderList, time),
                     if (orderList.isEmpty)
                       Center(
@@ -80,7 +85,7 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
                           color: themeProvider.themeAdditionalData().textColor,
                         ),
                       )),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20.0),
                   ],
                 ),
               ),
@@ -100,6 +105,23 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
         new MaterialPageRoute(builder: (context) => CreateOrderScreen(shop: shop)),
       ),
       icon: Icon(Icons.add_box_outlined, color: themeProvider.themeAdditionalData().textColor),
+    );
+  }
+
+  Widget _products(ThemeProvider themeProvider, Company company) {
+    return IconButton(
+      onPressed: () => Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => StreamProvider(
+            create: (context) => CompanyDatabase(companyID: company.companyID).company,
+            initialData: Company.initialData(),
+            catchError: (_, __) => Company.initialData(),
+            child: CompanyProducts(),
+          ),
+        ),
+      ),
+      icon: Icon(Icons.no_food, color: themeProvider.themeAdditionalData().textColor),
     );
   }
 
@@ -132,14 +154,18 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
         if (_currentFilter == AppStringValues.completed &&
             (order.status == OrderStatus.completed ||
                 order.status == OrderStatus.aborted ||
-                order.status == OrderStatus.abandoned)) {
+                order.status == OrderStatus.abandoned ||
+                order.status == OrderStatus.generated)) {
           result.add(order);
         }
         if (_currentFilter == AppStringValues.active &&
-            (order.status == OrderStatus.waiting || order.status == OrderStatus.ready)) {
+            (order.status == OrderStatus.waiting ||
+                order.status == OrderStatus.ready ||
+                order.status == OrderStatus.withdraw)) {
           result.add(order);
         }
-        if (_currentFilter == AppStringValues.picked && order.status == OrderStatus.completed) {
+        if (_currentFilter == AppStringValues.picked &&
+            (order.status == OrderStatus.completed || order.status == OrderStatus.generated)) {
           result.add(order);
         }
         if (_currentFilter == AppStringValues.unpicked && order.status == OrderStatus.abandoned) {
@@ -157,11 +183,8 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
   Widget _orderList(List<Order> orderList, String time) {
     return SizedBox(
       child: ListView.builder(
-        itemBuilder: (context, index) => OrderTile(
-          order: orderList[index],
-          time: time,
-          role: UserRole.worker,
-        ),
+        itemBuilder: (context, index) =>
+            OrderTile(order: orderList[index], time: time, role: UserRole.worker),
         itemCount: orderList.length,
         shrinkWrap: true,
         scrollDirection: Axis.vertical,
@@ -172,51 +195,88 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
 
   Widget _filterDropDown(ThemeProvider themeProvider) {
     List types = [
-      [AppStringValues.all, allIcon(size: 25)],
-      [AppStringValues.completed, thumbIcon(size: 25)],
-      [AppStringValues.active, waitingIcon(size: 25)],
-      [AppStringValues.picked, checkIcon(size: 25, color: Colors.green.shade400)],
-      [AppStringValues.unpicked, questionIcon(size: 25)],
-      [AppStringValues.aborted, errorIcon(size: 25)],
+      [AppStringValues.all, allIcon(size: 25.0, themeProvider: themeProvider)],
+      [AppStringValues.completed, thumbIcon(size: 25.0, themeProvider: themeProvider)],
+      [AppStringValues.active, waitingIcon(size: 25.0)],
+      [AppStringValues.picked, checkIcon(size: 25.0, color: Colors.green.shade400)],
+      [AppStringValues.unpicked, questionIcon(size: 25.0)],
+      [AppStringValues.aborted, errorIcon(size: 25.0)],
     ];
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      width: Responsive.deviceWidth(context) > kDeviceUpperWidthTreshold ? 400 : null,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-            border:
-                Border.all(width: 1, color: themeProvider.themeAdditionalData().unselectedColor!),
-            borderRadius: BorderRadius.circular(10)),
-        child: Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField(
-                style: TextStyle(
-                  color: themeProvider.themeAdditionalData().textColor,
+      margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(18.0)),
+        boxShadow: themeProvider.themeAdditionalData().shadow,
+        color: themeProvider.themeAdditionalData().containerColor,
+      ),
+      child: Column(
+        children: [
+          if (Responsive.isSmallDevice(context))
+            Text(
+              AppStringValues.filter,
+              style: TextStyle(
+                color: themeProvider.themeAdditionalData().textColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              ),
+            ),
+          Row(
+            children: [
+              if (!Responsive.isSmallDevice(context))
+                Text(
+                  AppStringValues.filter,
+                  style: TextStyle(
+                    color: themeProvider.themeAdditionalData().textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
                 ),
-                value: _currentFilter,
-                items: types.map((type) {
-                  return DropdownMenuItem(
+              const SizedBox(width: 15.0),
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+                  width: Responsive.isLargeDevice(context) ? 400 : null,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                        color: themeProvider.themeAdditionalData().containerColor,
+                        border: Border.all(
+                            width: 1, color: themeProvider.themeAdditionalData().unselectedColor!),
+                        borderRadius: BorderRadius.circular(10.0)),
                     child: Row(
                       children: [
-                        type[1],
-                        Text(
-                          ' ${type[0]}',
-                          style: TextStyle(
-                            color: themeProvider.themeAdditionalData().textColor,
+                        Expanded(
+                          child: DropdownButtonFormField(
+                            dropdownColor: themeProvider.themeAdditionalData().buttonColor,
+                            style: TextStyle(color: themeProvider.themeAdditionalData().textColor),
+                            value: _currentFilter,
+                            items: types.map((type) {
+                              return DropdownMenuItem(
+                                child: Row(
+                                  children: [
+                                    type[1],
+                                    Text(
+                                      ' ${type[0]}',
+                                      style: TextStyle(
+                                          color: themeProvider.themeAdditionalData().textColor),
+                                    ),
+                                  ],
+                                ),
+                                value: type[0],
+                              );
+                            }).toList(),
+                            onChanged: (val) => setState(() => _currentFilter = val),
                           ),
                         ),
                       ],
                     ),
-                    value: type[0],
-                  );
-                }).toList(),
-                onChanged: (val) => setState(() => _currentFilter = val),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }
