@@ -13,7 +13,7 @@ class Admin extends UserData {
   updateProductData() {}
 
   addShop(String address, String city, String openingHours, String company) {
-    ShopDatabase().addShop(address, city, openingHours, company);
+    ShopDatabase(companyID: companyID).addShop(address, city, openingHours, company);
   }
 
   updateShopData(String shopID, String address, String coordinates, String city,

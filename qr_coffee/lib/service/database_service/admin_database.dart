@@ -14,7 +14,7 @@ class AdminDatabase {
   Admin _adminDataFromSnapshot(DocumentSnapshot snapshot) {
     return Admin(
       userID: userID!,
-      companyID: (snapshot.data() as dynamic)['companyID'],
+      companyID: (snapshot.data() as dynamic)['companyID'] ?? '',
     );
   }
 
@@ -22,7 +22,7 @@ class AdminDatabase {
     return snapshot.docs.map((doc) {
       return Admin(
         userID: userID!,
-        companyID: (doc.data() as dynamic)['companyID'],
+        companyID: (doc.data() as dynamic)['companyID'] ?? '',
       );
     }).toList();
   }

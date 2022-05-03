@@ -2,6 +2,7 @@ import 'package:community_material_icon/community_material_icon.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/admin.dart';
 import 'package:qr_coffee/models/company.dart';
+import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/statistics/statistics.dart';
 import 'package:qr_coffee/screens/app_company/common/company_products.dart';
@@ -21,11 +22,16 @@ class AdminHome extends StatefulWidget {
 }
 
 class _AdminHomeState extends State<AdminHome> {
-  int _currentIndex = 2;
+  int _currentIndex = 3;
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [AdminSettings(), CompanyShops(), CompanyProducts(), Statistics()];
+    final List<Widget> screens = [
+      AdminSettings(),
+      CompanyShops(),
+      CompanyProducts(shop: Shop.initialData()),
+      Statistics(),
+    ];
 
     final themeProvider = Provider.of<ThemeProvider>(context);
     final userFromAuth = Provider.of<UserFromAuth?>(context);

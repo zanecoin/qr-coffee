@@ -27,10 +27,10 @@ class CustomerDatabase {
   Customer _customerDataFromSnapshot(DocumentSnapshot snapshot) {
     return Customer(
       userID: userID!,
-      name: (snapshot.data() as dynamic)['name'],
-      surname: (snapshot.data() as dynamic)['surname'],
-      email: (snapshot.data() as dynamic)['email'],
-      credits: (snapshot.data() as dynamic)['credits'],
+      name: (snapshot.data() as dynamic)['name'] ?? '-',
+      surname: (snapshot.data() as dynamic)['surname'] ?? '-',
+      email: (snapshot.data() as dynamic)['email'] ?? '-',
+      credits: (snapshot.data() as dynamic)['credits'] ?? -1,
     );
   }
 
@@ -38,10 +38,10 @@ class CustomerDatabase {
     return snapshot.docs.map((doc) {
       return Customer(
         userID: userID!,
-        name: (doc.data() as dynamic)['name'],
-        surname: (doc.data() as dynamic)['surname'],
-        email: (doc.data() as dynamic)['email'],
-        credits: (doc.data() as dynamic)['credits'],
+        name: (doc.data() as dynamic)['name'] ?? '-',
+        surname: (doc.data() as dynamic)['surname'] ?? '-',
+        email: (doc.data() as dynamic)['email'] ?? '-',
+        credits: (doc.data() as dynamic)['credits'] ?? -1,
       );
     }).toList();
   }

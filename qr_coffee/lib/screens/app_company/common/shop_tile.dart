@@ -20,71 +20,70 @@ class ShopTile extends StatelessWidget {
     required this.shop,
     required this.role,
     this.company,
+    required this.hasSoldoutProducts,
   });
 
   final Shop shop;
   final UserRole role;
   final Company? company;
+  final bool hasSoldoutProducts;
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      child: Card(
-        color: themeProvider.themeAdditionalData().containerColor,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: InkWell(
-          onTap: () {
-            if (role == UserRole.admin) {
-              Navigator.push(
-                context,
-                new MaterialPageRoute(
-                  builder: (context) => StreamProvider(
-                    create: (context) => CompanyDatabase(companyID: company!.companyID).company,
-                    initialData: Company.initialData(),
-                    catchError: (_, __) => Company.initialData(),
-                    child: AdminShopDetails(shop: shop),
-                  ),
+      child: InkWell(
+        onTap: () {
+          if (role == UserRole.admin) {
+            Navigator.push(
+              context,
+              new MaterialPageRoute(
+                builder: (context) => StreamProvider(
+                  create: (context) => CompanyDatabase(companyID: company!.companyID).company,
+                  initialData: Company.initialData(),
+                  catchError: (_, __) => Company.initialData(),
+                  child: AdminShopDetails(shop: shop),
                 ),
-              );
-            } else if (role == UserRole.worker) {
+              ),
+            );
+          } else if (role == UserRole.worker) {
+            Navigator.push(
+              context,
+              new MaterialPageRoute(
+                builder: (context) => StreamProvider(
+                  create: (context) => CompanyDatabase(companyID: company!.companyID).company,
+                  initialData: Company.initialData(),
+                  catchError: (_, __) => Company.initialData(),
+                  child: WorkerHomeBody(shop: shop),
+                ),
+              ),
+            );
+          } else {
+            if (_getShopOpenStatus()[2]) {
               Navigator.push(
                 context,
                 new MaterialPageRoute(
-                  builder: (context) => StreamProvider(
-                    create: (context) => CompanyDatabase(companyID: company!.companyID).company,
-                    initialData: Company.initialData(),
-                    catchError: (_, __) => Company.initialData(),
-                    child: WorkerHomeBody(shop: shop),
-                  ),
+                  builder: (context) => CreateOrderScreen(shop: shop),
                 ),
               );
             } else {
-              if (_getShopOpenStatus()[2]) {
-                Navigator.push(
-                  context,
-                  new MaterialPageRoute(
-                    builder: (context) => CreateOrderScreen(shop: shop),
-                  ),
-                );
-              } else {
-                customSnackbar(context: context, text: AppStringValues.shopClosed);
-              }
+              customSnackbar(context: context, text: AppStringValues.shopClosed);
             }
-          },
-          child: Container(
-            height: max(Responsive.height(15, context), 90),
-            width: Responsive.width(67, context),
-            decoration: BoxDecoration(
-                color: themeProvider.themeAdditionalData().containerColor,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: themeProvider.themeAdditionalData().shadow),
-            child: Center(
-              child: Row(
+          }
+        },
+        child: Container(
+          height: max(Responsive.height(15, context), 90),
+          width: Responsive.width(67, context),
+          decoration: BoxDecoration(
+              color: themeProvider.themeAdditionalData().containerColor,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: themeProvider.themeAdditionalData().shadow),
+          child: Stack(
+            children: [
+              if (hasSoldoutProducts && role == UserRole.admin)
+                Positioned(child: Icon(Icons.error, color: Colors.red), top: 5.0, left: 5.0),
+              Row(
                 children: [
                   SizedBox(width: Responsive.width(6, context)),
                   Icon(Icons.store, size: 40, color: themeProvider.themeAdditionalData().textColor),
@@ -123,7 +122,7 @@ class ShopTile extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -140,7 +139,7 @@ class ShopTile extends StatelessWidget {
     if (presentTime > lowerBoundary && presentTime < upperBoundary) {
       return [AppStringValues.opened, Colors.green, true];
     } else {
-      return [AppStringValues.closed, Colors.red, true];
+      return [AppStringValues.closed, Colors.red, false];
     }
   }
 }

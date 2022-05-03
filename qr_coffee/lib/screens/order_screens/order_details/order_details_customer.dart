@@ -115,11 +115,7 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
                         children: [
                           // ORDER RESULT INFO WINDOW -------------------------
                           SizedBox(height: 10),
-                          ResultWindowChooser(
-                            order: order,
-                            mode: mode,
-                            role: customer!.role,
-                          ),
+                          ResultWindowChooser(order: order, mode: mode, role: customer!.role),
                           if (order.status == OrderStatus.aborted)
                             _returnInfo(order, themeProvider),
 

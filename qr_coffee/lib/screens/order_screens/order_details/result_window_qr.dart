@@ -26,7 +26,7 @@ class ResultWindow extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       width: 280.0,
-      padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 0.0),
+      padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -37,11 +37,13 @@ class ResultWindow extends StatelessWidget {
           children: [
             icon,
             SizedBox(width: 5.0),
-            Text(text,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  color: themeProvider.themeAdditionalData().textColor,
-                )),
+            Flexible(
+              child: Text(text,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    color: themeProvider.themeAdditionalData().textColor,
+                  )),
+            ),
           ],
         ),
       ),
@@ -113,6 +115,13 @@ class ResultWindowChooser extends StatelessWidget {
           if (order.status == OrderStatus.waiting)
             ResultWindow(
               text: AppStringValues.orderRecieved,
+              color: themeProvider.themeAdditionalData().blueBannerColor!,
+              icon: checkIcon(color: Colors.blue.shade400),
+            ),
+        if (mode == 'normal')
+          if (order.status == OrderStatus.waiting)
+            ResultWindow(
+              text: AppStringValues.waitForReady,
               color: themeProvider.themeAdditionalData().blueBannerColor!,
               icon: checkIcon(color: Colors.blue.shade400),
             ),

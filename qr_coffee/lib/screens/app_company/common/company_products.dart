@@ -3,7 +3,9 @@ import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
 import 'package:qr_coffee/models/product.dart';
+import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/models/user.dart';
+import 'package:qr_coffee/models/worker.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/product_detail.dart';
 import 'package:qr_coffee/screens/order_screens/product_tile.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
@@ -13,15 +15,41 @@ import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/export_widgets.dart';
 
+class SoldoutProductsNotifier extends ChangeNotifier {
+  List<dynamic> soldoutProducts = [];
+
+  void addItem(String item) {
+    soldoutProducts.add(item);
+    notifyListeners();
+  }
+
+  void removeItem(String item) {
+    soldoutProducts.remove(item);
+    notifyListeners();
+  }
+
+  void copyItems(List<dynamic> items) {
+    soldoutProducts = items;
+    notifyListeners();
+  }
+}
+
 class CompanyProducts extends StatefulWidget {
-  const CompanyProducts({Key? key}) : super(key: key);
+  const CompanyProducts({Key? key, required this.shop}) : super(key: key);
+  final Shop shop;
   @override
-  State<CompanyProducts> createState() => _CompanyProductsState();
+  State<CompanyProducts> createState() => _CompanyProductsState(shop: shop);
 }
 
 class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProviderStateMixin {
+  _CompanyProductsState({required this.shop});
+  final Shop shop;
   late TabController controller;
   List<String> choices = [AppStringValues.drink, AppStringValues.food];
+  late UserData userData;
+  late Company company;
+
+  final soldoutProductsNotifier = SoldoutProductsNotifier();
 
   // Upper tab controller.
   @override
@@ -33,13 +61,14 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
   @override
   void dispose() {
     controller.dispose();
+    soldoutProductsNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     List<String> choices = [AppStringValues.drink, AppStringValues.food];
-    final company = Provider.of<Company>(context);
+    company = Provider.of<Company>(context);
     final userFromAuth = Provider.of<UserFromAuth?>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
@@ -52,7 +81,8 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
         builder: (context, snapshots) {
           if (snapshots.item1.hasData && snapshots.item2.hasData) {
             List<Product> products = snapshots.item1.data!;
-            UserData userData = snapshots.item2.data!;
+            userData = snapshots.item2.data!;
+            soldoutProductsNotifier.copyItems(shop.soldoutProducts);
 
             return Scaffold(
               backgroundColor: themeProvider.themeData().backgroundColor,
@@ -118,9 +148,21 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
         context, new MaterialPageRoute(builder: (context) => ProductDetail(product: product)));
   }
 
-  _tempFunc(Product product) {
-    customSnackbar(
-        context: context, text: 'Funkce "položka vyprodána" ještě není implementovaná.*');
+  _markAsSoldout(Product product) {
+    String snackbarText = '';
+
+    if (soldoutProductsNotifier.soldoutProducts.contains(product.productID)) {
+      snackbarText = AppStringValues.productRestocked;
+      soldoutProductsNotifier.removeItem(product.productID);
+    } else {
+      snackbarText = AppStringValues.productSoldout;
+      soldoutProductsNotifier.addItem(product.productID);
+    }
+
+    Worker(userID: userData.userID, companyID: company.companyID)
+        .updateSoldoutProducts(soldoutProductsNotifier.soldoutProducts, shop.shopID);
+
+    customSnackbar(context: context, text: snackbarText);
   }
 
   Widget _backArrow(ThemeProvider themeProvider) {
@@ -140,8 +182,11 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
       children: _filter(items, choice)
           .map((item) => ProductTile(
                 item: item,
-                onItemTap: userData.role == UserRole.admin ? _pushDetails : _tempFunc,
+                onItemTap: userData.role == UserRole.admin ? _pushDetails : null,
+                onItemLongPress: userData.role == UserRole.worker ? _markAsSoldout : null,
                 imageUrl: chooseUrl(databaseImages, item.pictureURL),
+                companyID: company.companyID,
+                shopID: shop.shopID,
               ))
           .toList(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

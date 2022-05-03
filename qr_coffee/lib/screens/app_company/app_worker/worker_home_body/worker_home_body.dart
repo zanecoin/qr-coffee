@@ -117,7 +117,7 @@ class _WorkerHomeBodyState extends State<WorkerHomeBody> {
             create: (context) => CompanyDatabase(companyID: company.companyID).company,
             initialData: Company.initialData(),
             catchError: (_, __) => Company.initialData(),
-            child: CompanyProducts(),
+            child: CompanyProducts(shop: shop),
           ),
         ),
       ),

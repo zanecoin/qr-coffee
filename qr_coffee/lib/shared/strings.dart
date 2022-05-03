@@ -33,7 +33,7 @@ class AppStringValues {
   static const String orderNow = 'Objednat nyní!';
   static const String createOrder = 'Vytvořit objednávku!';
   static const String orderCreationSuccess = 'Objednávka úspěšně vytvořena!';
-  static const String noApp = 'Mimo aplikaci.';
+  static const String noApp = 'Na prodejně';
 
   static const String chooseItems = 'Přidejte položky do objednávky';
   static const String choosePlace = 'Vyberte odběrové místo';
@@ -114,10 +114,6 @@ class AppStringValues {
   static const String enterOpeningHours = 'Vyplňte prosím otevírací hodiny.';
 
   // HOME
-  static const String workmode = 'Pracovní mód';
-  static const String usermode = 'Uživatelský mód';
-  static const String adminmode = 'Admin mód';
-
   static const String noOrders = 'Žádné objednávky k zobrazení ...';
   static const String noShops = 'Žádné provozovny k zobrazení ...';
 
@@ -167,6 +163,13 @@ class AppStringValues {
   static const String opened = 'Otevřeno';
   static const String closed = 'Zavřeno';
   static const String productDetail = 'Detail produktu';
+
+  // WORKER
+  static const String productSoldout = 'Produkt byl označen jako vyprodaný.';
+  static const String productRestocked = 'Produkt byl označen jako naskladněný.';
+  static const String soldout = 'VYPRODÁNO';
+  static const String productIsSoldout = 'Tato položka je bohužel vyprodána.';
+  static const String soldoutProducts = 'Vyprodané položky';
 
   // ADD SHOP
   static const String addNewShop = 'Přidat novou provozovnu';

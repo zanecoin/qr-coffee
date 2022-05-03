@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_coffee/api/model/album.dart';
 import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/order.dart';
 import 'package:qr_coffee/screens/order_screens/order_details/order_details_customer.dart';
+import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/strings.dart';
+import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -148,10 +151,24 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        appBar: customAppBar(context),
+        appBar: AppBar(
+          backgroundColor: themeProvider.themeData().backgroundColor,
+          leading: _backArrow(themeProvider),
+          title: Text(
+            AppStringValues.app_name,
+            style: TextStyle(
+              fontFamily: 'Galada',
+              fontSize: 30.0,
+              color: themeProvider.themeAdditionalData().textColor,
+            ),
+          ),
+          centerTitle: true,
+          elevation: 0,
+        ),
         body: Column(
           children: [
             Expanded(
@@ -185,5 +202,19 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         ),
       ),
     );
+  }
+
+  Widget _backArrow(ThemeProvider themeProvider) {
+    return IconButton(
+        icon: Icon(
+          Icons.arrow_back_ios,
+          size: 22,
+          color: themeProvider.themeAdditionalData().textColor,
+        ),
+        onPressed: () async {
+          Navigator.pop(context);
+          await CompanyOrderDatabase(companyID: order.companyID).deleteActiveOrder(order.orderID);
+          await CustomerOrderDatabase(userID: order.userID).deleteActiveOrder(order.orderID);
+        });
   }
 }

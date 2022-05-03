@@ -8,7 +8,7 @@ class UserDatabase {
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
 
   Future updateUserData(UserRole role) async {
-    return await userCollection.doc(userID).set({'role': role});
+    return await userCollection.doc(userID).set({'role': _getStrRole(role)});
   }
 
   Future updateUserRole(UserRole role) async {

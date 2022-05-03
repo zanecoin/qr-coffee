@@ -318,6 +318,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
             items: items,
             controller: controller,
             onItemTap: _appendItem,
+            shop: shop,
           );
         } else {
           return Loading();

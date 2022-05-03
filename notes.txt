@@ -19,8 +19,6 @@ BRÁNA
 - platba jedním tlačítkem/google pay
 
 MINI PROJEKTY
-- zobrazovat pending objednávky? Jak s nimi vynaložit v databázi? Po šipce zpět z webview objednávku smazat?
-- pending objednávky po platební bráně?
 - sekundový trigger na checkování internet connection
 - no internet během prvotního loadingu
 - cachovani obrázků
@@ -34,16 +32,18 @@ MINI PROJEKTY
 - grafy - dny v týdnu
 - vyhledávání podle id
 - custom text
-- u položek nastavit možnost vyprodáno
 - odykouset TABLET - divider s textem
 - odykouset maly mobil - order details banner
 - update order by šlo asi udělat lépe přes class
+- zobrazovat objednávky k vyzvednutí uplně nahoře
+- dát streambuildery níže do widget tree
+- dát fallback option při načítání dát z databáze
 
 
 GIGA PROJEKTY
 - zabezpečení databáze
 - pop-up při zadávání produktu (každá položka musí mít suroviny a pole featur)
-+ mapa zobrazující polohu stánků
+- mapa zobrazující polohu stánků
 - obrazovka s tutoriálem bezprostředně po registraci
 - přihlášení přes Google a Facebook
 - kompletní anonymní přehled polohy uživatelů

@@ -7,6 +7,7 @@ class Shop {
     required this.city,
     required this.company,
     required this.companyID,
+    required this.soldoutProducts,
   });
 
   final String shopID;
@@ -16,6 +17,7 @@ class Shop {
   final String city;
   final String company;
   final String companyID;
+  final List<dynamic> soldoutProducts;
 
   factory Shop.initialData() {
     return Shop(
@@ -26,6 +28,7 @@ class Shop {
       city: '',
       company: '',
       companyID: '',
+      soldoutProducts: [],
     );
   }
 }

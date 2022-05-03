@@ -1,7 +1,9 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/company.dart';
+import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/shop.dart';
 import 'package:qr_coffee/screens/app_company/app_admin/admin_home_body.dart/shop_update_form.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
@@ -23,6 +25,7 @@ class AdminShopDetails extends StatefulWidget {
 class _AdminShopDetailsState extends State<AdminShopDetails> {
   late Shop shop;
   late Company company;
+  late List<Product> products;
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +33,15 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     if (company.companyID != '') {
-      return StreamBuilder<Shop>(
-        stream: ShopDatabase(companyID: company.companyID, shopID: widget.shop.shopID).shop,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            shop = snapshot.data!;
+      return StreamBuilder2<Shop, List<Product>>(
+        streams: Tuple2(
+          ShopDatabase(companyID: company.companyID, shopID: widget.shop.shopID).shop,
+          ProductDatabase(companyID: company.companyID).products,
+        ),
+        builder: (context, snapshots) {
+          if (snapshots.item1.hasData && snapshots.item2.hasData) {
+            shop = snapshots.item1.data!;
+            products = snapshots.item2.data!;
 
             return Scaffold(
               backgroundColor: themeProvider.themeData().backgroundColor,
@@ -78,14 +85,13 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
                               color: themeProvider.themeAdditionalData().unselectedColor,
                             )),
                         SizedBox(height: Responsive.height(2, context)),
-                        Text(AppStringValues.openingHours,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: themeProvider.themeAdditionalData().textColor,
-                            )),
-                        SizedBox(height: Responsive.height(1, context)),
+                        CustomDividerWithText(text: AppStringValues.openingHours),
                         CustomTextBanner(title: shop.openingHours, showIcon: false),
-                        SizedBox(height: Responsive.height(10, context)),
+                        SizedBox(height: Responsive.height(2, context)),
+                        CustomDividerWithText(text: AppStringValues.soldoutProducts),
+                        _productList(),
+                        SizedBox(height: Responsive.height(2, context)),
+                        CustomDividerWithText(text: AppStringValues.actions),
                         CustomOutlinedIconButton(
                           function: _openEditing,
                           icon: CommunityMaterialIcons.file_edit_outline,
@@ -132,5 +138,29 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
     } catch (e) {
       customSnackbar(context: context, text: e.toString());
     }
+  }
+
+  Widget _productList() {
+    return SizedBox(
+      width: Responsive.isLargeDevice(context) ? Responsive.width(60.0, context) : null,
+      child: ListView.builder(
+        itemBuilder: (context, index) {
+          String title = '';
+          for (Product product in products) {
+            if (shop.soldoutProducts[index] == product.productID) {
+              title = product.name;
+            }
+          }
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
+            child: CustomTextBanner(title: title, showIcon: false),
+          );
+        },
+        itemCount: shop.soldoutProducts.length,
+        shrinkWrap: true,
+        scrollDirection: Axis.vertical,
+        physics: NeverScrollableScrollPhysics(),
+      ),
+    );
   }
 }

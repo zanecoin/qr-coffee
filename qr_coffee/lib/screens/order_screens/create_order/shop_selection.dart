@@ -63,6 +63,7 @@ class _ShopSelectionState extends State<ShopSelection> {
         itemBuilder: (context, index) => ShopTile(
           shop: shopList[index],
           role: UserRole.customer,
+          hasSoldoutProducts: false,
         ),
         itemCount: shopList.length,
         shrinkWrap: true,

@@ -38,10 +38,10 @@ class DayCellDatabase {
     DayCell cell = DayCell(
       date: snapshot.id,
       lastUpdated: DateFormat('HH:mm').format(date),
-      numOfOrders: (snapshot.data() as dynamic)['numOfOrders'],
-      totalIncome: (snapshot.data() as dynamic)['totalIncome'],
-      items: (snapshot.data() as dynamic)['items'],
-      states: (snapshot.data() as dynamic)['states'],
+      numOfOrders: (snapshot.data() as dynamic)['numOfOrders'] ?? 0,
+      totalIncome: (snapshot.data() as dynamic)['totalIncome'] ?? 0,
+      items: (snapshot.data() as dynamic)['items'] ?? Map(),
+      states: (snapshot.data() as dynamic)['states'] ?? Map(),
     );
     return cell;
   }
@@ -52,10 +52,10 @@ class DayCellDatabase {
       return DayCell(
         date: doc.id,
         lastUpdated: '',
-        numOfOrders: (doc.data() as dynamic)['numOfOrders'],
-        totalIncome: (doc.data() as dynamic)['totalIncome'],
-        items: (doc.data() as dynamic)['items'],
-        states: (doc.data() as dynamic)['states'],
+        numOfOrders: (doc.data() as dynamic)['numOfOrders'] ?? 0,
+        totalIncome: (doc.data() as dynamic)['totalIncome'] ?? 0,
+        items: (doc.data() as dynamic)['items'] ?? Map(),
+        states: (doc.data() as dynamic)['states'] ?? Map(),
       );
     }).toList();
   }
@@ -66,10 +66,10 @@ class DayCellDatabase {
       return DayCell(
         date: doc.id,
         lastUpdated: '',
-        numOfOrders: (doc.data() as dynamic)['numOfOrders'],
-        totalIncome: (doc.data() as dynamic)['totalIncome'],
-        items: (doc.data() as dynamic)['items'],
-        states: (doc.data() as dynamic)['states'],
+        numOfOrders: (doc.data() as dynamic)['numOfOrders'] ?? 0,
+        totalIncome: (doc.data() as dynamic)['totalIncome'] ?? 0,
+        items: (doc.data() as dynamic)['items'] ?? Map(),
+        states: (doc.data() as dynamic)['states'] ?? Map(),
       );
     }).toList();
   }
@@ -82,6 +82,7 @@ class DayCellDatabase {
 
   // Get virtual cell list stream.
   Stream<List<DayCell>> get normalCells {
+    print(_getPassiveOrderCollection());
     return _getPassiveOrderCollection().snapshots().map(_normalCellsFromSnapshot);
   }
 

@@ -46,11 +46,11 @@ app.post("/", async (req, res) => {
             if (doc.exists) {
                 if (status == 'COMPLETED') {
                     status = 'WAITING';
+                    order.update({ 'status': status })
+                        .catch(err => {
+                            console.log("Document does not exist.", err);
+                        })
                 }
-                order.update({ 'status': status })
-                    .catch(err => {
-                        console.log("Document does not exist.", err);
-                    })
             } else {
                 console.log("Document does not exist.", err)
             }

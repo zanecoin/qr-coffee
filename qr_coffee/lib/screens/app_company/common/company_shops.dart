@@ -85,6 +85,7 @@ class _CompanyShopsState extends State<CompanyShops> {
           shop: shopList[index],
           role: role,
           company: company,
+          hasSoldoutProducts: shopList[index].soldoutProducts.length > 0 ? true : false,
         ),
         itemCount: shopList.length,
         shrinkWrap: true,
