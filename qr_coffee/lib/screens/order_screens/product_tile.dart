@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/shop.dart';
+import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/database_service/database_imports.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class ProductTile extends StatefulWidget {
     required this.imageUrl,
     required this.companyID,
     required this.shopID,
+    required this.role,
   });
 
   final Product item;
@@ -25,14 +27,41 @@ class ProductTile extends StatefulWidget {
   final String imageUrl;
   final String companyID;
   final String shopID;
+  final UserRole role;
 
   @override
-  State<ProductTile> createState() => _ProductTileState();
+  State<ProductTile> createState() => _ProductTileState(
+        item: item,
+        onItemTap: onItemTap,
+        onItemLongPress: onItemLongPress,
+        imageUrl: imageUrl,
+        companyID: companyID,
+        shopID: shopID,
+        role: role,
+      );
 }
 
 class _ProductTileState extends State<ProductTile> {
+  _ProductTileState({
+    required this.item,
+    required this.onItemTap,
+    required this.onItemLongPress,
+    required this.imageUrl,
+    required this.companyID,
+    required this.shopID,
+    required this.role,
+  });
+
+  final Product item;
+  final Function? onItemTap;
+  final Function? onItemLongPress;
+  final String imageUrl;
+  final String companyID;
+  final String shopID;
+  final UserRole role;
+
   Image image() {
-    if (widget.imageUrl == '') {
+    if (imageUrl == '') {
       return Image.asset('assets/blank.png');
     } else {
       //return Image.network(imageUrl);
@@ -42,7 +71,7 @@ class _ProductTileState extends State<ProductTile> {
       // ));
 
       return Image.network(
-        widget.imageUrl,
+        imageUrl,
         fit: BoxFit.fill,
         loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
           if (loadingProgress == null) return child;
@@ -65,59 +94,67 @@ class _ProductTileState extends State<ProductTile> {
     double normalOpacity = themeProvider.isLightMode() ? 1.0 : 0.8;
     double souldoutOpacity = themeProvider.isLightMode() ? 0.6 : 0.3;
 
-    return StreamBuilder<Shop>(
-      stream: ShopDatabase(companyID: widget.companyID, shopID: widget.shopID).shop,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<dynamic> soldoutProducts = snapshot.data!.soldoutProducts;
-          print(soldoutProducts);
-          bool soldout = soldoutProducts.contains(widget.item.productID);
-          String text = soldout ? AppStringValues.soldout : '';
-          ColorFilter filter = soldout
-              ? ColorFilter.mode(Colors.grey.withOpacity(souldoutOpacity), BlendMode.dstATop)
-              : ColorFilter.mode(Colors.black.withOpacity(normalOpacity), BlendMode.dstATop);
-          return Container(
-            margin: EdgeInsets.all(7.0),
-            height: 200.0,
-            width: 150.0,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(20.0)),
-              color: themeProvider.themeData().backgroundColor,
-              image: DecorationImage(
-                colorFilter: filter,
-                image: image().image,
-                fit: BoxFit.cover,
+    if (role == UserRole.admin) {
+      String text = '';
+      ColorFilter filter =
+          ColorFilter.mode(Colors.black.withOpacity(normalOpacity), BlendMode.dstATop);
+      return _tileBody(themeProvider, text, filter);
+    } else {
+      return StreamBuilder<Shop>(
+        stream: ShopDatabase(companyID: companyID, shopID: shopID).shop,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<dynamic>? soldoutProducts = snapshot.data!.soldoutProducts;
+            bool soldout = soldoutProducts.contains(item.productID);
+            String text = soldout ? AppStringValues.soldout : '';
+            ColorFilter filter = soldout
+                ? ColorFilter.mode(Colors.grey.withOpacity(souldoutOpacity), BlendMode.dstATop)
+                : ColorFilter.mode(Colors.black.withOpacity(normalOpacity), BlendMode.dstATop);
+            return _tileBody(themeProvider, text, filter);
+          } else {
+            return Loading();
+          }
+        },
+      );
+    }
+  }
+
+  Widget _tileBody(ThemeProvider themeProvider, String text, ColorFilter filter) {
+    return Container(
+      margin: EdgeInsets.all(7.0),
+      height: 200.0,
+      width: 150.0,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(20.0)),
+        color: themeProvider.themeData().backgroundColor,
+        image: DecorationImage(
+          colorFilter: filter,
+          image: image().image,
+          fit: BoxFit.cover,
+        ),
+        boxShadow: themeProvider.themeAdditionalData().shadow,
+      ),
+      child: InkWell(
+        onTap: onItemTap == null ? null : () => onItemTap!(item),
+        onLongPress: onItemLongPress == null ? null : () => onItemLongPress!(item),
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            (!Responsive.isSmallDevice(context) && !Responsive.isLargeDevice(context))
+                ? _textContainerA(context, themeProvider)
+                : _textContainerB(context, themeProvider),
+            Center(
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              boxShadow: themeProvider.themeAdditionalData().shadow,
             ),
-            child: InkWell(
-              onTap: widget.onItemTap == null ? null : () => widget.onItemTap!(widget.item),
-              onLongPress: widget.onItemLongPress == null
-                  ? null
-                  : () => widget.onItemLongPress!(widget.item),
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  (!Responsive.isSmallDevice(context) && !Responsive.isLargeDevice(context))
-                      ? _textContainerA(context, themeProvider)
-                      : _textContainerB(context, themeProvider),
-                  Center(
-                    child: Text(
-                      text,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        } else {
-          return Loading();
-        }
-      },
+          ],
+        ),
+      ),
     );
   }
 
@@ -157,7 +194,7 @@ class _ProductTileState extends State<ProductTile> {
     return RichText(
       text: TextSpan(children: [
         TextSpan(
-          text: '${widget.item.name}\n',
+          text: '${item.name}\n',
           style: TextStyle(
             fontWeight: FontWeight.normal,
             color: themeProvider.themeAdditionalData().textColor,
@@ -165,7 +202,7 @@ class _ProductTileState extends State<ProductTile> {
           ),
         ),
         TextSpan(
-          text: '${widget.item.price} ${AppStringValues.currency}',
+          text: '${item.price} ${AppStringValues.currency}',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: themeProvider.themeAdditionalData().textColor,

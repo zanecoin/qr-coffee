@@ -23,7 +23,6 @@ class AppStringValues {
   static const String food = 'Jídlo';
   static const String continueOn = 'Pokračovat';
   static const String shopClosed = 'Tato kavárna má bohužel zavřeno.';
-  static const String markSoldout = 'Označit položku jako vyprodanou';
 
   static const String orderItems = 'Co si chcete přidat do objednávky?';
   static const String orderPlace = 'Kde si chcete převzít občerstvení?';
@@ -148,6 +147,8 @@ class AppStringValues {
   static const String admin = 'Admin';
   static const String worker = 'Pracovník';
   static const String customer = 'Zákazník';
+  static const String roleUnavailable = 'Tato role je nedostupná.';
+  static const String thisIsCurrentRole = 'V této roli se právě nacházíte.';
 
   // ALERT DIALOG
   static const String question = 'Opravdu?';
@@ -165,11 +166,12 @@ class AppStringValues {
   static const String productDetail = 'Detail produktu';
 
   // WORKER
-  static const String productSoldout = 'Produkt byl označen jako vyprodaný.';
-  static const String productRestocked = 'Produkt byl označen jako naskladněný.';
-  static const String soldout = 'VYPRODÁNO';
-  static const String productIsSoldout = 'Tato položka je bohužel vyprodána.';
-  static const String soldoutProducts = 'Vyprodané položky';
+  static const String changeAvailability = 'Upravit dostupnost produktů';
+  static const String productSoldout = 'Produkt byl označen jako NEDOSTUPNÝ.';
+  static const String productRestocked = 'Produkt byl označen jako DOSTUPNÝ.';
+  static const String soldout = 'NEDOSTUPNÉ';
+  static const String productIsSoldout = 'Tato položka je bohužel nedostupná.';
+  static const String soldoutProducts = 'Nedostupné položky';
 
   // ADD SHOP
   static const String addNewShop = 'Přidat novou provozovnu';

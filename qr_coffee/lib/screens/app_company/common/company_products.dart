@@ -90,7 +90,7 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
                 backgroundColor: themeProvider.themeData().backgroundColor,
                 title: Text(
                   userData.role == UserRole.worker
-                      ? AppStringValues.markSoldout
+                      ? AppStringValues.changeAvailability
                       : AppStringValues.app_name,
                   style: userData.role == UserRole.worker
                       ? TextStyle(
@@ -187,6 +187,7 @@ class _CompanyProductsState extends State<CompanyProducts> with SingleTickerProv
                 imageUrl: chooseUrl(databaseImages, item.pictureURL),
                 companyID: company.companyID,
                 shopID: shop.shopID,
+                role: userData.role,
               ))
           .toList(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/service/auth.dart';
+import 'package:qr_coffee/service/database_service/general_database.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/widgets/export_widgets.dart';
@@ -74,7 +75,8 @@ class SettingsButtons extends StatelessWidget {
   }
 }
 
-_updateUserRole(String futureRole, UserRole previousRole, BuildContext context, String userID) {
+_updateUserRole(
+    String futureRole, UserRole previousRole, BuildContext context, String userID) async {
   UserRole role;
   if (futureRole == AppStringValues.admin) {
     role = UserRole.admin;
@@ -83,9 +85,19 @@ _updateUserRole(String futureRole, UserRole previousRole, BuildContext context, 
   } else {
     role = UserRole.customer;
   }
-  if (previousRole == UserRole.customer) {
-    Navigator.pop(context);
-  }
 
-  UserData(userID: userID, role: UserRole.customer).updateRole(role);
+  Map<UserRole, Future<bool>> availableRoles = GeneralDatabase(userID: userID).getAvailableRoles();
+  if (previousRole != role) {
+    if (await availableRoles[role]!) {
+      if (previousRole == UserRole.customer) {
+        Navigator.pop(context);
+      }
+
+      UserData(userID: userID, role: UserRole.customer).updateRole(role);
+    } else {
+      customSnackbar(context: context, text: AppStringValues.roleUnavailable);
+    }
+  } else {
+    customSnackbar(context: context, text: AppStringValues.thisIsCurrentRole);
+  }
 }

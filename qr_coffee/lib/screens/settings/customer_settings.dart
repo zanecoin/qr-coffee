@@ -87,11 +87,7 @@ class _CustomerSettingsState extends State<CustomerSettings> {
   }
 
   void _openEditing() {
-    Navigator.push(
-        context,
-        new MaterialPageRoute(
-            builder: (context) => CustomerUpdateForm(
-                  customer: customer,
-                )));
+    Navigator.push(context,
+        new MaterialPageRoute(builder: (context) => CustomerUpdateForm(customer: customer)));
   }
 }

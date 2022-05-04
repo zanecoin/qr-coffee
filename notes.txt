@@ -26,7 +26,6 @@ MINI PROJEKTY
 - přidat try/catch k operacím s databází
 - vytvořit pro pracovníka časový filtr na objednávky
 - rozbít order screen na mensi funkce
-- při tvorbě objednávky může být customer null??
 - seskupit vsechny stringy
 - custom text field darkmode, alert dialog moc velký na tabletu
 - grafy - dny v týdnu

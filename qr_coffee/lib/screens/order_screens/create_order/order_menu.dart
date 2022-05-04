@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_coffee/models/product.dart';
 import 'package:qr_coffee/models/shop.dart';
+import 'package:qr_coffee/models/user.dart';
 import 'package:qr_coffee/screens/order_screens/product_tile.dart';
 import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/functions.dart';
@@ -55,6 +56,7 @@ class _OrderMenuState extends State<OrderMenu> {
                 imageUrl: chooseUrl(databaseImages, item.pictureURL),
                 shopID: widget.shop.shopID,
                 companyID: widget.shop.companyID,
+                role: UserRole.customer,
               ))
           .toList(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
