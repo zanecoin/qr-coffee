@@ -14,15 +14,15 @@ import 'package:http/http.dart' as http;
 import 'package:qr_coffee/shared/widgets/custom_snackbar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-String prodID = '4142611';
-String prodSEC = '82afcdd4b99abce2591a7e685afe7f06';
-String sndID = '425359';
-String sndSEC = '42d8e74e6a0215331158b69911865a9f';
-String pubID = '145227';
-String pubSEC = '12f071174cb7eb79d4aac5bc2f07563f';
+String producingID = '4142611';
+String producingSEC = '82afcdd4b99abce2591a7e685afe7f06';
+String sandboxID = '425359';
+String sandboxSEC = '42d8e74e6a0215331158b69911865a9f';
+String publicID = '145227';
+String pubblicSEC = '12f071174cb7eb79d4aac5bc2f07563f';
 
 String authUrl =
-    'https://secure.snd.payu.com/pl/standard/user/oauth/authorize?grant_type=client_credentials&client_id=$sndID&client_secret=$sndSEC';
+    'https://secure.snd.payu.com/pl/standard/user/oauth/authorize?grant_type=client_credentials&client_id=$sandboxID&client_secret=$sandboxSEC';
 
 String methodsUrl = 'https://secure.snd.payu.com/api/v2_1/paymethods/';
 
@@ -30,7 +30,7 @@ String postOrderUrl = 'https://secure.snd.payu.com/api/v2_1/orders/';
 
 String notifyUrl = 'https://us-central1-cafe-app-937c9.cloudfunctions.net/gatewayNotification';
 
-String continueUrl = 'https://www.herself.cz/';
+String continueUrl = 'https://www.google.com/';
 
 launchPaymentGateway(BuildContext context, int price, List<Product> items, Order order) async {
   Response response;
@@ -86,7 +86,7 @@ launchPaymentGateway(BuildContext context, int price, List<Product> items, Order
       'notifyUrl': notifyUrl,
       'continueUrl': continueUrl,
       'customerIp': '127.0.0.1',
-      'merchantPosId': '$sndID',
+      'merchantPosId': '$sandboxID',
       'description': 'QR Coffee',
       'currencyCode': 'PLN',
       'totalAmount': '${price * 100}',

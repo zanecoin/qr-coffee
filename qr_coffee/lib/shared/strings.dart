@@ -43,6 +43,7 @@ class AppStringValues {
   static const String withCard = 'Platební kartou';
   static const String withCredits = 'Kredity';
   static const String insufficientCreditBalace = 'Nedostatek Kreditů!';
+  static const String maxItems = 'Maximálně je možné přidat 5 kusů určitého zboží.';
 
   // ORDER INFO
   static const String collected = 'Vyzvednuto';
@@ -76,7 +77,7 @@ class AppStringValues {
   // ORDER TILE
   static const String withdrawOngoing = 'Probíhá vyzvednutí';
   static const String withdrawUser = 'Zákazník se snaží vyzvednout';
-  static const String withdrawPlease = 'Vyzvedněte si prosím objednávku';
+  static const String withdrawPlease = 'Převezměte si prosím objednávku';
   static const String pickUpIn = 'Vyzvednutí za';
   static const String pickUpBefore = 'Vyzvednutí před';
   static const String pickUp30 = 'Vyzvednutí před více než 30';

@@ -88,9 +88,7 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
                         CustomDividerWithText(text: AppStringValues.openingHours),
                         CustomTextBanner(title: shop.openingHours, showIcon: false),
                         SizedBox(height: Responsive.height(2, context)),
-                        CustomDividerWithText(text: AppStringValues.soldoutProducts),
-                        _productList(),
-                        SizedBox(height: Responsive.height(2, context)),
+                        if (shop.soldoutProducts.length > 0) _soldoutProducts(),
                         CustomDividerWithText(text: AppStringValues.actions),
                         CustomOutlinedIconButton(
                           function: _openEditing,
@@ -161,6 +159,19 @@ class _AdminShopDetailsState extends State<AdminShopDetails> {
         scrollDirection: Axis.vertical,
         physics: NeverScrollableScrollPhysics(),
       ),
+    );
+  }
+
+  Widget _soldoutProducts() {
+    return Column(
+      children: [
+        CustomDividerWithText(
+          text: AppStringValues.soldoutProducts,
+          color: Colors.red,
+        ),
+        _productList(),
+        SizedBox(height: Responsive.height(2, context)),
+      ],
     );
   }
 }

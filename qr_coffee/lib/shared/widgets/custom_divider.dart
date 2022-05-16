@@ -4,7 +4,12 @@ import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 
 class CustomDivider extends StatelessWidget {
-  CustomDivider({this.indent = 15, this.padding = 0, this.leftIndent = 0, this.rightIndent = 0});
+  CustomDivider({
+    this.indent = 15,
+    this.padding = 0,
+    this.leftIndent = 0,
+    this.rightIndent = 0,
+  });
 
   final double indent;
   final double leftIndent;
@@ -27,8 +32,9 @@ class CustomDivider extends StatelessWidget {
 }
 
 class CustomDividerWithText extends StatelessWidget {
-  CustomDividerWithText({required this.text});
+  CustomDividerWithText({required this.text, this.color = Colors.grey});
   final String text;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +50,11 @@ class CustomDividerWithText extends StatelessWidget {
           ),
         ),
         Text(text,
-            style:
-                TextStyle(fontSize: 12, color: themeProvider.themeAdditionalData().dividerColor)),
+            style: TextStyle(
+              fontSize: 12,
+              color:
+                  color == Colors.grey ? themeProvider.themeAdditionalData().dividerColor : color,
+            )),
         Expanded(
           child: CustomDivider(
             rightIndent: Responsive.isLargeDevice(context) ? Responsive.width(25.0, context) : 30.0,

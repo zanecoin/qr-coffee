@@ -1,3 +1,9 @@
+/*
+AUTHOR: Viktor Valík
+SCHOOL: CTU Prague
+YEAR: 2022
+*/
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;

@@ -146,7 +146,18 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> with SingleTicker
   }
 
   void _appendItem(item) {
-    _selectedItemNotifier.addItem(item);
+    int numOfItems = 0;
+    for (var entry in _selectedItemNotifier.selectedItems) {
+      if (entry == item) {
+        numOfItems++;
+      }
+    }
+
+    if (numOfItems <= 4) {
+      _selectedItemNotifier.addItem(item);
+    } else {
+      customSnackbar(context: context, text: AppStringValues.maxItems);
+    }
   }
 
   void _switchScreenNum() {

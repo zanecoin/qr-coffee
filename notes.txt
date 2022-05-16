@@ -37,6 +37,7 @@ MINI PROJEKTY
 - zobrazovat objednávky k vyzvednutí uplně nahoře
 - dát streambuildery níže do widget tree
 - dát fallback option při načítání dát z databáze
+- detail produktu není vycentrovaný
 
 
 GIGA PROJEKTY

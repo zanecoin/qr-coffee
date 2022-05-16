@@ -119,7 +119,7 @@ class ResultWindowChooser extends StatelessWidget {
               icon: checkIcon(color: Colors.blue.shade400),
             ),
         if (mode == 'normal')
-          if (order.status == OrderStatus.waiting)
+          if (order.status == OrderStatus.waiting && role == UserRole.customer)
             ResultWindow(
               text: AppStringValues.waitForReady,
               color: themeProvider.themeAdditionalData().blueBannerColor!,

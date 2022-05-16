@@ -9,9 +9,10 @@ import 'package:qr_coffee/shared/constants.dart';
 import 'package:qr_coffee/shared/strings.dart';
 
 class QRScanScreen extends StatefulWidget {
-  const QRScanScreen({Key? key, required this.order}) : super(key: key);
+  const QRScanScreen({Key? key, required this.order, required this.mode}) : super(key: key);
 
   final Order order;
+  final String mode;
 
   @override
   _QRScanScreenState createState() => _QRScanScreenState();
@@ -54,7 +55,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
             left: Responsive.width(4, context),
             child: TextButton.icon(
               label: Text(AppStringValues.back),
-              icon: Icon(Icons.arrow_back_ios, size: 22),
+              icon: Icon(Icons.arrow_back_ios, size: 22.0),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -70,10 +71,10 @@ class _QRScanScreenState extends State<QRScanScreen> {
   }
 
   Widget buildResult() => Container(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(12.0),
         decoration: BoxDecoration(
           color: Colors.white24,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.0),
         ),
         child: Text(barcode, maxLines: 3),
       );
@@ -83,10 +84,10 @@ class _QRScanScreenState extends State<QRScanScreen> {
         onQRViewCreated: onQRViewCreated,
         overlay: QrScannerOverlayShape(
           borderColor: Colors.red,
-          borderRadius: 10,
-          borderWidth: 10,
-          borderLength: 20,
-          cutOutSize: min(Responsive.width(80, context), Responsive.height(80, context)),
+          borderRadius: 10.0,
+          borderWidth: 10.0,
+          borderLength: 20.0,
+          cutOutSize: min(Responsive.width(80, context), Responsive.height(80.0, context)),
         ),
       );
 
@@ -95,6 +96,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
 
     controller.scannedDataStream.listen((barcode) async {
       Order order = widget.order;
+      String mode = widget.mode == 'normal' ? 'qr' : 'normal';
 
       if (barcode.code == 'QR Coffee') {
         if (order.status == OrderStatus.ready) {
@@ -112,7 +114,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
         Navigator.push(
           context,
           new MaterialPageRoute(
-            builder: (context) => OrderDetailsCustomer(order: order, mode: 'qr'),
+            builder: (context) => OrderDetailsCustomer(order: order, mode: mode),
           ),
         );
       } else {

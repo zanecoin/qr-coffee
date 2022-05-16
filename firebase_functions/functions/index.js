@@ -44,9 +44,12 @@ app.post("/", async (req, res) => {
     function updateStatus(order) {
         order.get().then((doc) => {
             if (doc.exists) {
+                console.log("order:");
+                console.log(doc.data().orderID);
                 if (status == 'COMPLETED') {
-                    status = 'WAITING';
-                    order.update({ 'status': status })
+                    console.log("order2:");
+                    console.log(doc.data().orderID);
+                    order.update({ 'status': 'WAITING' })
                         .catch(err => {
                             console.log("Document does not exist.", err);
                         })

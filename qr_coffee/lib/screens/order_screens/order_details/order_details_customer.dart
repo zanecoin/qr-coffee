@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import 'package:qr_coffee/shared/strings.dart';
 import 'package:qr_coffee/shared/theme_provider.dart';
 import 'package:qr_coffee/shared/widgets/export_widgets.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 // SCREEN WITH ORDER SUMMARY -------------------------------------------------------------------------------------------
 class OrderDetailsCustomer extends StatefulWidget {
@@ -35,6 +36,7 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
   final Order staticOrder;
   final String mode;
   bool _static = false;
+  bool canShowQRScanner = false;
 
   @override
   void initState() {
@@ -213,9 +215,27 @@ class _OrderDetailsCustomerState extends State<OrderDetailsCustomer> {
       customAlertDialog(context, _abortOrder);
     }
 
-    _triggerQrScan() {
-      Navigator.push(
-          context, new MaterialPageRoute(builder: (context) => QRScanScreen(order: order)));
+    _triggerQrScan() async {
+      print(await Permission.camera.status); // prints PermissionStatus.granted
+      var status = await Permission.camera.status;
+      if (!status.isGranted) {
+        final result = await Permission.camera.request();
+        if (result.isGranted) {
+          setState(() {
+            canShowQRScanner = true;
+          });
+        } else {
+          //customSnackbar(context: context, text: 'Please enable camera to scan barcodes');
+          Navigator.of(context).pop();
+        }
+      } else {
+        setState(() {
+          canShowQRScanner = true;
+        });
+      }
+
+      Navigator.push(context,
+          new MaterialPageRoute(builder: (context) => QRScanScreen(order: order, mode: mode)));
     }
 
     _triggerInfoSnackBar() {
